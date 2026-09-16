@@ -1,0 +1,29 @@
+name: 🐛 Bug Report
+description: Report a bug, crash, or unexpected behavior in Omnivra
+labels: ["kind/bug", "status/triage"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thank you for reporting a problem in Omnivra!
+  - type: input
+    id: environment
+    attributes:
+      label: Environment & Target Surface
+      description: OS, Browser version, VS Code version, or Desktop app
+      placeholder: e.g. Windows 11, Chrome 128, VS Code 1.93
+    validations:
+      required: true
+  - type: textarea
+    id: reproduction
+    attributes:
+      label: Steps to Reproduce
+      description: Exact steps or gesture triggers that cause the failure
+    validations:
+      required: true
+  - type: textarea
+    id: expected
+    attributes:
+      label: Expected vs Actual Behavior
+    validations:
+      required: true

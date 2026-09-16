@@ -1,0 +1,8 @@
+blank_issues_enabled: false
+contact_links:
+  - name: GitHub Discussions
+    url: https://github.com/akshaykumar33/Omnivra/discussions
+    about: Ask questions or discuss new interaction ideas
+  - name: Security Vulnerabilities
+    url: mailto:security@omnivra.dev
+    about: Report sensitive security vulnerabilities privately
