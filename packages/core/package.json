@@ -1,0 +1,20 @@
+{
+  "name": "@omnivra/core",
+  "version": "0.1.0-alpha.0",
+  "type": "module",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "dependencies": {
+    "@omnivra/types": "workspace:*",
+    "@omnivra/utils": "workspace:*",
+    "@omnivra/logger": "workspace:*",
+    "@omnivra/event-bus": "workspace:*",
+    "@omnivra/rule-engine": "workspace:*",
+    "@omnivra/action-engine": "workspace:*"
+  },
+  "scripts": {
+    "build": "tsc",
+    "typecheck": "tsc --noEmit",
+    "clean": "rm -rf dist"
+  }
+}

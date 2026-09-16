@@ -1,0 +1,16 @@
+{
+  "name": "@omnivra/event-bus",
+  "version": "0.1.0-alpha.0",
+  "type": "module",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "dependencies": {
+    "@omnivra/types": "workspace:*",
+    "@omnivra/logger": "workspace:*"
+  },
+  "scripts": {
+    "build": "tsc",
+    "typecheck": "tsc --noEmit",
+    "clean": "rm -rf dist"
+  }
+}

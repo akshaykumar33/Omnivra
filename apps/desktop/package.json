@@ -1,0 +1,9 @@
+{
+  "name": "@omnivra/desktop",
+  "version": "0.1.0-alpha.0",
+  "private": true,
+  "scripts": {
+    "dev": "echo \"Desktop dev stub\"",
+    "build": "echo \"Desktop build stub\""
+  }
+}

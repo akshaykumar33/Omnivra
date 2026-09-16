@@ -1,0 +1,33 @@
+{
+  "extends": "./tsconfig.base.json",
+  "compilerOptions": {
+    "composite": false
+  },
+  "include": [],
+  "references": [
+    {
+      "path": "./packages/types"
+    },
+    {
+      "path": "./packages/utils"
+    },
+    {
+      "path": "./packages/logger"
+    },
+    {
+      "path": "./packages/core"
+    },
+    {
+      "path": "./packages/event-bus"
+    },
+    {
+      "path": "./packages/rule-engine"
+    },
+    {
+      "path": "./packages/action-engine"
+    },
+    {
+      "path": "./packages/plugin-sdk"
+    }
+  ]
+}

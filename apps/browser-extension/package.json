@@ -1,0 +1,9 @@
+{
+  "name": "@omnivra/browser-extension",
+  "version": "0.1.0-alpha.0",
+  "private": true,
+  "scripts": {
+    "dev": "echo \"Browser extension dev stub\"",
+    "build": "echo \"Browser extension build stub\""
+  }
+}

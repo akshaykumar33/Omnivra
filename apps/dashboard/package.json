@@ -1,0 +1,9 @@
+{
+  "name": "@omnivra/dashboard",
+  "version": "0.1.0-alpha.0",
+  "private": true,
+  "scripts": {
+    "dev": "echo \"Dashboard dev stub\"",
+    "build": "echo \"Dashboard build stub\""
+  }
+}

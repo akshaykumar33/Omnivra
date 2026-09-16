@@ -1,0 +1,10 @@
+{
+  "name": "@omnivra/plugin-youtube",
+  "version": "0.1.0-alpha.0",
+  "type": "module",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "dependencies": {
+    "@omnivra/plugin-sdk": "workspace:*"
+  }
+}

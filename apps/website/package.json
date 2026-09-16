@@ -1,0 +1,9 @@
+{
+  "name": "@omnivra/website",
+  "version": "0.1.0-alpha.0",
+  "private": true,
+  "scripts": {
+    "dev": "echo \"Website dev stub\"",
+    "build": "echo \"Website build stub\""
+  }
+}
