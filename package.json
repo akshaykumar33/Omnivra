@@ -1,0 +1,40 @@
+{
+  "name": "omnivra-monorepo",
+  "version": "0.1.0-alpha.0",
+  "private": true,
+  "description": "Omnivra: Universal Multimodal Human-Computer Interaction Platform",
+  "license": "Apache-2.0",
+  "author": "Omnivra Contributors",
+  "homepage": "https://github.com/akshaykumar33/Omnivra",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/akshaykumar33/Omnivra.git"
+  },
+  "packageManager": "pnpm@9.15.4",
+  "engines": {
+    "node": ">=24.0.0",
+    "pnpm": ">=9.0.0"
+  },
+  "scripts": {
+    "build": "turbo run build",
+    "dev": "turbo run dev",
+    "lint": "turbo run lint",
+    "lint:fix": "turbo run lint:fix",
+    "typecheck": "turbo run typecheck",
+    "test": "turbo run test",
+    "test:coverage": "turbo run test:coverage",
+    "format": "prettier --write \"**/*.{ts,tsx,js,json,md,yml}\"",
+    "format:check": "prettier --check \"**/*.{ts,tsx,js,json,md,yml}\"",
+    "clean": "turbo run clean && rm -rf node_modules",
+    "changeset": "changeset",
+    "version-packages": "changeset version",
+    "release": "turbo run build && changeset publish"
+  },
+  "devDependencies": {
+    "@changesets/cli": "^2.27.11",
+    "@types/node": "^24.0.0",
+    "prettier": "^3.5.0",
+    "turbo": "^2.4.2",
+    "typescript": "^5.7.3"
+  }
+}
