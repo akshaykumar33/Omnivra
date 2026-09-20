@@ -1,0 +1,13 @@
+#!/bin/sh
+#
+# Omnivra commit-msg gate: Conventional Commits validation.
+# See docs/development/git-workflow.md
+#
+set -e
+
+if ! command -v node >/dev/null 2>&1; then
+  echo "commit-msg: node is required but was not found on PATH." >&2
+  exit 1
+fi
+
+node scripts/check-commit-message.mjs "$1"

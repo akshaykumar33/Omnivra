@@ -1,0 +1,38 @@
+# Normalise line endings so the repository is identical on every platform.
+* text=auto eol=lf
+
+# Git hooks are executed by sh. CRLF line endings break them on Linux and macOS
+# with "bad interpreter: /bin/sh^M", so these must stay LF regardless of
+# core.autocrlf on the contributor's machine.
+.githooks/* text eol=lf
+*.sh text eol=lf
+
+# Node scripts run from hooks — keep them LF for the same reason.
+scripts/**/*.mjs text eol=lf
+
+# Windows-native scripts need CRLF.
+*.bat text eol=crlf
+*.cmd text eol=crlf
+*.ps1 text eol=crlf
+
+# Binary assets must never be line-ending normalised.
+*.png binary
+*.jpg binary
+*.jpeg binary
+*.gif binary
+*.webp binary
+*.ico binary
+*.woff binary
+*.woff2 binary
+*.ttf binary
+*.otf binary
+*.pdf binary
+*.zip binary
+*.gz binary
+*.onnx binary
+*.tflite binary
+*.safetensors binary
+
+# Generated files: collapse in diffs and exclude from language statistics.
+pnpm-lock.yaml linguist-generated=true -diff
+CHANGELOG.md linguist-generated=true

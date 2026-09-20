@@ -1,0 +1,66 @@
+#!/bin/sh
+#
+# Omnivra pre-commit gate.
+# Blocking checks run on the staged index only, so this stays fast.
+# See docs/development/commit-hooks.md
+#
+set -e
+
+if ! command -v node >/dev/null 2>&1; then
+  echo "pre-commit: node is required but was not found on PATH." >&2
+  exit 1
+fi
+
+if git diff --cached --name-only --diff-filter=ACMR | head -n 1 | grep -q .; then
+  :
+else
+  echo "pre-commit: nothing staged, skipping."
+  exit 0
+fi
+
+echo "pre-commit: running protection gate…"
+
+# 1. Path-shape defence — credential files, captured media, oversized blobs.
+node scripts/check-sensitive-paths.mjs --staged
+
+# 2. Content defence — credential material inside the staged diff.
+node scripts/scan-secrets.mjs --staged
+
+# 3. Code hygiene — focused tests, debugger, console.*, ts suppressions.
+node scripts/check-forbidden-patterns.mjs --staged
+
+# 4. Toolchain checks. These need dependencies; CI enforces them unconditionally,
+#    so a pre-install clone is still safe to commit from.
+#
+#    Test for the executable, not for node_modules/: tools like npx create an
+#    empty node_modules directory as a side effect, and a directory test would
+#    then send us down this branch with nothing actually installed.
+if [ -x node_modules/.bin/prettier ]; then
+  STAGED_FMT=$(git diff --cached --name-only --diff-filter=ACMR \
+    | grep -E '\.(ts|tsx|js|jsx|mjs|cjs|json|md|ya?ml)$' || true)
+
+  if [ -n "$STAGED_FMT" ]; then
+    echo "pre-commit: checking formatting…"
+    echo "$STAGED_FMT" | xargs node_modules/.bin/prettier --check || {
+      echo "" >&2
+      echo "  Formatting failures above. Fix with:" >&2
+      echo "    pnpm format" >&2
+      exit 1
+    }
+  fi
+else
+  echo "pre-commit: prettier not installed — skipping format check (CI enforces it)."
+fi
+
+if [ -x node_modules/.bin/eslint ]; then
+  STAGED_SRC=$(git diff --cached --name-only --diff-filter=ACMR \
+    | grep -E '\.(ts|tsx|js|jsx|mjs|cjs)$' || true)
+  if [ -n "$STAGED_SRC" ]; then
+    echo "pre-commit: linting…"
+    echo "$STAGED_SRC" | xargs node_modules/.bin/eslint --max-warnings=0
+  fi
+else
+  echo "pre-commit: eslint not installed — skipping lint (CI enforces it)."
+fi
+
+echo "pre-commit: passed."
