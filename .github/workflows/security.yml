@@ -1,0 +1,80 @@
+name: Security
+
+on:
+  pull_request:
+    branches: [main]
+  push:
+    branches: [main]
+  schedule:
+    # Weekly sweep catches advisories published after a PR merged clean.
+    - cron: "0 3 * * 1"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  security-events: write
+
+env:
+  PNPM_VERSION: 9.15.4
+  NODE_VERSION: 24
+
+jobs:
+  audit:
+    name: Dependency vulnerability audit
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: pnpm/action-setup@v4
+        with:
+          version: ${{ env.PNPM_VERSION }}
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          # See ci.yml — omitted until pnpm-lock.yaml exists.
+
+      - name: Install dependencies
+        run: pnpm install --no-frozen-lockfile
+
+      - name: Audit
+        run: pnpm audit --audit-level=high
+
+  codeql:
+    name: CodeQL static analysis
+    runs-on: ubuntu-latest
+    # Code scanning on a PRIVATE repository requires GitHub Advanced Security.
+    # Without it the upload fails with "Resource not accessible by integration",
+    # which is a licensing limit, not a code defect — so a red X here would be
+    # permanent noise. The job stays defined and self-activates if the
+    # repository is ever made public or GHAS is enabled.
+    if: github.event.repository.visibility == 'public'
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Initialize CodeQL
+        uses: github/codeql-action/init@v3
+        with:
+          languages: javascript-typescript
+          queries: security-extended
+
+      - name: Analyze
+        uses: github/codeql-action/analyze@v3
+
+  full-history-secret-scan:
+    name: Full-history secret scan
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+
+      - name: Scan every tracked file
+        run: node scripts/scan-secrets.mjs --all
+
+      - name: Scan every path shape
+        run: node scripts/check-sensitive-paths.mjs --all

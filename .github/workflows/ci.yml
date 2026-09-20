@@ -1,0 +1,89 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+env:
+  PNPM_VERSION: 9.15.4
+  NODE_VERSION: 24
+
+jobs:
+  validate:
+    name: Lint, typecheck, test & build
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Install pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: ${{ env.PNPM_VERSION }}
+          run_install: false
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          # `cache: pnpm` is deliberately omitted: setup-node hard-fails with
+          # "Dependencies lock file is not found" when pnpm-lock.yaml is absent.
+          # Restore it together with --frozen-lockfile once the lockfile lands.
+
+      - name: Install dependencies
+        # Tighten to `--frozen-lockfile` as soon as pnpm-lock.yaml is committed.
+        # Until then a frozen install has no lockfile to freeze against and fails.
+        run: pnpm install --no-frozen-lockfile
+
+      - name: Check formatting
+        run: pnpm format:check
+
+      - name: Lint
+        run: pnpm lint
+
+      - name: Typecheck
+        run: pnpm typecheck
+
+      - name: Test
+        run: pnpm test
+
+      - name: Build
+        run: pnpm build
+
+  changeset:
+    name: Changeset present for package changes
+    runs-on: ubuntu-latest
+    if: github.event_name == 'pull_request'
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Require a changeset when a published package changed
+        run: |
+          BASE="${{ github.event.pull_request.base.sha }}"
+          HEAD="${{ github.event.pull_request.head.sha }}"
+          CHANGED=$(git diff --name-only "$BASE".."$HEAD")
+
+          if echo "$CHANGED" | grep -qE '^(packages|plugins)/[^/]+/src/'; then
+            if echo "$CHANGED" | grep -qE '^\.changeset/.+\.md$'; then
+              echo "✔ Package source changed and a changeset is present."
+            else
+              echo "✖ This PR changes published package source but adds no changeset." >&2
+              echo "" >&2
+              echo "  Run: pnpm changeset" >&2
+              echo "  See docs/development/releases.md" >&2
+              exit 1
+            fi
+          else
+            echo "✔ No published package source changed; changeset not required."
+          fi

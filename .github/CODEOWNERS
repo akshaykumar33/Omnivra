@@ -1,7 +1,33 @@
 # Omnivra Codeowners
+#
+# Any path that affects releases, security posture, or the protection gate
+# itself needs an explicit owner. See docs/development/merge-policy.md.
 
 * @akshaykumar33
+
+# Architecture & decisions
 architecture/ @akshaykumar33
+
+# Source
 packages/ @akshaykumar33
 apps/ @akshaykumar33
 plugins/ @akshaykumar33
+
+# Design system — changes here affect every surface
+docs/design/ @akshaykumar33
+
+# Security posture
+docs/security/ @akshaykumar33
+SECURITY.md @akshaykumar33
+.gitleaks.toml @akshaykumar33
+
+# The protection gate and CI must not be weakened without review
+.githooks/ @akshaykumar33
+scripts/ @akshaykumar33
+.github/workflows/ @akshaykumar33
+.github/CODEOWNERS @akshaykumar33
+
+# Delivery protocol
+docs/development/ @akshaykumar33
+AGENTS.md @akshaykumar33
+CONTRIBUTING.md @akshaykumar33
