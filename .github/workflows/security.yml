@@ -32,7 +32,7 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: ${{ env.NODE_VERSION }}
-          cache: pnpm
+          # See ci.yml — omitted until pnpm-lock.yaml exists.
 
       - name: Install dependencies
         run: pnpm install --no-frozen-lockfile
@@ -43,6 +43,12 @@ jobs:
   codeql:
     name: CodeQL static analysis
     runs-on: ubuntu-latest
+    # Code scanning on a PRIVATE repository requires GitHub Advanced Security.
+    # Without it the upload fails with "Resource not accessible by integration",
+    # which is a licensing limit, not a code defect — so a red X here would be
+    # permanent noise. The job stays defined and self-activates if the
+    # repository is ever made public or GHAS is enabled.
+    if: github.event.repository.visibility == 'public'
     steps:
       - uses: actions/checkout@v4
 

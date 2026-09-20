@@ -86,11 +86,10 @@ Settings → Branches → Branch protection rule for `main`:
     - `Lint, typecheck, test & build`
     - `Secrets, paths & hygiene`
     - `Gitleaks (second opinion)`
+    - `Full-history secret scan`
     - `Changeset present for package changes`
     - `Dependency vulnerability audit`
-    - `CodeQL static analysis`
 - [x] Require conversation resolution before merging
-- [x] Require signed commits
 - [x] Require linear history
 - [x] Do not allow bypassing the above settings **(apply to administrators)**
 - [x] Block force pushes
@@ -98,6 +97,27 @@ Settings → Branches → Branch protection rule for `main`:
 
 > Applying rules to administrators is the point, not a formality. A protection an
 > admin can wave through is not a protection — it is a suggestion with extra steps.
+
+### Two settings deliberately left off, and why
+
+**Required approvals: 0.** On a repository with a single maintainer, requiring one
+approval makes every PR unmergeable — GitHub does not let you approve your own pull
+request. Requiring a PR and green checks with zero required approvals keeps every
+mechanical guarantee (no direct pushes, no merging on red, linear history) without
+creating a deadlock. Raise this to 1 the moment a second maintainer joins; that is
+when it starts protecting something.
+
+**Require signed commits: off, for now.** Enabling it without commit signing
+configured locally makes every existing branch unmergeable. Set up SSH or GPG signing
+first, then turn it on — see [git-workflow.md](git-workflow.md). Tracked as a
+follow-up.
+
+**`CodeQL static analysis` is not in the required list.** Code scanning on a private
+repository needs GitHub Advanced Security; without it the upload fails with
+"Resource not accessible by integration". The job is gated on
+`github.event.repository.visibility == 'public'` so it self-activates if the
+repository is ever made public, and a permanently-red check never trains anyone to
+ignore a red check.
 
 ### Repository-level settings
 

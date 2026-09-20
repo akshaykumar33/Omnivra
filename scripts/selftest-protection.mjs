@@ -92,7 +92,10 @@ function withFixture(files, fn) {
 const fakeAws = 'AKIA' + 'Z3JQWLMNPQRSTUVW';
 const fakeGithub = 'ghp_' + 'aB3xK9mQ7rT2vY5nL8cF4hJ6wZ1pS0dG7uE2';
 const fakePem = '-----BEGIN RSA PRIVATE KEY-----';
-const fakeDbUrl = 'postgresql://omnivra:h7Kq2Wmz9Lx4@db.internal:5432/omnivra';
+// Split around the credential: a contiguous connection URI here reads as a real
+// leak to every other scanner (GitGuardian and gitleaks both flagged it), and an
+// alert people learn to dismiss is worse than no alert.
+const fakeDbUrl = 'postgresql://omnivra:' + 'h7Kq2Wmz9Lx4' + '@db.internal:5432/omnivra';
 
 section('Secret scanner — must BLOCK');
 check(

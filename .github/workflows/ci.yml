@@ -35,7 +35,9 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: ${{ env.NODE_VERSION }}
-          cache: pnpm
+          # `cache: pnpm` is deliberately omitted: setup-node hard-fails with
+          # "Dependencies lock file is not found" when pnpm-lock.yaml is absent.
+          # Restore it together with --frozen-lockfile once the lockfile lands.
 
       - name: Install dependencies
         # Tighten to `--frozen-lockfile` as soon as pnpm-lock.yaml is committed.

@@ -83,13 +83,24 @@ jobs:
   gitleaks:
     name: Gitleaks (second opinion)
     runs-on: ubuntu-latest
+    # Pinned binary rather than gitleaks/gitleaks-action@v2: the action wants a
+    # write-scoped token to post results, and this repository correctly runs
+    # Actions with a read-only default token. Invoking the binary keeps the
+    # scanner's job to scanning.
+    env:
+      GITLEAKS_VERSION: 8.30.1
     steps:
       - uses: actions/checkout@v4
         with:
           fetch-depth: 0
 
-      - name: Run gitleaks
-        uses: gitleaks/gitleaks-action@v2
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          GITLEAKS_CONFIG: .gitleaks.toml
+      - name: Install gitleaks
+        run: |
+          curl -sSfL \
+            "https://github.com/gitleaks/gitleaks/releases/download/v${GITLEAKS_VERSION}/gitleaks_${GITLEAKS_VERSION}_linux_x64.tar.gz" \
+            | tar -xz gitleaks
+          sudo install -m 0755 gitleaks /usr/local/bin/gitleaks
+          gitleaks version
+
+      - name: Scan full history
+        run: gitleaks git --config .gitleaks.toml --redact --no-banner --exit-code 1 .
