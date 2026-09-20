@@ -1,0 +1,77 @@
+# Gitleaks configuration for Omnivra.
+#
+# The repository's primary gate is the zero-dependency scanner in
+# scripts/scan-secrets.mjs, which runs in every hook with no install required.
+# Gitleaks runs in CI (and locally in pre-push when the binary is present) as a
+# second, independently-maintained opinion — two scanners with different rule
+# sets miss less than either alone.
+#
+# Usage:  gitleaks detect --config .gitleaks.toml --redact
+
+title = "Omnivra Secret Scanning"
+
+# Start from the upstream ruleset, then layer project-specific rules on top.
+[extend]
+useDefault = true
+
+# --- Project-specific rules ------------------------------------------------
+
+[[rules]]
+id = "omnivra-ai-provider-key"
+description = "AI provider API key (OpenAI / Anthropic / OpenRouter)"
+regex = '''\b(?:sk-ant-(?:api|admin)\d{2}-[A-Za-z0-9_\-]{24,}|sk-or-v1-[a-f0-9]{48,}|sk-(?:proj-|svcacct-|admin-)?[A-Za-z0-9_\-]{32,})\b'''
+tags = ["key", "ai-provider"]
+
+[[rules]]
+id = "omnivra-tauri-updater-key"
+description = "Tauri updater / minisign private key"
+regex = '''dW50cnVzdGVkIGNvbW1lbnQ6[A-Za-z0-9+/=]{10,}'''
+tags = ["key", "desktop", "release"]
+
+[[rules]]
+id = "omnivra-extension-signing-key"
+description = "Browser extension signing key or upload credential"
+regex = '''(?i)\b(?:chrome_(?:client_secret|refresh_token)|amo_(?:jwt_issuer|jwt_secret)|edge_(?:client_secret|access_token))\b\s*[:=]\s*['"][^'"\n]{16,}['"]'''
+tags = ["key", "extension", "release"]
+
+[[rules]]
+id = "omnivra-connection-string"
+description = "Database or broker URL with inline credentials"
+regex = '''\b(?:postgres(?:ql)?|mysql|mongodb(?:\+srv)?|redis(?:s)?|amqps?|mssql):\/\/[^\s:@\/'"]+:[^\s:@\/'"]{3,}@'''
+tags = ["credential", "database"]
+
+# --- Allowlist -------------------------------------------------------------
+
+[allowlist]
+description = "Paths and values that legitimately contain secret-shaped text"
+
+paths = [
+  # The detection rules themselves, and the docs that explain them.
+  '''^\.gitleaks\.toml$''',
+  '''^scripts/lib/secret-rules\.mjs$''',
+  '''^scripts/scan-secrets\.mjs$''',
+  '''^scripts/selftest-protection\.mjs$''',
+  '''^docs/security/secret-management\.md$''',
+  '''^prompts/starter_prompt\.md$''',
+  # Placeholder-only environment template.
+  '''^\.env\.example$''',
+  # Machine-generated.
+  '''(^|/)pnpm-lock\.yaml$''',
+  '''(^|/)CHANGELOG\.md$''',
+  '''(^|/)node_modules/''',
+  '''(^|/)dist/''',
+  '''(^|/)coverage/''',
+]
+
+# Mirrors PLACEHOLDER_MARKERS in scripts/lib/secret-rules.mjs — keep the two in
+# sync when adding a new placeholder convention.
+regexes = [
+  '''(?i)(REPLACE_ME|CHANGE_?ME|YOUR[_-]|EXAMPLE|PLACEHOLDER|DUMMY|SAMPLE|REDACTED|NOT_A_REAL)''',
+  '''\$\{[^}]+\}''',
+  '''\{\{[^}]+\}\}''',
+  '''process\.env\.[A-Za-z0-9_.]+''',
+  '''import\.meta\.env\.[A-Za-z0-9_.]+''',
+]
+
+# Inline escape hatch, consistent with the Node scanner.
+stopwords = []
