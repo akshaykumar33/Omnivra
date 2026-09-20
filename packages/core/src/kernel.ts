@@ -1,8 +1,8 @@
-import { TypedEventBus } from '@omnivra/event-bus';
-import { RuleEvaluator } from '@omnivra/rule-engine';
-import { ActionDispatcher } from '@omnivra/action-engine';
-import type { HostAdapter, OmnivraEvent } from '@omnivra/types';
-import { logger } from '@omnivra/logger';
+import { TypedEventBus } from "@omnivra/event-bus";
+import { RuleEvaluator } from "@omnivra/rule-engine";
+import { ActionDispatcher } from "@omnivra/action-engine";
+import type { HostAdapter, OmnivraEvent } from "@omnivra/types";
+import { logger } from "@omnivra/logger";
 
 export class OmnivraKernel {
   readonly eventBus: TypedEventBus;
@@ -19,7 +19,7 @@ export class OmnivraKernel {
   async initialize(): Promise<void> {
     if (this.initialized) return;
 
-    this.eventBus.subscribe('*', (event: OmnivraEvent) => {
+    this.eventBus.subscribe("*", (event: OmnivraEvent) => {
       const actions = this.ruleEvaluator.evaluate(event);
       for (const action of actions) {
         void this.actionDispatcher.dispatch(action);
@@ -27,7 +27,7 @@ export class OmnivraKernel {
     });
 
     this.initialized = true;
-    logger.info('Omnivra Kernel initialized successfully.');
+    logger.info("Omnivra Kernel initialized successfully.");
   }
 
   registerAdapter(adapter: HostAdapter): void {

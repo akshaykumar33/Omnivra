@@ -1,4 +1,10 @@
-export type TriggerType = 'gesture' | 'voice' | 'gaze' | 'hotkey' | 'state' | 'plugin';
+export type TriggerType =
+  | "gesture"
+  | "voice"
+  | "gaze"
+  | "hotkey"
+  | "state"
+  | "plugin";
 
 export interface TriggerDescriptor {
   type: TriggerType;
@@ -8,7 +14,7 @@ export interface TriggerDescriptor {
 
 export interface ConditionPredicate {
   field: string;
-  operator: 'equals' | 'contains' | 'matches' | 'greaterThan' | 'lessThan';
+  operator: "equals" | "contains" | "matches" | "greaterThan" | "lessThan";
   value: unknown;
 }
 

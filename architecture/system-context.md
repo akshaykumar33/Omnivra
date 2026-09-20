@@ -7,7 +7,7 @@ C4Context
     title System Context diagram for Omnivra
 
     Person(user, "User / Developer", "Interacts via multimodal gestures, voice, gaze, or hotkeys")
-    
+
     System(omnivra, "Omnivra Platform", "Multimodal HCI routing engine and host adapters")
 
     System_Ext(hardware, "Peripherals", "Webcam, Microphone, Keyboard, Eye Trackers")
@@ -25,6 +25,7 @@ C4Context
 ```
 
 ## Process & Trust Boundaries
+
 1. **Device Sensor Boundary**: Microphone and camera feeds reside strictly in high-isolation worker threads.
 2. **Plugin Sandbox Boundary**: External plugins run within an isolated context with restricted globals.
 3. **Network Boundary**: Zero telemetry or rule data leaves the machine unless cloud sync is explicitly enabled with end-to-end encryption.

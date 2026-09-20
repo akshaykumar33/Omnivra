@@ -1,4 +1,4 @@
-import type { ActionDescriptor } from './rules.js';
+import type { ActionDescriptor } from "./rules.js";
 
 export interface ActionResult {
   success: boolean;

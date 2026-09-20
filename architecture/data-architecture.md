@@ -42,5 +42,6 @@ erDiagram
 ```
 
 ## Storage Engines
-* **Browser Extension**: `chrome.storage.local` for configuration; IndexedDB for offline model weights and cached rules.
-* **VS Code / Desktop**: SQLite (via `better-sqlite3` / Tauri SQL) for rapid rule lookups and persistent profile vectors.
+
+- **Browser Extension**: `chrome.storage.local` for configuration; IndexedDB for offline model weights and cached rules.
+- **VS Code / Desktop**: SQLite (via `better-sqlite3` / Tauri SQL) for rapid rule lookups and persistent profile vectors.

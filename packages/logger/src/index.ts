@@ -1,4 +1,4 @@
-export type LogLevel = 'debug' | 'info' | 'warn' | 'error';
+export type LogLevel = "debug" | "info" | "warn" | "error";
 
 export interface Logger {
   debug(message: string, ...meta: unknown[]): void;
@@ -8,7 +8,7 @@ export interface Logger {
 }
 
 export class ConsoleLogger implements Logger {
-  constructor(private readonly prefix: string = 'Omnivra') {}
+  constructor(private readonly prefix: string = "Omnivra") {}
 
   debug(message: string, ...meta: unknown[]): void {
     console.debug(`[${this.prefix}] [DEBUG] ${message}`, ...meta);

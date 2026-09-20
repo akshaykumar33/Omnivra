@@ -1,4 +1,10 @@
-export type EventSource = 'vision' | 'voice' | 'keyboard' | 'mouse' | 'plugin' | 'system';
+export type EventSource =
+  | "vision"
+  | "voice"
+  | "keyboard"
+  | "mouse"
+  | "plugin"
+  | "system";
 
 export interface EventContextSnapshot {
   activeApp?: string;
@@ -19,5 +25,7 @@ export interface OmnivraEvent<TPayload = unknown> {
   metadata?: Record<string, unknown>;
 }
 
-export type EventHandler<T = unknown> = (event: OmnivraEvent<T>) => void | Promise<void>;
+export type EventHandler<T = unknown> = (
+  event: OmnivraEvent<T>,
+) => void | Promise<void>;
 export type UnsubscribeFn = () => void;
