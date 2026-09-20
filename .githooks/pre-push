@@ -1,0 +1,88 @@
+#!/bin/sh
+#
+# Omnivra pre-push gate.
+#
+# The staged scan in pre-commit cannot see a secret introduced by an earlier
+# commit on this branch. This one scans every line the push would publish.
+#
+# See docs/development/branching.md
+#
+set -e
+
+if ! command -v node >/dev/null 2>&1; then
+  echo "pre-push: node is required but was not found on PATH." >&2
+  exit 1
+fi
+
+ZERO="0000000000000000000000000000000000000000"
+PROTECTED_REFS="refs/heads/main refs/heads/develop"
+
+# 1. Branch naming.
+node scripts/check-branch-name.mjs
+
+# 2. Refuse to push directly to a protected branch, and scan the outgoing range.
+while read -r LOCAL_REF LOCAL_SHA REMOTE_REF REMOTE_SHA; do
+  [ -z "$LOCAL_REF" ] && continue
+
+  for PROTECTED in $PROTECTED_REFS; do
+    if [ "$REMOTE_REF" = "$PROTECTED" ]; then
+      echo "" >&2
+      echo "  ✖ Refusing to push directly to $PROTECTED." >&2
+      echo "" >&2
+      echo "  Every change reaches main through a reviewed pull request." >&2
+      echo "  See docs/development/merge-policy.md" >&2
+      echo "" >&2
+      exit 1
+    fi
+  done
+
+  # Deleting a remote branch: nothing to scan.
+  if [ "$LOCAL_SHA" = "$ZERO" ]; then
+    continue
+  fi
+
+  if [ "$REMOTE_SHA" = "$ZERO" ]; then
+    # New branch: scan everything since it diverged from main.
+    if git rev-parse --verify --quiet origin/main >/dev/null; then
+      BASE=$(git merge-base origin/main "$LOCAL_SHA" 2>/dev/null || echo "")
+    else
+      BASE=$(git rev-parse --verify --quiet main 2>/dev/null || echo "")
+    fi
+    if [ -n "$BASE" ]; then
+      RANGE="$BASE..$LOCAL_SHA"
+    else
+      RANGE=""
+    fi
+  else
+    RANGE="$REMOTE_SHA..$LOCAL_SHA"
+  fi
+
+  if [ -n "$RANGE" ]; then
+    echo "pre-push: scanning $RANGE for secrets…"
+    node scripts/scan-secrets.mjs --range "$RANGE"
+  else
+    echo "pre-push: no merge base found — scanning all tracked files…"
+    node scripts/scan-secrets.mjs --all
+  fi
+done
+
+# 3. Optional gitleaks pass when the binary is available locally.
+if command -v gitleaks >/dev/null 2>&1; then
+  echo "pre-push: gitleaks detected, running full-history scan…"
+  gitleaks detect --no-banner --redact --config .gitleaks.toml || {
+    echo "" >&2
+    echo "  gitleaks found secret material. Rotate the credential first, then clean history." >&2
+    echo "  See docs/security/secret-management.md" >&2
+    exit 1
+  }
+fi
+
+# 4. Tests, when dependencies are installed. CI enforces them regardless.
+if [ -d node_modules ]; then
+  echo "pre-push: running tests…"
+  pnpm turbo run test --output-logs=errors-only
+else
+  echo "pre-push: node_modules absent — skipping tests (CI enforces them)."
+fi
+
+echo "pre-push: passed."

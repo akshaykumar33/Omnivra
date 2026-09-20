@@ -16,6 +16,7 @@
     "pnpm": ">=9.0.0"
   },
   "scripts": {
+    "prepare": "node scripts/install-hooks.mjs",
     "build": "turbo run build",
     "dev": "turbo run dev",
     "lint": "turbo run lint",
@@ -28,7 +29,15 @@
     "clean": "turbo run clean && rm -rf node_modules",
     "changeset": "changeset",
     "version-packages": "changeset version",
-    "release": "turbo run build && changeset publish"
+    "release": "turbo run build && changeset publish",
+    "hooks:install": "node scripts/install-hooks.mjs",
+    "gate": "pnpm gate:paths && pnpm gate:secrets && pnpm gate:hygiene && pnpm gate:branch",
+    "gate:paths": "node scripts/check-sensitive-paths.mjs --all",
+    "gate:secrets": "node scripts/scan-secrets.mjs --all",
+    "gate:hygiene": "node scripts/check-forbidden-patterns.mjs --all",
+    "gate:branch": "node scripts/check-branch-name.mjs",
+    "gate:staged": "node scripts/check-sensitive-paths.mjs --staged && node scripts/scan-secrets.mjs --staged && node scripts/check-forbidden-patterns.mjs --staged",
+    "gate:selftest": "node scripts/selftest-protection.mjs"
   },
   "devDependencies": {
     "@changesets/cli": "^2.27.11",
