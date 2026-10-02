@@ -3,6 +3,7 @@ import type {
   OmnivraEvent,
   ActionDescriptor,
 } from "@omnivra/types";
+import { isEventContextField } from "@omnivra/types";
 import { logger } from "@omnivra/logger";
 
 export class RuleEvaluator {
@@ -28,7 +29,9 @@ export class RuleEvaluator {
       let conditionsPass = true;
       if (rule.conditions && rule.conditions.length > 0) {
         for (const cond of rule.conditions) {
-          const val = (event.context as Record<string, unknown>)?.[cond.field];
+          const val = isEventContextField(cond.field)
+            ? event.context[cond.field]
+            : undefined;
           if (cond.operator === "equals" && val !== cond.value) {
             conditionsPass = false;
             break;
