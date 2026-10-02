@@ -17,4 +17,5 @@ To minimize token consumption, prevent hallucinations, and preserve context:
 - Use the MCP tool codegraph_explore or run codegraph explore "<symbol or question>" to understand code, relationships, and call paths in one call.
 - Use codegraph node <symbol> to view exact symbol implementations and caller/callee trails.
 - Never dump or read full large files into context unless actively modifying them.
+
 <!-- CODEGRAPH_END -->

@@ -1,10 +1,5 @@
 export type EventSource =
-  | "vision"
-  | "voice"
-  | "keyboard"
-  | "mouse"
-  | "plugin"
-  | "system";
+  "vision" | "voice" | "keyboard" | "mouse" | "plugin" | "system";
 
 export interface EventContextSnapshot {
   activeApp?: string;

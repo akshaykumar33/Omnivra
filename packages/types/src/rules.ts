@@ -1,10 +1,5 @@
 export type TriggerType =
-  | "gesture"
-  | "voice"
-  | "gaze"
-  | "hotkey"
-  | "state"
-  | "plugin";
+  "gesture" | "voice" | "gaze" | "hotkey" | "state" | "plugin";
 
 export interface TriggerDescriptor {
   type: TriggerType;
