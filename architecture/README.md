@@ -59,15 +59,15 @@ graph TD
 
 ## 3. Architecture Documents Index
 
-* [System Context](system-context.md) — External actors, boundary definitions, and environment bindings.
-* [System Architecture](system-architecture.md) — System layers, Clean Architecture, and subsystem interactions.
-* [Component Architecture](component-architecture.md) — Monorepo packages, modules, and public APIs.
-* [Runtime Architecture](runtime-architecture.md) — Process models, web workers, IPC channels, and lifecycle.
-* [Multimodal Pipeline](multimodal-pipeline.md) — End-to-end signal processing and inference budgets.
-* [Event Architecture](event-architecture.md) — Event schemas, deduplication, prioritization, and throttling.
-* [Plugin Architecture](plugin-architecture.md) — Plugin manifests, sandboxing, triggers, and action definitions.
-* [Security Architecture](security-architecture.md) — Threat model, capability-based security, and sandboxing.
-* [Data Architecture](data-architecture.md) — Local persistence, SQLite/IndexedDB schema, and migration strategy.
-* [Sync Architecture](sync-architecture.md) — Conflict-free replicated rules, device pairing, and cloud telemetry.
-* [Host Architectures](browser-architecture.md) — Browser, VS Code, and Desktop runtime implementations.
-* [Architectural Decision Records (ADRs)](adr/README.md) — Numbered rationale records (ADR 0001 - 0010).
+- [System Context](system-context.md) — External actors, boundary definitions, and environment bindings.
+- [System Architecture](system-architecture.md) — System layers, Clean Architecture, and subsystem interactions.
+- [Component Architecture](component-architecture.md) — Monorepo packages, modules, and public APIs.
+- [Runtime Architecture](runtime-architecture.md) — Process models, web workers, IPC channels, and lifecycle.
+- [Multimodal Pipeline](multimodal-pipeline.md) — End-to-end signal processing and inference budgets.
+- [Event Architecture](event-architecture.md) — Event schemas, deduplication, prioritization, and throttling.
+- [Plugin Architecture](plugin-architecture.md) — Plugin manifests, sandboxing, triggers, and action definitions.
+- [Security Architecture](security-architecture.md) — Threat model, capability-based security, and sandboxing.
+- [Data Architecture](data-architecture.md) — Local persistence, SQLite/IndexedDB schema, and migration strategy.
+- [Sync Architecture](sync-architecture.md) — Conflict-free replicated rules, device pairing, and cloud telemetry.
+- [Host Architectures](browser-architecture.md) — Browser, VS Code, and Desktop runtime implementations.
+- [Architectural Decision Records (ADRs)](adr/README.md) — Numbered rationale records (ADR 0001 - 0010).

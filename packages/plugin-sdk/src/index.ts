@@ -1,4 +1,4 @@
-import type { OmnivraRule } from '@omnivra/types';
+import type { OmnivraRule } from "@omnivra/types";
 
 export interface PluginManifest {
   id: string;

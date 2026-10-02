@@ -34,6 +34,7 @@ graph TD
 ```
 
 ## Architectural Invariants
-* The domain core has zero external framework dependencies.
-* All input modalities communicate through normalized `InputEvent` structures.
-* Handlers never directly invoke external APIs; all external interactions pass through capability-checked `HostAdapter` instances.
+
+- The domain core has zero external framework dependencies.
+- All input modalities communicate through normalized `InputEvent` structures.
+- Handlers never directly invoke external APIs; all external interactions pass through capability-checked `HostAdapter` instances.

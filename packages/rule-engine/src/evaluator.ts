@@ -1,5 +1,10 @@
-import type { OmnivraRule, OmnivraEvent, ActionDescriptor } from '@omnivra/types';
-import { logger } from '@omnivra/logger';
+import type {
+  OmnivraRule,
+  OmnivraEvent,
+  ActionDescriptor,
+} from "@omnivra/types";
+import { isEventContextField } from "@omnivra/types";
+import { logger } from "@omnivra/logger";
 
 export class RuleEvaluator {
   private rules: Map<string, OmnivraRule> = new Map();
@@ -18,13 +23,16 @@ export class RuleEvaluator {
 
     for (const rule of this.rules.values()) {
       if (!rule.enabled) continue;
-      if (rule.trigger.name !== event.type && rule.trigger.name !== '*') continue;
+      if (rule.trigger.name !== event.type && rule.trigger.name !== "*")
+        continue;
 
       let conditionsPass = true;
       if (rule.conditions && rule.conditions.length > 0) {
         for (const cond of rule.conditions) {
-          const val = (event.context as Record<string, unknown>)?.[cond.field];
-          if (cond.operator === 'equals' && val !== cond.value) {
+          const val = isEventContextField(cond.field)
+            ? event.context[cond.field]
+            : undefined;
+          if (cond.operator === "equals" && val !== cond.value) {
             conditionsPass = false;
             break;
           }

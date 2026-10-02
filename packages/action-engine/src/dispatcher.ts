@@ -1,5 +1,9 @@
-import type { ActionDescriptor, ActionResult, HostAdapter } from '@omnivra/types';
-import { logger } from '@omnivra/logger';
+import type {
+  ActionDescriptor,
+  ActionResult,
+  HostAdapter,
+} from "@omnivra/types";
+import { logger } from "@omnivra/logger";
 
 export class ActionDispatcher {
   private adapters: Map<string, HostAdapter> = new Map();
@@ -20,7 +24,7 @@ export class ActionDispatcher {
     return {
       success: false,
       actionId: action.id,
-      error: `No supporting adapter registered for action type: ${action.type}`
+      error: `No supporting adapter registered for action type: ${action.type}`,
     };
   }
 }

@@ -1,30 +1,37 @@
 # Agent: performance-engineer
 
 ## Mission
+
 Ensure world-class execution and architectural compliance for Memory allocation, frame latency, bundle size optimization.
 
 ## Responsibilities
-* Implement and maintain modules within: `tools/perf/**`.
-* Adhere strictly to Clean Architecture and capability-based security.
-* Provide comprehensive unit and integration tests.
+
+- Implement and maintain modules within: `tools/perf/**`.
+- Adhere strictly to Clean Architecture and capability-based security.
+- Provide comprehensive unit and integration tests.
 
 ## Files Owned
-* `tools/perf/**`
+
+- `tools/perf/**`
 
 ## Files to Avoid
-* Any modules outside assigned domain without cross-agent consultation.
+
+- Any modules outside assigned domain without cross-agent consultation.
 
 ## Required Reading
+
 1. [AGENTS.md](../AGENTS.md)
 2. [System Architecture](../architecture/system-architecture.md)
 3. Relevant ADRs in [architecture/adr/](../architecture/adr/README.md)
 
 ## Coding & Quality Rules
-* 100% TypeScript strict mode.
-* Zero untyped variables or implicit any.
-* Document all exported interfaces with TSDoc.
+
+- 100% TypeScript strict mode.
+- Zero untyped variables or implicit any.
+- Document all exported interfaces with TSDoc.
 
 ## Definition of Done
-* All unit tests pass.
-* Linter and typechecker report zero warnings.
-* Documentation updated to reflect changes.
+
+- All unit tests pass.
+- Linter and typechecker report zero warnings.
+- Documentation updated to reflect changes.

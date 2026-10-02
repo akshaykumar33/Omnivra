@@ -19,5 +19,6 @@ sequenceDiagram
 ```
 
 ## Invariants
-* Sync Relay never receives plaintext rule descriptions or configuration values.
-* CRDT-based conflict resolution ensures offline edits merge deterministically.
+
+- Sync Relay never receives plaintext rule descriptions or configuration values.
+- CRDT-based conflict resolution ensures offline edits merge deterministically.

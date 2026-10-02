@@ -1,0 +1,106 @@
+name: Protection Gate
+
+# Mirrors the local git hooks (.githooks/) so nothing depends on a contributor
+# having them installed, and `--no-verify` buys nothing.
+# See docs/development/commit-hooks.md
+
+on:
+  pull_request:
+    branches: [main]
+  push:
+    branches: [main]
+
+concurrency:
+  group: gate-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  gate:
+    name: Secrets, paths & hygiene
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout (full history)
+        uses: actions/checkout@v4
+        with:
+          # Required: the secret scan inspects every commit the branch adds,
+          # not just the tip. A shallow clone would silently scan nothing.
+          fetch-depth: 0
+
+      - name: Setup Node.js 24
+        uses: actions/setup-node@v4
+        with:
+          node-version: 24
+
+      - name: Validate branch name
+        if: github.event_name == 'pull_request'
+        run: node scripts/check-branch-name.mjs "${{ github.head_ref }}"
+
+      - name: Validate PR title
+        if: github.event_name == 'pull_request'
+        env:
+          # Via env, never inlined into the shell — a PR title is untrusted input.
+          PR_TITLE: ${{ github.event.pull_request.title }}
+        run: node scripts/check-commit-message.mjs --message "$PR_TITLE"
+
+      - name: Validate commit messages in the PR
+        if: github.event_name == 'pull_request'
+        run: |
+          BASE="${{ github.event.pull_request.base.sha }}"
+          HEAD="${{ github.event.pull_request.head.sha }}"
+          FAILED=0
+          for SHA in $(git rev-list "$BASE".."$HEAD" --no-merges); do
+            MSG=$(git log -1 --format=%B "$SHA")
+            if ! node scripts/check-commit-message.mjs --message "$MSG"; then
+              echo "  ↳ commit $SHA" >&2
+              FAILED=1
+            fi
+          done
+          exit $FAILED
+
+      - name: Sensitive path check
+        run: node scripts/check-sensitive-paths.mjs --all
+
+      - name: Secret scan (branch range)
+        if: github.event_name == 'pull_request'
+        run: |
+          node scripts/scan-secrets.mjs \
+            --range "${{ github.event.pull_request.base.sha }}..${{ github.event.pull_request.head.sha }}"
+
+      - name: Secret scan (full tree)
+        run: node scripts/scan-secrets.mjs --all
+
+      - name: Code hygiene
+        run: node scripts/check-forbidden-patterns.mjs --all
+
+      - name: Protection gate self-test
+        # Proves the detection rules still work. A gate that silently stopped
+        # detecting would otherwise report "clean" forever.
+        run: node scripts/selftest-protection.mjs
+
+  gitleaks:
+    name: Gitleaks (second opinion)
+    runs-on: ubuntu-latest
+    # Pinned binary rather than gitleaks/gitleaks-action@v2: the action wants a
+    # write-scoped token to post results, and this repository correctly runs
+    # Actions with a read-only default token. Invoking the binary keeps the
+    # scanner's job to scanning.
+    env:
+      GITLEAKS_VERSION: 8.30.1
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Install gitleaks
+        run: |
+          curl -sSfL \
+            "https://github.com/gitleaks/gitleaks/releases/download/v${GITLEAKS_VERSION}/gitleaks_${GITLEAKS_VERSION}_linux_x64.tar.gz" \
+            | tar -xz gitleaks
+          sudo install -m 0755 gitleaks /usr/local/bin/gitleaks
+          gitleaks version
+
+      - name: Scan full history
+        run: gitleaks git --config .gitleaks.toml --redact --no-banner --exit-code 1 .

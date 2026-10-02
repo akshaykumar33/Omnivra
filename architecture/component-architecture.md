@@ -8,7 +8,7 @@ graph TD
     utils["@omnivra/utils"]
     logger["@omnivra/logger"]
     config["@omnivra/config"]
-    
+
     core["@omnivra/core"]
     bus["@omnivra/event-bus"]
     rule["@omnivra/rule-engine"]

@@ -1,0 +1,20 @@
+# Generated or vendored — never reformat.
+node_modules/
+dist/
+build/
+out/
+coverage/
+.turbo/
+.next/
+pnpm-lock.yaml
+package-lock.json
+yarn.lock
+CHANGELOG.md
+*.tsbuildinfo
+
+# Changeset markdown is machine-authored.
+.changeset/*.md
+
+# Shell hooks are not Prettier's business, and reformatting them risks the
+# LF-only guarantee they depend on (see .gitattributes).
+.githooks/

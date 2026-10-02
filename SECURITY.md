@@ -6,10 +6,10 @@ Omnivra interfaces directly with cameras, microphones, operating-system inputs, 
 
 ## 1. Supported Versions
 
-| Version | Supported |
-| ------- | --------- |
+| Version       | Supported          |
+| ------------- | ------------------ |
 | 0.1.x (Alpha) | :white_check_mark: |
-| < 0.1.0 | :x: |
+| < 0.1.0       | :x:                |
 
 ---
 
@@ -30,8 +30,9 @@ Report vulnerabilities via email to:
 **security@omnivra.dev**
 
 Please include:
-* Detailed description of the vulnerability.
-* Steps to reproduce or proof-of-concept exploit.
-* Impact assessment across supported surfaces.
+
+- Detailed description of the vulnerability.
+- Steps to reproduce or proof-of-concept exploit.
+- Impact assessment across supported surfaces.
 
 We acknowledge reports within **48 hours** and provide regular progress updates through remediation and public advisory release.

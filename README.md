@@ -4,7 +4,7 @@
 
 **Universal Multimodal Human-Computer Interaction Platform**
 
-*ANY INPUT → ANY LOGIC → ANY ACTION*
+_ANY INPUT → ANY LOGIC → ANY ACTION_
 
 [![CI](https://github.com/akshaykumar33/Omnivra/actions/workflows/ci.yml/badge.svg)](https://github.com/akshaykumar33/Omnivra/actions/workflows/ci.yml)
 [![License: Apache-2.0](https://img.shields.io/badge/License-Apache_2.0-blue.svg)](LICENSE)
@@ -52,18 +52,18 @@ graph LR
 
 ## ⚡ Core Interaction Examples
 
-* **"Double blink to toggle YouTube playback"**: Without switching tabs or moving your mouse while coding.
-* **"Raise two fingers to switch to the next editor split"**: Seamless split navigation in VS Code.
-* **"Whisper 'Focus Mode' to silence notifications & open workspace"**: Context-aware workflow switching.
-* **"Palm-up to raise playback volume on Spotify"**: Instant background media control.
+- **"Double blink to toggle YouTube playback"**: Without switching tabs or moving your mouse while coding.
+- **"Raise two fingers to switch to the next editor split"**: Seamless split navigation in VS Code.
+- **"Whisper 'Focus Mode' to silence notifications & open workspace"**: Context-aware workflow switching.
+- **"Palm-up to raise playback volume on Spotify"**: Instant background media control.
 
 ---
 
 ## 🛡️ Radical Privacy & Security
 
-* **Local-First Inference**: MediaPipe and speech recognition models execute 100% locally on your machine via WebAssembly, WebGPU, and ONNX Runtime.
-* **Zero Video Leakage**: Camera frames and raw audio streams are never transmitted over the internet.
-* **Capability-Based Permissions**: Plugins and actions require explicit capability declarations (e.g., `browser:tab.switch`, `media:playback.control`).
+- **Local-First Inference**: MediaPipe and speech recognition models execute 100% locally on your machine via WebAssembly, WebGPU, and ONNX Runtime.
+- **Zero Video Leakage**: Camera frames and raw audio streams are never transmitted over the internet.
+- **Capability-Based Permissions**: Plugins and actions require explicit capability declarations (e.g., `browser:tab.switch`, `media:playback.control`).
 
 ---
 
@@ -90,10 +90,12 @@ Omnivra/
 ## 🚀 Quick Start (Monorepo Development)
 
 ### Prerequisites
-* **Node.js**: >= 24.0.0
-* **pnpm**: >= 9.0.0
+
+- **Node.js**: >= 24.0.0
+- **pnpm**: >= 9.0.0
 
 ### Setup
+
 ```bash
 # 1. Clone repository
 git clone https://github.com/akshaykumar33/Omnivra.git
@@ -116,7 +118,8 @@ pnpm turbo run test
 Omnivra is currently in **Phase 01: Repository Foundation**.
 
 Implementation proceeds sequentially through our 40 testable milestones:
-1. **M00 — M02**: Discovery, Architecture & Monorepo Foundation *(Current)*
+
+1. **M00 — M02**: Discovery, Architecture & Monorepo Foundation _(Current)_
 2. **M03 — M07**: Shared Domain Types, Logger, Event Bus & Local Persistence
 3. **M08 — M11**: Rule & Action Engines, Browser Host Adapter
 4. **M12 — M18**: Voice, Gesture, Eye Tracking & Facial Expression Engines
