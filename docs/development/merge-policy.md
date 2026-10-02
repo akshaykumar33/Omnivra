@@ -1,20 +1,22 @@
 # Merge Policy & Branch Protection
 
-`main` is protected, always releasable, and has a linear history. It accepts only
-squash-merged, reviewed, green pull requests.
+`main` is protected and always releasable. It accepts only merge-committed, reviewed,
+green pull requests, and only after the owner says so.
 
 ---
 
 ## 1. Merge method
 
-**Squash merge by default.** One clean Conventional Commit per PR on `main`. The PR
-title becomes that commit message, which is why CI validates it.
+**Merge commits only** — `gh pr merge <n> --merge`. The PR title becomes the merge
+commit's subject, which is why CI validates it as a Conventional Commit.
 
-**Rebase merge** only when every individual commit is meaningful and independently
-valid — a carefully staged refactor, for example. Rare.
+Squashing and rebase merging are **not permitted**, because both destroy the branch's
+commit history: squashing collapses every commit into one, and rebase merging rewrites
+them with new hashes. The atomic commits an author took care to stage are part of the
+record — `git log --first-parent main` gives the one-line-per-PR view that squashing
+is usually reached for, without throwing the detail away.
 
-**Never a merge commit** from a working branch. `main` keeps a linear history, which
-makes `git bisect`, `git log`, and release notes all behave.
+`main` therefore has merge commits in it by design. That is the trade accepted here.
 
 ---
 
@@ -47,14 +49,16 @@ ignore has already stopped being a test suite.
 
 ## 3. Who merges
 
-The author merges after approval — they know whether anything is still in flight.
-Enable auto-merge on green if you would rather not babysit it:
+**The owner merges, and only after saying so explicitly — every time.** A standing
+"merge when green" instruction does not carry to the next PR. Show the PR, its checks
+and the merge method, get the yes, then:
 
 ```bash
-gh pr merge --squash --auto --delete-branch
+gh pr merge <n> --merge
 ```
 
-Delete the branch on merge. GitHub is configured to do this automatically.
+**Never delete the branch**, locally or on the remote, before or after the merge. The
+branch is part of the history of how the change happened.
 
 ---
 
@@ -90,7 +94,8 @@ Settings → Branches → Branch protection rule for `main`:
     - `Changeset present for package changes`
     - `Dependency vulnerability audit`
 - [x] Require conversation resolution before merging
-- [x] Require linear history
+- [ ] Require linear history — **off**; it would forbid the merge commits this
+      project requires
 - [x] Do not allow bypassing the above settings **(apply to administrators)**
 - [x] Block force pushes
 - [x] Block deletions
@@ -103,7 +108,7 @@ Settings → Branches → Branch protection rule for `main`:
 **Required approvals: 0.** On a repository with a single maintainer, requiring one
 approval makes every PR unmergeable — GitHub does not let you approve your own pull
 request. Requiring a PR and green checks with zero required approvals keeps every
-mechanical guarantee (no direct pushes, no merging on red, linear history) without
+mechanical guarantee (no direct pushes, no merging on red) without
 creating a deadlock. Raise this to 1 the moment a second maintainer joins; that is
 when it starts protecting something.
 
@@ -123,10 +128,11 @@ ignore a red check.
 
 Settings → General:
 
-- [x] Automatically delete head branches after merge
-- [x] Allow squash merging (default), with "Pull request title" as the commit message
-- [ ] Allow merge commits — **disabled**
-- [x] Allow rebase merging
+- [ ] Automatically delete head branches after merge — **off**; branches are never
+      deleted
+- [x] Allow merge commits — the only permitted method
+- [ ] Allow squashing — **disabled**
+- [ ] Allow rebase merging — **disabled**
 
 Settings → Code security:
 

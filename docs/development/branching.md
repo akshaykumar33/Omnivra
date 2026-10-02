@@ -8,7 +8,7 @@ CI on every pull request.
 ## 1. Model
 
 ```
-main            protected · always releasable · linear history · tagged for releases
+main            protected · always releasable · merge commits only · tagged for releases
   │
   ├── feat/rule-engine-compound-triggers
   ├── fix/browser-duplicate-content-script
@@ -106,12 +106,11 @@ git fetch origin && git rebase origin/main
 **Force-push carefully.** Always `--force-with-lease`, never bare `--force`, and never
 without telling anyone who is reviewing or building on the branch.
 
-**Delete after merge**, locally and on the remote. GitHub is configured to auto-delete
-merged head branches:
+**Never delete a branch** — not locally, not on the remote, not after it merges. A
+merged branch is the record of how the change was made. Just switch away from it:
 
 ```bash
 git switch main && git pull --ff-only origin main
-git branch -d feat/rule-engine-compound-triggers
 ```
 
 **No direct commits to `main`.** Not for a typo, not for a hotfix, not "just this

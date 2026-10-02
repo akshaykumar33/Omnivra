@@ -57,7 +57,7 @@ gh pr create --draft --fill
    run.
    → [pull-requests.md](docs/development/pull-requests.md)
 
-5. **Merging** — squash merge, green checks, one approval, threads resolved. Never
+5. **Merging** — merge commit, green checks, the owner's explicit yes. Never
    directly to `main`.
    → [merge-policy.md](docs/development/merge-policy.md)
 

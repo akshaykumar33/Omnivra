@@ -872,7 +872,7 @@ Enforce this with a `pre-push` hook and a CI branch-name check.
 - **Short-lived.** Open a draft PR the same day. Aim to merge within ~3 days. A branch older than a week is a scope problem — split it.
 - **Stay current.** Rebase onto `main` regularly: `git fetch origin && git rebase origin/main`. Prefer rebase over merge commits on working branches; resolve conflicts on your branch, never on `main`.
 - **Never force-push a branch someone else is reviewing or building on** without telling them. Use `--force-with-lease`, never bare `--force`.
-- **Delete after merge**, locally and remotely.
+- **Never delete a branch**, locally or remotely, before or after it merges — a merged branch records how the change was made.
 - **No direct commits to `main`.** Not for a typo, not for a hotfix, not "just this once." Hotfixes use `fix/*` with an expedited review, not a bypass.
 
 ---
@@ -975,7 +975,7 @@ Every change reaches `main` through a pull request. No exceptions.
 
 1. Push the branch: `git push -u origin <branch>`.
 2. Open a **draft PR immediately** — before the work is finished — so CI runs early and progress is visible.
-3. PR title uses Conventional Commit format; it becomes the squash-merge commit message.
+3. PR title uses Conventional Commit format; it becomes the merge-commit subject.
 4. Link the milestone, phase, and any issue it closes.
 5. Mark ready for review only when the checklist below is genuinely satisfied.
 
@@ -1013,10 +1013,10 @@ Checklist
 
 ## 20.4 Merging
 
-- **Squash merge** by default — one clean Conventional Commit per PR on `main`.
-- **Rebase merge** only when the individual commits are each meaningful and independently valid.
-- **Never** merge commits into `main` from working branches.
-- Delete the branch on merge.
+- **Merge commits only** — `gh pr merge <n> --merge`. The PR title becomes the merge commit's subject.
+- **Never squash and never rebase merge**: both destroy the branch's commit history, which is part of the record.
+- The owner merges, and only after saying so explicitly — every time. A standing "merge when green" does not carry to the next PR.
+- Never delete the branch; it stays as part of the record.
 - The author merges after approval (they know if anything is still in flight), unless the repo is configured for auto-merge on green.
 - Revert with `git revert` and a `revert:` PR. Never force-push `main`.
 
@@ -1034,11 +1034,11 @@ Configure on the remote, so the rules hold even when someone forgets them:
 - Require status checks to pass and require branches to be up to date before merging. Required checks: typecheck, lint, format, unit, integration, build, secret-scan, dependency-audit, boundary-check, changeset-check, e2e where applicable.
 - Require conversation resolution before merging.
 - Require signed commits.
-- Require linear history.
+- Do NOT require linear history — it forbids the merge commits this protocol requires.
 - Block force pushes and deletions on `main`.
 - Apply rules to administrators — a protection an admin can wave through is not a protection.
 - Enable secret scanning, push protection, Dependabot alerts, and Dependabot security updates.
-- Enable auto-delete of head branches on merge.
+- Disable auto-delete of head branches on merge.
 - Restrict who can publish releases and who can access deployment environments.
 - CODEOWNERS covers `architecture/`, `docs/design/`, `docs/security/`, `packages/security/`, `packages/permissions/`, `.github/workflows/`, and every release-affecting path.
 

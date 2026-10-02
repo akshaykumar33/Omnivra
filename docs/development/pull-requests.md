@@ -15,7 +15,7 @@ gh pr create --draft --fill
 Open the PR as a **draft immediately**, before the work is finished. CI runs early,
 problems surface while they are still cheap, and the work is visible.
 
-**The PR title becomes the squash-merge commit on `main`**, so it must be a valid
+**The PR title is the merge-commit subject on `main`**, so it must be a valid
 Conventional Commit. CI rejects it otherwise:
 
 ```
@@ -109,8 +109,8 @@ no one has to comment on it again.
 ## 5. Responding to review
 
 - Push fixes as new commits while review is in progress — force-pushing mid-review
-  destroys the reviewer's diff. Clean up at the end if needed; squash-merge collapses
-  it anyway.
+  destroys the reviewer's diff. Tidy the branch before you ask for the merge; the
+  merge commit preserves every commit on it, so make them readable.
 - Resolve a thread when you have addressed it, not when you have read it.
 - Disagreeing is fine. Explain the reasoning, and if you still disagree after that,
   escalate to a second reviewer rather than quietly merging.

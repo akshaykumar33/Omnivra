@@ -7,7 +7,7 @@ branch → build → verify → secret-scan → commit → push → PR → green
 ```
 
 There is no path to `main` that skips it. `main` is protected, always releasable, and
-accepts only squash-merged, reviewed, green pull requests.
+accepts only merge-committed, reviewed, green pull requests.
 
 | Topic                                    | Document                                                             |
 | ---------------------------------------- | -------------------------------------------------------------------- |
@@ -135,10 +135,12 @@ captured media, or anything matching the deny-list in
 
 ---
 
-## 4. Rebase, don't merge
+## 4. Rebase your own branch onto main
 
-Working branches rebase onto `main`. Conflicts get resolved on your branch, never on
-`main`, and `main` keeps a linear history.
+Keep your working branch current by rebaseing it onto `main`, so conflicts get resolved
+on your branch and never on `main`. This is about keeping _your_ branch tidy — it is
+not how the branch lands. Landing is always a merge commit (see
+[merge-policy.md](merge-policy.md)).
 
 ```bash
 git fetch origin

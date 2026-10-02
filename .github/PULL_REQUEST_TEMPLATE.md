@@ -1,5 +1,5 @@
 <!--
-  The PR title becomes the squash-merge commit on main, so it must be a valid
+  The PR title is the merge-commit subject on main, so it must be a valid
   Conventional Commit. CI rejects it otherwise.
     feat(rule-engine): add compound trigger evaluation
   See docs/development/pull-requests.md
