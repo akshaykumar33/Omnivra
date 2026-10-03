@@ -1,0 +1,174 @@
+@import "tailwindcss";
+
+/*
+ * Token values are transcribed from docs/design/design-tokens.md. That table is
+ * the source of truth; this file only binds it to Tailwind utilities.
+ *
+ * The page theme is `auto`: it follows prefers-color-scheme and never inverts
+ * mid-page. Both palettes are defined because the design doc specifies both.
+ */
+:root {
+  --bg-base: #0a0d14;
+  --bg-surface: #101522;
+  --bg-raised: #182032;
+  --border-subtle: #1e293b;
+  --border-focus: #0284c7;
+  --text-primary: #f8fafc;
+  --text-muted: #94a3b8;
+  --accent-primary: #38bdf8;
+  --status-active: #10b981;
+  --status-warning: #f59e0b;
+  --status-danger: #ef4444;
+
+  /* The brand easing curve from docs/design/motion.md. */
+  --ease-brand: cubic-bezier(0.16, 1, 0.3, 1);
+
+  color-scheme: dark light;
+}
+
+@media (prefers-color-scheme: light) {
+  :root {
+    --bg-base: #ffffff;
+    --bg-surface: #f8fafc;
+    --bg-raised: #f1f5f9;
+    --border-subtle: #e2e8f0;
+    --text-primary: #0f172a;
+    --text-muted: #64748b;
+    --accent-primary: #0284c7;
+    --status-active: #059669;
+    --status-warning: #d97706;
+    --status-danger: #dc2626;
+  }
+}
+
+/*
+ * Explicit overrides so a user action (including a voice command) can set the
+ * theme. The page still shows exactly one theme at a time and never inverts a
+ * single section mid-scroll.
+ */
+:root[data-theme="light"] {
+  --bg-base: #ffffff;
+  --bg-surface: #f8fafc;
+  --bg-raised: #f1f5f9;
+  --border-subtle: #e2e8f0;
+  --text-primary: #0f172a;
+  --text-muted: #64748b;
+  --accent-primary: #0284c7;
+  --status-active: #059669;
+  --status-warning: #d97706;
+  --status-danger: #dc2626;
+}
+
+:root[data-theme="dark"] {
+  --bg-base: #0a0d14;
+  --bg-surface: #101522;
+  --bg-raised: #182032;
+  --border-subtle: #1e293b;
+  --text-primary: #f8fafc;
+  --text-muted: #94a3b8;
+  --accent-primary: #38bdf8;
+  --status-active: #10b981;
+  --status-warning: #f59e0b;
+  --status-danger: #ef4444;
+}
+
+/* High contrast strengthens edges and muted text, never relies on hue alone. */
+@media (prefers-contrast: more) {
+  :root {
+    --border-subtle: #64748b;
+    --text-muted: #cbd5e1;
+  }
+}
+
+/*
+ * `inline` keeps Tailwind emitting var() references instead of resolving the
+ * values at build time, which is what lets one stylesheet serve both palettes.
+ */
+@theme inline {
+  --color-base: var(--bg-base);
+  --color-surface: var(--bg-surface);
+  --color-raised: var(--bg-raised);
+  --color-subtle: var(--border-subtle);
+  --color-focus: var(--border-focus);
+  --color-ink: var(--text-primary);
+  --color-muted: var(--text-muted);
+  --color-accent: var(--accent-primary);
+  --color-active: var(--status-active);
+  --color-warning: var(--status-warning);
+  --color-danger: var(--status-danger);
+
+  --font-sans: var(--font-inter), ui-sans-serif, system-ui, sans-serif;
+  --font-display: var(--font-inter-tight), var(--font-inter), sans-serif;
+  --font-mono: var(--font-jetbrains), ui-monospace, monospace;
+
+  --ease-brand: cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+@layer base {
+  * {
+    border-color: var(--border-subtle);
+  }
+
+  html {
+    scroll-behavior: smooth;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    html {
+      scroll-behavior: auto;
+    }
+  }
+
+  body {
+    background: var(--bg-base);
+    color: var(--text-primary);
+    font-family: var(--font-sans);
+    -webkit-font-smoothing: antialiased;
+    text-rendering: optimizeLegibility;
+  }
+
+  /* Focus is always visible and never signalled by colour alone. */
+  :focus-visible {
+    outline: 2px solid var(--border-focus);
+    outline-offset: 3px;
+    border-radius: 4px;
+  }
+
+  ::selection {
+    background: color-mix(in srgb, var(--accent-primary) 28%, transparent);
+    color: var(--text-primary);
+  }
+}
+
+@layer utilities {
+  /* Mono caps used sparingly for technical labels. */
+  .label-mono {
+    font-family: var(--font-mono);
+    font-size: 0.6875rem;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: var(--text-muted);
+  }
+
+  /* Hairline that fades at both ends, used to divide sections without a box. */
+  .rule-fade {
+    height: 1px;
+    background: linear-gradient(
+      90deg,
+      transparent,
+      var(--border-subtle) 15%,
+      var(--border-subtle) 85%,
+      transparent
+    );
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
