@@ -101,11 +101,21 @@ export function Pipeline() {
                   aria-current={i === active ? "step" : undefined}
                   className="group w-full rounded-lg px-2 py-3 text-left transition-colors hover:bg-raised lg:px-3"
                 >
-                  {/* Rail segment: fills for stages up to and including active. */}
+                  {/*
+                   * Rail segment. Each stage sits at its own point between the
+                   * voice and gesture hues, so a completed rail reads as a
+                   * spectrum running left to right rather than seven identical
+                   * blue bars. The current stage also glows.
+                   */}
                   <span
                     aria-hidden="true"
                     data-state={state}
-                    className="mb-3 block h-0.5 w-full rounded-full bg-subtle transition-colors duration-300 data-[state=current]:bg-accent data-[state=done]:bg-accent"
+                    style={
+                      {
+                        "--seg": `color-mix(in oklab, var(--hue-voice), var(--hue-gesture) ${(i / (STAGES.length - 1)) * 100}%)`,
+                      } as React.CSSProperties
+                    }
+                    className="mb-3 block h-0.5 w-full rounded-full bg-subtle transition-all duration-500 data-[state=current]:bg-[var(--seg)] data-[state=current]:shadow-[0_0_14px_-1px_var(--seg)] data-[state=done]:bg-[var(--seg)]"
                   />
                   <span className="block font-mono text-[10.5px] tabular-nums text-muted opacity-70">
                     {String(i + 1).padStart(2, "0")}

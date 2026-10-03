@@ -1,11 +1,12 @@
 @import "tailwindcss";
 
 /*
- * Token values are transcribed from docs/design/design-tokens.md. That table is
- * the source of truth; this file only binds it to Tailwind utilities.
+ * Base tokens are transcribed from docs/design/design-tokens.md. That table is
+ * the source of truth; this file binds it to Tailwind and extends it for the
+ * marketing surface (see docs/design/surfaces.md).
  *
  * The page theme is `auto`: it follows prefers-color-scheme and never inverts
- * mid-page. Both palettes are defined because the design doc specifies both.
+ * mid-page.
  */
 :root {
   --bg-base: #0a0d14;
@@ -19,6 +20,20 @@
   --status-active: #10b981;
   --status-warning: #f59e0b;
   --status-danger: #ef4444;
+
+  /*
+   * Modality hues.
+   *
+   * Not decoration: one hue per input family, used consistently wherever that
+   * modality appears. This is a categorical palette in the dataviz sense, so
+   * the page gets real colour variety without the accent drifting at random.
+   * The brand accent above stays the single interactive colour.
+   */
+  --hue-voice: #22d3ee;
+  --hue-gesture: #c084fc;
+  --hue-gaze: #fbbf24;
+  --hue-face: #fb7185;
+  --hue-input: #34d399;
 
   /* The brand easing curve from docs/design/motion.md. */
   --ease-brand: cubic-bezier(0.16, 1, 0.3, 1);
@@ -38,14 +53,16 @@
     --status-active: #059669;
     --status-warning: #d97706;
     --status-danger: #dc2626;
+
+    /* Darkened so each hue still clears contrast on a white surface. */
+    --hue-voice: #0891b2;
+    --hue-gesture: #7c3aed;
+    --hue-gaze: #b45309;
+    --hue-face: #e11d48;
+    --hue-input: #059669;
   }
 }
 
-/*
- * Explicit overrides so a user action (including a voice command) can set the
- * theme. The page still shows exactly one theme at a time and never inverts a
- * single section mid-scroll.
- */
 :root[data-theme="light"] {
   --bg-base: #ffffff;
   --bg-surface: #f8fafc;
@@ -57,6 +74,11 @@
   --status-active: #059669;
   --status-warning: #d97706;
   --status-danger: #dc2626;
+  --hue-voice: #0891b2;
+  --hue-gesture: #7c3aed;
+  --hue-gaze: #b45309;
+  --hue-face: #e11d48;
+  --hue-input: #059669;
 }
 
 :root[data-theme="dark"] {
@@ -70,6 +92,11 @@
   --status-active: #10b981;
   --status-warning: #f59e0b;
   --status-danger: #ef4444;
+  --hue-voice: #22d3ee;
+  --hue-gesture: #c084fc;
+  --hue-gaze: #fbbf24;
+  --hue-face: #fb7185;
+  --hue-input: #34d399;
 }
 
 /* High contrast strengthens edges and muted text, never relies on hue alone. */
@@ -96,6 +123,12 @@
   --color-active: var(--status-active);
   --color-warning: var(--status-warning);
   --color-danger: var(--status-danger);
+
+  --color-voice: var(--hue-voice);
+  --color-gesture: var(--hue-gesture);
+  --color-gaze: var(--hue-gaze);
+  --color-face: var(--hue-face);
+  --color-input: var(--hue-input);
 
   --font-sans: var(--font-inter), ui-sans-serif, system-ui, sans-serif;
   --font-display: var(--font-inter-tight), var(--font-inter), sans-serif;
@@ -125,6 +158,7 @@
     font-family: var(--font-sans);
     -webkit-font-smoothing: antialiased;
     text-rendering: optimizeLegibility;
+    overflow-x: hidden;
   }
 
   /* Focus is always visible and never signalled by colour alone. */
@@ -161,6 +195,138 @@
       transparent
     );
   }
+
+  /*
+   * Aurora field.
+   *
+   * Three large, heavily blurred colour fields drifting slowly behind the
+   * content. Only `transform` is animated, so this stays on the compositor and
+   * never triggers layout or paint. Sits behind everything and takes no
+   * pointer events.
+   */
+  .aurora {
+    position: absolute;
+    inset: -20% -10% auto -10%;
+    height: 120%;
+    z-index: -1;
+    pointer-events: none;
+    overflow: hidden;
+    mask-image: linear-gradient(to bottom, black 55%, transparent);
+  }
+
+  .aurora__blob {
+    position: absolute;
+    border-radius: 999px;
+    filter: blur(90px);
+    opacity: 0.5;
+    will-change: transform;
+  }
+
+  @media (prefers-color-scheme: light) {
+    .aurora__blob {
+      opacity: 0.28;
+    }
+  }
+
+  .aurora__blob--one {
+    width: 46rem;
+    height: 34rem;
+    top: -6rem;
+    left: -8rem;
+    background: radial-gradient(
+      circle,
+      color-mix(in srgb, var(--hue-voice) 55%, transparent),
+      transparent 68%
+    );
+    animation: drift-a 26s var(--ease-brand) infinite alternate;
+  }
+
+  .aurora__blob--two {
+    width: 40rem;
+    height: 30rem;
+    top: -2rem;
+    right: -6rem;
+    background: radial-gradient(
+      circle,
+      color-mix(in srgb, var(--hue-gesture) 50%, transparent),
+      transparent 68%
+    );
+    animation: drift-b 32s var(--ease-brand) infinite alternate;
+  }
+
+  .aurora__blob--three {
+    width: 34rem;
+    height: 26rem;
+    top: 14rem;
+    left: 32%;
+    background: radial-gradient(
+      circle,
+      color-mix(in srgb, var(--accent-primary) 45%, transparent),
+      transparent 70%
+    );
+    animation: drift-c 38s var(--ease-brand) infinite alternate;
+  }
+
+  @keyframes drift-a {
+    to {
+      transform: translate3d(6rem, 3rem, 0) scale(1.15);
+    }
+  }
+
+  @keyframes drift-b {
+    to {
+      transform: translate3d(-5rem, 4rem, 0) scale(1.1);
+    }
+  }
+
+  @keyframes drift-c {
+    to {
+      transform: translate3d(3rem, -4rem, 0) scale(1.2);
+    }
+  }
+
+  /* Gradient text, used once, on the single line that carries the promise. */
+  .text-spectrum {
+    background: linear-gradient(
+      100deg,
+      var(--hue-voice),
+      var(--accent-primary) 45%,
+      var(--hue-gesture)
+    );
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+  }
+}
+
+/*
+ * Reduced motion stops the drift and every transition. The aurora stays as a
+ * static colour field, which is the point of it; only the movement goes.
+ */
+/*
+ * Glow recipes, declared with @utility so they compose with variants like
+ * hover:. A class defined inside @layer utilities cannot take a variant in
+ * Tailwind v4, so hover:glow-strong would silently do nothing.
+ *
+ * Each reads `--glow` from the element, so a card tinted with its modality hue
+ * glows in that hue instead of one global colour.
+ */
+@utility glow-soft {
+  box-shadow:
+    0 0 0 1px
+      color-mix(in srgb, var(--glow, var(--accent-primary)) 22%, transparent),
+    0 18px 50px -24px
+      color-mix(in srgb, var(--glow, var(--accent-primary)) 55%, transparent);
+}
+
+@utility glow-strong {
+  box-shadow:
+    0 0 0 1px
+      color-mix(in srgb, var(--glow, var(--accent-primary)) 40%, transparent),
+    0 0 28px -6px
+      color-mix(in srgb, var(--glow, var(--accent-primary)) 45%, transparent),
+    0 24px 70px -30px
+      color-mix(in srgb, var(--glow, var(--accent-primary)) 70%, transparent);
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -170,5 +336,9 @@
     animation-duration: 0.01ms !important;
     animation-iteration-count: 1 !important;
     transition-duration: 0.01ms !important;
+  }
+
+  .aurora__blob {
+    animation: none !important;
   }
 }

@@ -17,18 +17,37 @@ import {
  * be marked Planned / Experimental / Alpha / Stable. A page that implied five
  * working engines would be lying, so the grid states where each one actually
  * is.
+ *
+ * Each modality also carries its own hue, used for the icon, the glow, the
+ * pointer spotlight and the hover edge. One hue per input family means the
+ * colour tells you something rather than just filling space.
  */
 type Status = "alpha" | "planned";
+type Tint = "voice" | "gesture" | "gaze" | "face" | "input";
 
 type Modality = {
   readonly id: string;
   readonly name: string;
   readonly blurb: string;
   readonly status: Status;
+  readonly tint: Tint;
   readonly icon: React.ReactNode;
   readonly image?: { readonly seed: string; readonly alt: string };
   readonly span: string;
 };
+
+/**
+ * Literal class strings so Tailwind's scanner can see them. A template built
+ * at runtime would be compiled away.
+ */
+const TINTS: Record<Tint, { readonly text: string; readonly cssVar: string }> =
+  {
+    voice: { text: "text-voice", cssVar: "var(--hue-voice)" },
+    gesture: { text: "text-gesture", cssVar: "var(--hue-gesture)" },
+    gaze: { text: "text-gaze", cssVar: "var(--hue-gaze)" },
+    face: { text: "text-face", cssVar: "var(--hue-face)" },
+    input: { text: "text-input", cssVar: "var(--hue-input)" },
+  };
 
 const MODALITIES: readonly Modality[] = [
   {
@@ -37,7 +56,8 @@ const MODALITIES: readonly Modality[] = [
     blurb:
       "Wake words, continuous dictation and intent phrases. Recognition runs locally; nothing is streamed to a server.",
     status: "alpha",
-    icon: <MicrophoneIcon size={20} />,
+    tint: "voice",
+    icon: <MicrophoneIcon size={22} weight="duotone" />,
     image: {
       seed: "omnivra-voice-studio-microphone",
       alt: "A microphone on a desk in low light",
@@ -49,7 +69,8 @@ const MODALITIES: readonly Modality[] = [
     name: "Hand gestures",
     blurb: "Pinch, palm, swipe and finger counts from the webcam.",
     status: "planned",
-    icon: <HandIcon size={20} />,
+    tint: "gesture",
+    icon: <HandIcon size={22} weight="duotone" />,
     image: {
       seed: "omnivra-hand-gesture-motion",
       alt: "A hand caught mid-gesture against a dark background",
@@ -61,7 +82,8 @@ const MODALITIES: readonly Modality[] = [
     name: "Eye tracking",
     blurb: "Dwell targets, blink patterns and gaze regions.",
     status: "planned",
-    icon: <EyeIcon size={20} />,
+    tint: "gaze",
+    icon: <EyeIcon size={22} weight="duotone" />,
     image: {
       seed: "omnivra-eye-closeup-detail",
       alt: "A close detail of an eye",
@@ -73,7 +95,8 @@ const MODALITIES: readonly Modality[] = [
     name: "Facial expression",
     blurb: "Brow raises, head tilt and mouth shapes as modifiers.",
     status: "planned",
-    icon: <SmileyIcon size={20} />,
+    tint: "face",
+    icon: <SmileyIcon size={22} weight="duotone" />,
     span: "",
   },
   {
@@ -82,14 +105,20 @@ const MODALITIES: readonly Modality[] = [
     blurb:
       "The inputs you already have, combinable with every modality above. A gesture plus a held key is one trigger.",
     status: "planned",
-    icon: <KeyboardIcon size={20} />,
+    tint: "input",
+    icon: <KeyboardIcon size={22} weight="duotone" />,
     span: "sm:col-span-2",
   },
 ];
 
+const STATUS_COPY: Record<Status, string> = {
+  alpha: "Alpha",
+  planned: "Planned",
+};
+
 /**
  * Writes the pointer position onto the card as CSS custom properties. The
- * highlight below reads them. Deliberately not React state: a pointermove
+ * spotlight below reads them. Deliberately not React state: a pointermove
  * handler that re-renders the tree collapses on contact with a real mouse.
  */
 function trackPointer(event: React.PointerEvent<HTMLElement>) {
@@ -98,11 +127,6 @@ function trackPointer(event: React.PointerEvent<HTMLElement>) {
   node.style.setProperty("--mx", `${event.clientX - rect.left}px`);
   node.style.setProperty("--my", `${event.clientY - rect.top}px`);
 }
-
-const STATUS_COPY: Record<Status, string> = {
-  alpha: "Alpha",
-  planned: "Planned",
-};
 
 export function Inputs() {
   const reduce = useReducedMotion();
@@ -126,74 +150,84 @@ export function Inputs() {
       </p>
 
       <ul className="mt-12 grid grid-cols-1 gap-4 sm:grid-cols-3">
-        {MODALITIES.map((modality, index) => (
-          <motion.li
-            key={modality.id}
-            initial={reduce ? false : { opacity: 0, y: 22 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true, amount: 0.25 }}
-            transition={{
-              duration: 0.55,
-              delay: index * 0.07,
-              ease: [0.16, 1, 0.3, 1],
-            }}
-            onPointerMove={trackPointer}
-            className={`group relative flex min-h-[13rem] flex-col justify-end overflow-hidden rounded-2xl border bg-surface p-5 transition-colors duration-300 hover:border-accent/50 ${modality.span}`}
-          >
-            {/* Spotlight. Follows the pointer, fades in only on hover. */}
-            <div
-              aria-hidden="true"
-              className="pointer-events-none absolute inset-0 opacity-0 transition-opacity duration-300 group-hover:opacity-100"
-              style={{
-                background:
-                  "radial-gradient(320px circle at var(--mx, 50%) var(--my, 50%), color-mix(in srgb, var(--accent-primary) 30%, transparent), transparent 68%)",
+        {MODALITIES.map((modality, index) => {
+          const tint = TINTS[modality.tint];
+          return (
+            <motion.li
+              key={modality.id}
+              initial={reduce ? false : { opacity: 0, y: 22 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true, amount: 0.25 }}
+              transition={{
+                duration: 0.55,
+                delay: index * 0.07,
+                ease: [0.16, 1, 0.3, 1],
               }}
-            />
-            {modality.image ? (
-              <>
-                <Image
-                  src={`https://picsum.photos/seed/${modality.image.seed}/900/900`}
-                  alt={modality.image.alt}
-                  fill
-                  sizes="(max-width: 640px) 100vw, 33vw"
-                  className="object-cover opacity-50 grayscale transition-opacity duration-500 group-hover:opacity-65"
-                />
-                {/*
-                 * Scrim, not a veil: dark enough at the bottom for the text to
-                 * clear WCAG AA, light enough at the top that the photograph
-                 * still reads as a photograph.
-                 */}
-                <div
-                  aria-hidden="true"
-                  className="absolute inset-0 bg-gradient-to-t from-surface via-surface/80 to-transparent"
-                />
-              </>
-            ) : (
+              onPointerMove={trackPointer}
+              style={{ "--glow": tint.cssVar } as React.CSSProperties}
+              className={`group relative flex min-h-[13rem] flex-col justify-end overflow-hidden rounded-2xl border bg-surface p-5 transition-shadow duration-500 hover:glow-strong ${modality.span}`}
+            >
+              {/* Spotlight, in this card's own hue. Fades in only on hover. */}
               <div
                 aria-hidden="true"
-                className="absolute inset-0 bg-[radial-gradient(circle_at_80%_0%,color-mix(in_srgb,var(--accent-primary)_16%,transparent),transparent_60%)]"
+                className="pointer-events-none absolute inset-0 opacity-0 transition-opacity duration-300 group-hover:opacity-100"
+                style={{
+                  background:
+                    "radial-gradient(320px circle at var(--mx, 50%) var(--my, 50%), color-mix(in srgb, var(--glow) 32%, transparent), transparent 68%)",
+                }}
               />
-            )}
 
-            <div className="relative">
-              <div className="flex items-center justify-between gap-3">
-                <span className="text-accent">{modality.icon}</span>
-                <span
-                  data-status={modality.status}
-                  className="rounded-full border px-2 py-0.5 text-[10.5px] font-semibold tracking-wide uppercase text-muted data-[status=alpha]:border-active data-[status=alpha]:text-active"
-                >
-                  {STATUS_COPY[modality.status]}
-                </span>
+              {/* Constant hue wash so the card is tinted even at rest. */}
+              <div
+                aria-hidden="true"
+                className="pointer-events-none absolute inset-0 opacity-70"
+                style={{
+                  background:
+                    "radial-gradient(120% 90% at 85% 0%, color-mix(in srgb, var(--glow) 16%, transparent), transparent 62%)",
+                }}
+              />
+
+              {modality.image ? (
+                <>
+                  <Image
+                    src={`https://picsum.photos/seed/${modality.image.seed}/900/900`}
+                    alt={modality.image.alt}
+                    fill
+                    sizes="(max-width: 640px) 100vw, 33vw"
+                    className="-z-10 object-cover opacity-45 grayscale transition-opacity duration-500 group-hover:opacity-60"
+                  />
+                  {/*
+                   * Scrim, not a veil: dark enough at the bottom for the text to
+                   * clear WCAG AA, light enough at the top that the photograph
+                   * still reads as a photograph.
+                   */}
+                  <div
+                    aria-hidden="true"
+                    className="absolute inset-0 -z-10 bg-gradient-to-t from-surface via-surface/80 to-transparent"
+                  />
+                </>
+              ) : null}
+
+              <div className="relative">
+                <div className="flex items-center justify-between gap-3">
+                  <span className={tint.text}>{modality.icon}</span>
+                  <span
+                    data-status={modality.status}
+                    className="rounded-full border px-2 py-0.5 text-[10.5px] font-semibold tracking-wide text-muted uppercase data-[status=alpha]:border-active data-[status=alpha]:text-active"
+                  >
+                    {STATUS_COPY[modality.status]}
+                  </span>
+                </div>
+                <h3 className="mt-4 font-display text-[17px] font-semibold tracking-tight">
+                  {modality.name}
+                </h3>
+                <p className="mt-2 max-w-[42ch] text-[13.5px] leading-relaxed text-muted">
+                  {modality.blurb}
+                </p>
               </div>
-              <h3 className="mt-4 font-display text-[17px] font-semibold tracking-tight">
-                {modality.name}
-              </h3>
-              <p className="mt-2 max-w-[42ch] text-[13.5px] leading-relaxed text-muted">
-                {modality.blurb}
-              </p>
-            </div>
-          </motion.li>
-        ))}
+            </motion.li>
+          );
+        })}
       </ul>
     </section>
   );

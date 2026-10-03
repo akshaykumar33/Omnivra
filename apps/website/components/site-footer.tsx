@@ -34,8 +34,13 @@ export function ClosingCta() {
     <section
       id="get"
       aria-labelledby="get-heading"
-      className="border-t bg-surface"
+      className="relative isolate overflow-hidden border-t bg-surface"
     >
+      {/* Bookend: the page opens and closes on the same colour field. */}
+      <div className="aurora" aria-hidden="true">
+        <div className="aurora__blob aurora__blob--two" />
+        <div className="aurora__blob aurora__blob--three" />
+      </div>
       <div className="mx-auto flex max-w-[1400px] flex-col items-start gap-8 px-6 py-24 lg:flex-row lg:items-center lg:justify-between lg:py-28">
         <div>
           <h2
