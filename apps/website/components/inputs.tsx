@@ -87,6 +87,18 @@ const MODALITIES: readonly Modality[] = [
   },
 ];
 
+/**
+ * Writes the pointer position onto the card as CSS custom properties. The
+ * highlight below reads them. Deliberately not React state: a pointermove
+ * handler that re-renders the tree collapses on contact with a real mouse.
+ */
+function trackPointer(event: React.PointerEvent<HTMLElement>) {
+  const node = event.currentTarget;
+  const rect = node.getBoundingClientRect();
+  node.style.setProperty("--mx", `${event.clientX - rect.left}px`);
+  node.style.setProperty("--my", `${event.clientY - rect.top}px`);
+}
+
 const STATUS_COPY: Record<Status, string> = {
   alpha: "Alpha",
   planned: "Planned",
@@ -125,8 +137,18 @@ export function Inputs() {
               delay: index * 0.07,
               ease: [0.16, 1, 0.3, 1],
             }}
-            className={`group relative flex min-h-[13rem] flex-col justify-end overflow-hidden rounded-2xl border bg-surface p-5 ${modality.span}`}
+            onPointerMove={trackPointer}
+            className={`group relative flex min-h-[13rem] flex-col justify-end overflow-hidden rounded-2xl border bg-surface p-5 transition-colors duration-300 hover:border-accent/50 ${modality.span}`}
           >
+            {/* Spotlight. Follows the pointer, fades in only on hover. */}
+            <div
+              aria-hidden="true"
+              className="pointer-events-none absolute inset-0 opacity-0 transition-opacity duration-300 group-hover:opacity-100"
+              style={{
+                background:
+                  "radial-gradient(320px circle at var(--mx, 50%) var(--my, 50%), color-mix(in srgb, var(--accent-primary) 30%, transparent), transparent 68%)",
+              }}
+            />
             {modality.image ? (
               <>
                 <Image

@@ -8,6 +8,7 @@ import {
   WarningCircleIcon,
   CheckIcon,
 } from "@phosphor-icons/react";
+import { AudioBars } from "./audio-bars";
 
 /**
  * A live demonstration rather than a picture of one.
@@ -16,6 +17,10 @@ import {
  * show that on a landing page is to let the page itself be the target: the
  * commands below genuinely change this document. Nothing here is mocked, and
  * the microphone is only ever opened from an explicit click.
+ *
+ * Two consumers share one permission grant: SpeechRecognition for the words,
+ * and a getUserMedia stream for the frequency meter. Both are released by the
+ * same stop control, so "off" means off.
  */
 
 type Status =
@@ -69,7 +74,9 @@ export function VoiceDemo() {
   const [transcript, setTranscript] = useState("");
   const [lastAction, setLastAction] = useState<string | null>(null);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
+  const [stream, setStream] = useState<MediaStream | null>(null);
   const recognitionRef = useRef<SpeechRecognition | null>(null);
+  const streamRef = useRef<MediaStream | null>(null);
   const reduce = useReducedMotion();
 
   useEffect(() => {
@@ -77,13 +84,20 @@ export function VoiceDemo() {
     if (!Ctor) setStatus("unsupported");
   }, []);
 
-  const stop = useCallback(() => {
+  const release = useCallback(() => {
     recognitionRef.current?.stop();
     recognitionRef.current = null;
-    setStatus("idle");
+    for (const track of streamRef.current?.getTracks() ?? []) track.stop();
+    streamRef.current = null;
+    setStream(null);
   }, []);
 
-  const start = useCallback(() => {
+  const stop = useCallback(() => {
+    release();
+    setStatus("idle");
+  }, [release]);
+
+  const start = useCallback(async () => {
     const Ctor = window.SpeechRecognition ?? window.webkitSpeechRecognition;
     if (!Ctor) {
       setStatus("unsupported");
@@ -92,6 +106,26 @@ export function VoiceDemo() {
 
     setStatus("starting");
     setErrorMessage(null);
+
+    // The meter needs the raw stream; recognition will not hand one over.
+    try {
+      const media = await navigator.mediaDevices.getUserMedia({ audio: true });
+      streamRef.current = media;
+      setStream(media);
+    } catch (err) {
+      const name = err instanceof DOMException ? err.name : "";
+      if (name === "NotAllowedError" || name === "SecurityError") {
+        setStatus("denied");
+        return;
+      }
+      setErrorMessage(
+        name === "NotFoundError"
+          ? "No microphone was found on this device."
+          : "Could not open the microphone. Is another tab already using it?",
+      );
+      setStatus("error");
+      return;
+    }
 
     const recognition = new Ctor();
     recognition.continuous = true;
@@ -122,6 +156,7 @@ export function VoiceDemo() {
         event.error === "not-allowed" ||
         event.error === "service-not-allowed"
       ) {
+        release();
         setStatus("denied");
         return;
       }
@@ -131,6 +166,7 @@ export function VoiceDemo() {
           ? "Speech recognition needs a network connection in this browser."
           : "Recognition stopped: " + event.error.replace(/-/g, " ") + ".",
       );
+      release();
       setStatus("error");
     };
 
@@ -143,21 +179,30 @@ export function VoiceDemo() {
     try {
       recognition.start();
     } catch {
-      setErrorMessage(
-        "Could not start the microphone. Is another tab already using it?",
-      );
+      release();
+      setErrorMessage("Could not start recognition. Try again.");
       setStatus("error");
     }
-  }, []);
+  }, [release]);
 
-  // Release the microphone if this unmounts mid-session.
-  useEffect(() => () => recognitionRef.current?.abort(), []);
+  // Release both the recogniser and the stream if this unmounts mid-session.
+  useEffect(() => () => release(), [release]);
 
   const isLive = status === "listening" || status === "starting";
 
   return (
     <div className="relative overflow-hidden rounded-2xl border bg-surface">
-      <header className="flex items-center justify-between gap-3 border-b px-5 py-4">
+      {/*
+       * Ambient wash keyed to the accent. It brightens while the microphone is
+       * live, which is a second, peripheral signal that something is listening.
+       */}
+      <div
+        aria-hidden="true"
+        data-live={isLive}
+        className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_at_top,color-mix(in_srgb,var(--accent-primary)_14%,transparent),transparent_62%)] opacity-40 transition-opacity duration-700 data-[live=true]:opacity-100"
+      />
+
+      <header className="relative flex items-center justify-between gap-3 border-b px-5 py-4">
         <span className="label-mono">Live, in this browser</span>
         <span
           data-live={isLive}
@@ -182,7 +227,7 @@ export function VoiceDemo() {
         </span>
       </header>
 
-      <div className="flex min-h-[13rem] flex-col gap-4 p-5">
+      <div className="relative flex min-h-[15rem] flex-col gap-4 p-5">
         {status === "unsupported" ? (
           <DemoState
             tone="warning"
@@ -206,12 +251,15 @@ export function VoiceDemo() {
           />
         ) : (
           <>
+            {/* Your actual signal. Silence renders as silence. */}
+            <AudioBars stream={stream} reduced={Boolean(reduce)} />
+
             <p
               aria-live="polite"
               className="min-h-[3.5rem] rounded-lg border bg-base px-4 py-3 font-mono text-[13px] leading-relaxed"
             >
               {transcript || (
-                <span className="font-sans italic text-muted">
+                <span className="font-sans text-muted italic">
                   {isLive
                     ? "Listening. Say one of the commands below."
                     : "Nothing captured yet."}
@@ -244,7 +292,7 @@ export function VoiceDemo() {
           ) : (
             <button
               type="button"
-              onClick={start}
+              onClick={() => void start()}
               className="flex items-center gap-2 rounded-lg bg-accent px-4 py-2 text-[13px] font-semibold text-base transition-transform active:translate-y-px"
             >
               <MicrophoneIcon size={16} weight="fill" />

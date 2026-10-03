@@ -3,6 +3,7 @@
 import { motion, useReducedMotion } from "motion/react";
 import { ArrowDownIcon } from "@phosphor-icons/react";
 import { VoiceDemo } from "./voice-demo";
+import { Magnetic } from "./magnetic";
 
 /**
  * Asymmetric split hero: message left, live product right.
@@ -49,12 +50,14 @@ export function Hero() {
           {...rise(0.24)}
           className="mt-9 flex flex-wrap items-center gap-3"
         >
-          <a
-            href="#get"
-            className="rounded-lg bg-accent px-5 py-2.5 text-[14px] font-semibold text-base transition-transform active:translate-y-px"
-          >
-            Get the extension
-          </a>
+          <Magnetic>
+            <a
+              href="#get"
+              className="inline-block rounded-lg bg-accent px-5 py-2.5 text-[14px] font-semibold text-base transition-transform active:translate-y-px"
+            >
+              Get the extension
+            </a>
+          </Magnetic>
           <a
             href="#pipeline"
             className="flex items-center gap-2 rounded-lg border px-5 py-2.5 text-[14px] font-semibold transition-colors hover:border-accent"
