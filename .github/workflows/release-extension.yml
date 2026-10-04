@@ -14,7 +14,7 @@ on:
         default: false
 
 permissions:
-  contents: read
+  contents: write # create the GitHub Release
 
 jobs:
   release:
@@ -67,6 +67,15 @@ jobs:
         with:
           name: omnivra-extension
           path: apps/browser-extension/omnivra-extension.zip
+
+      - name: Attach to GitHub Release
+        if: startsWith(github.ref, 'refs/tags/extension-v')
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          version="${GITHUB_REF_NAME#extension-v}"
+          cp omnivra-extension.zip "omnivra-extension-$version.zip"
+          gh release create "$GITHUB_REF_NAME" "omnivra-extension-$version.zip" \n            --title "Omnivra extension $version" \n            --notes "Install: download the zip, unzip it, open chrome://extensions (or edge://extensions), turn on Developer mode, click Load unpacked and pick the unzipped folder. See apps/browser-extension/README.md."
 
       - name: Upload to Chrome Web Store
         if: env.CWS_CLIENT_ID != ''
