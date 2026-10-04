@@ -94,3 +94,16 @@ test("long filler-heavy input is handled in linear time", () => {
   assert.deepEqual(parseCommand("pause" + " the page".repeat(5000)), PAUSE);
   assert.ok(performance.now() - started < 500);
 });
+
+test("clipped first words seen with real speech recognition", () => {
+  const seek = (seconds) => ({ type: "media", action: "seek", seconds });
+  // A bare amount is ambiguous (often a clipped "rewind"), so it does nothing.
+  assert.equal(parseCommand("30 seconds."), undefined);
+  assert.deepEqual(parseCommand("30 seconds ahead"), seek(30));
+  assert.deepEqual(parseCommand("Find 10 seconds."), seek(-10));
+  assert.deepEqual(parseCommand("Line 10 seconds."), seek(-10));
+  assert.deepEqual(parseCommand("ten seconds back"), seek(-10));
+  // Without an amount these stay ordinary words.
+  assert.equal(parseCommand("find"), undefined);
+  assert.equal(parseCommand("lots seconds"), undefined);
+});

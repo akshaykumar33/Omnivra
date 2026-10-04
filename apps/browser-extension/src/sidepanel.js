@@ -99,6 +99,7 @@ const ERRORS = {
   network:
     "Voice needs an internet connection (the browser's speech service is online).",
   "audio-capture": "No microphone was found.",
+  busy: "The microphone or speech service is busy. Close other tabs using voice, then try again.",
   unsupported: "Speech recognition isn't available in this browser.",
 };
 
@@ -126,12 +127,17 @@ addEventListener("message", (event) => {
   }
 
   if (message.kind === "error") {
+    // Transient failures (a network blip) are retried by the listener.
+    if (!message.fatal) {
+      status.textContent = "Reconnecting…";
+      return;
+    }
     addLog(ERRORS[message.error] ?? `Mic error: ${message.error}`, true);
     if (message.error === "not-allowed") {
       // A hidden iframe can't show the permission prompt; the page in a tab can.
       chrome.tabs.create({ url: LISTENER_URL });
     }
-    if (ERRORS[message.error]) setListening(false);
+    setListening(false);
   }
 });
 

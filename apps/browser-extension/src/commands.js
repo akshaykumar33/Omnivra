@@ -77,6 +77,18 @@ const RULES = [
       seconds: toNumber(m[1]) ?? 10,
     }),
   },
+  // An amount with an explicit direction: "10 seconds back", "30 seconds ahead".
+  // A bare "30 seconds" is ignored: it is usually a clipped "rewind 30
+  // seconds", and guessing forward would seek the wrong way.
+  {
+    re: /^(\w+) seconds? (back(?:ward)?|forward|ahead)$/,
+    intent: (m) =>
+      toNumber(m[1]) && {
+        type: "media",
+        action: "seek",
+        seconds: m[2].startsWith("back") ? -toNumber(m[1]) : toNumber(m[1]),
+      },
+  },
   {
     re: /^scroll (?:to )?(?:the )?top$/,
     intent: () => ({ type: "scroll", to: "top" }),
@@ -101,6 +113,12 @@ const SOUNDALIKES = [
   [/\b(?:re wind|rewinds|rewine)\b/g, "rewind"],
   [/\bsecs?\b/g, "seconds"],
   [/\bfor ward\b/g, "forward"],
+  // The first syllable is often clipped: "rewind 10 seconds" arrives as
+  // "find/wind/line 10 seconds". Only mapped when an amount follows.
+  [
+    /^(?:find|wind|line|lined|we wind|re find|rewound)(?= \w+ seconds?\b)/g,
+    "rewind",
+  ],
 ];
 
 // Politeness and filler that people add around a command, stripped one phrase
@@ -186,7 +204,9 @@ export function parseCommand(transcript) {
   const text = normalize(transcript);
   for (const rule of RULES) {
     const match = text.match(rule.re);
-    if (match) return rule.intent(match);
+    // An intent that comes back empty (e.g. "lots seconds") lets later rules try.
+    const intent = match && rule.intent(match);
+    if (intent) return intent;
   }
   return undefined;
 }
