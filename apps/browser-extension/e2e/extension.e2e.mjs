@@ -56,6 +56,27 @@ before(async () => {
   const id = new URL(worker.url()).host;
 
   panel = await context.newPage();
+  // Replace the browser's speech engine with one the tests can feed, so the
+  // panel's real listening loop (interim results, alternatives) is exercised.
+  await panel.addInitScript(() => {
+    window.SpeechRecognition = window.webkitSpeechRecognition = class {
+      constructor() {
+        window.__recognition = this;
+      }
+      start() {
+        this.onstart?.();
+      }
+      stop() {}
+    };
+    // Builds an onresult event: emit(0, ["paws", "pause"], false)
+    window.__emit = (index, alternatives, isFinal) => {
+      const result = alternatives.map((transcript) => ({ transcript }));
+      result.isFinal = isFinal;
+      const results = [];
+      results[index] = result;
+      window.__recognition.onresult({ resultIndex: index, results });
+    };
+  });
   await panel.goto(`chrome-extension://${id}/sidepanel.html`);
   page = await context.newPage();
   await page.goto(origin);
@@ -187,4 +208,56 @@ test("gesture recognizer starts on the camera and stops cleanly", async () => {
   );
   assert.equal(await panel.locator("#preview").isHidden(), true);
   await page.bringToFront();
+});
+
+test("voice: acts on interim speech once, picks the right alternative", async () => {
+  await page.bringToFront();
+  await page.evaluate(() => document.getElementById("a").play());
+  await panel.click("#toggle");
+  await panel.waitForFunction(
+    () =>
+      document.getElementById("toggle").getAttribute("aria-pressed") === "true",
+  );
+  const emit = (i, alts, final) =>
+    panel.evaluate(
+      ([i, alts, final]) => window.__emit(i, alts, final),
+      [i, alts, final],
+    );
+  const logCount = () => panel.locator("#log li").count();
+
+  // Interim "paws the" (a mishearing) already pauses, before speech ends.
+  const before = await logCount();
+  await emit(0, ["post a", "paws the"], false);
+  await page.waitForFunction(() => document.getElementById("a").paused);
+  assert.match(await panel.locator("#status").textContent(), /Heard: "post a"/);
+
+  // The same phrase turning final must not run it a second time.
+  await emit(0, ["pause the video please"], true);
+  assert.equal(await logCount(), before + 1);
+
+  // "go back" waits: it might still become "go back 10 seconds".
+  await page.evaluate(() => (document.getElementById("a").currentTime = 40));
+  const url = page.url();
+  await emit(1, ["go back"], false);
+  await emit(1, ["go back 10 seconds"], true);
+  await panel.waitForFunction(
+    (n) => document.querySelectorAll("#log li").length > n,
+    before + 1,
+  );
+  assert.ok(
+    Math.abs(
+      (await page.evaluate(() => document.getElementById("a").currentTime)) -
+        30,
+    ) < 1,
+  );
+  assert.equal(page.url(), url);
+
+  // Unrecognised final speech is reported.
+  await emit(2, ["what's the weather like"], true);
+  assert.match(
+    await panel.locator("#log li").first().textContent(),
+    /Didn't understand/,
+  );
+
+  await panel.click("#toggle");
 });
