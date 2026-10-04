@@ -9,9 +9,9 @@ import {
 import { PrivacySandboxVisual } from "./modality-visuals";
 
 /**
- * Two sections, two different layout families: Accessibility is a full-width
- * statement because the claim is the content, and Privacy is a split with a
- * real technical diagram. Neither carries an eyebrow; the page's eyebrow budget is spent.
+ * Two core architectural commitments:
+ * 1. Accessibility: Built as an inclusive control foundation, WCAG 2.2 AA compliant.
+ * 2. Privacy: Local-first execution enclave, zero external data leakage.
  */
 
 export function Accessibility() {
@@ -21,46 +21,45 @@ export function Accessibility() {
     <section
       id="access"
       aria-labelledby="access-heading"
-      className="border-y bg-surface"
+      className="border-y border-subtle/80 bg-surface/40"
     >
-      <div className="mx-auto max-w-[1400px] px-6 py-24 lg:py-32">
+      <div className="mx-auto max-w-[1400px] px-6 py-12 lg:py-16">
         <motion.h2
           id="access-heading"
-          initial={reduce ? false : { opacity: 0, y: 20 }}
+          initial={reduce ? false : { opacity: 0, y: 16 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true, amount: 0.4 }}
-          transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
-          className="max-w-[34ch] font-display text-3xl leading-[1.15] font-semibold tracking-tight sm:text-4xl lg:text-[3.25rem]"
+          transition={{ duration: 0.5, ease: [0.16, 1, 0.3, 1] }}
+          className="max-w-[34ch] font-display text-2xl font-semibold tracking-tight sm:text-3xl lg:text-4xl"
         >
           For many people, this is not a convenience. It is the only way in.
         </motion.h2>
 
-        <div className="mt-10 grid gap-10 lg:grid-cols-[1fr_1fr] lg:gap-20">
-          <p className="text-[15.5px] leading-relaxed text-muted">
-            Omnivra started as a control layer, but the people it matters most
-            to are those who cannot use a keyboard and mouse the way they are
-            assumed to. That shapes the engineering: keyboard-only and
-            voice-only paths are first-class, every control is reachable without
-            a pointer, and reduced motion is a working equivalent rather than a
-            disabled animation.
+        <div className="mt-6 grid gap-8 lg:grid-cols-2 lg:gap-14">
+          <p className="text-[14px] leading-relaxed text-muted">
+            Omnivra is designed around an essential foundation: computer control
+            must never be gated by standard hardware. Voice-only, gaze, and
+            single-switch paths are first-class runtimes, all controls are
+            keyboard-accessible, and reduced motion settings provide real
+            working non-animated equivalents.
           </p>
-          <dl className="grid gap-6 sm:grid-cols-2 lg:grid-cols-1">
-            <div>
-              <dt className="font-display text-[15px] font-semibold">
-                WCAG 2.2 AA as the floor
+          <dl className="grid gap-4 sm:grid-cols-2">
+            <div className="rounded-xl border border-subtle/80 bg-base p-4">
+              <dt className="font-display text-[14px] font-semibold text-ink">
+                WCAG 2.2 AA floor
               </dt>
-              <dd className="mt-1.5 text-[14px] leading-relaxed text-muted">
-                Contrast, target size, focus visibility and screen-reader
-                labelling are checked in CI, not at the end.
+              <dd className="mt-1 text-[13px] leading-relaxed text-muted">
+                Contrast ratios, target dimensions, focus visibility and
+                screen-reader labels are tested in automated CI gates.
               </dd>
             </div>
-            <div>
-              <dt className="font-display text-[15px] font-semibold">
-                No modality is required
+            <div className="rounded-xl border border-subtle/80 bg-base p-4">
+              <dt className="font-display text-[14px] font-semibold text-ink">
+                Graceful degradation
               </dt>
-              <dd className="mt-1.5 text-[14px] leading-relaxed text-muted">
-                Deny the camera and the rest still works. Every capability
-                degrades instead of dead-ending.
+              <dd className="mt-1 text-[13px] leading-relaxed text-muted">
+                Deny camera permissions and other inputs continue functioning
+                without breaking the runtime or modal dialogs.
               </dd>
             </div>
           </dl>
@@ -74,17 +73,17 @@ const GUARANTEES = [
   {
     icon: <WifiSlashIcon size={18} />,
     title: "Recognition stays on your machine",
-    body: "Camera frames and audio are processed locally. Raw media never leaves the process.",
+    body: "Camera frames and raw audio streams are processed locally in memory. Zero external egress.",
   },
   {
     icon: <LockKeyIcon size={18} />,
-    title: "Permissions are boundaries",
-    body: "Every action declares the capability it needs, and it is checked before execution.",
+    title: "Capabilities are enforced boundaries",
+    body: "Every action declares capability scopes and verifies explicit user permissions before dispatch.",
   },
   {
     icon: <ShieldCheckIcon size={18} />,
-    title: "Cloud is optional",
-    body: "Sync and AI providers are opt-in. Nothing is enabled on your behalf.",
+    title: "Cloud integrations are strictly opt-in",
+    body: "No telemetry or background cloud sync is ever enabled without deliberate manual configuration.",
   },
 ] as const;
 
@@ -95,44 +94,45 @@ export function Privacy() {
     <section
       id="privacy"
       aria-labelledby="privacy-heading"
-      className="mx-auto grid max-w-[1400px] items-center gap-12 px-6 py-24 lg:grid-cols-[0.9fr_1.1fr] lg:gap-20 lg:py-32"
+      className="mx-auto grid max-w-[1400px] items-center gap-8 px-6 py-12 lg:grid-cols-[0.85fr_1.15fr] lg:gap-12 lg:py-16"
     >
-      <div className="relative aspect-[4/5] overflow-hidden rounded-2xl border bg-surface lg:aspect-[3/4]">
+      <div className="relative aspect-[16/10] overflow-hidden rounded-xl border border-subtle/80 bg-surface/90 sm:aspect-[4/3] lg:aspect-[5/4]">
         <PrivacySandboxVisual />
         <div
           aria-hidden="true"
-          className="absolute inset-0 bg-gradient-to-tr from-base via-transparent to-accent/10 pointer-events-none"
+          className="pointer-events-none absolute inset-0 bg-gradient-to-tr from-base via-transparent to-accent/10"
         />
       </div>
 
       <div>
         <h2
           id="privacy-heading"
-          className="max-w-[28ch] font-display text-3xl leading-tight font-semibold tracking-tight sm:text-4xl lg:text-5xl"
+          className="max-w-[28ch] font-display text-2xl font-semibold tracking-tight sm:text-3xl lg:text-4xl"
         >
-          A camera and a microphone are a lot to ask for.
+          Sensors stay local. Zero cloud egress.
         </h2>
-        <p className="mt-5 max-w-[56ch] text-[15.5px] leading-relaxed text-muted">
-          So the default is that nothing leaves your device, and the indicator
-          telling you when either one is live is never hidden.
+        <p className="mt-2 max-w-[56ch] text-[14px] leading-relaxed text-muted">
+          Omnivra treats microphones and cameras as strictly isolated hardware
+          boundaries: raw media is processed in local memory, and status
+          indicators are always clearly visible.
         </p>
 
-        <ul className="mt-10 grid gap-px overflow-hidden rounded-2xl border bg-subtle">
+        <ul className="mt-6 grid gap-2.5">
           {GUARANTEES.map((item) => (
             <motion.li
               key={item.title}
-              initial={reduce ? false : { opacity: 0 }}
-              whileInView={{ opacity: 1 }}
+              initial={reduce ? false : { opacity: 0, y: 6 }}
+              whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true, amount: 0.5 }}
-              transition={{ duration: 0.5, ease: [0.16, 1, 0.3, 1] }}
-              className="flex gap-4 bg-surface p-5"
+              transition={{ duration: 0.35, ease: [0.16, 1, 0.3, 1] }}
+              className="flex gap-3.5 rounded-xl border border-subtle/80 bg-surface/70 p-4 transition-colors hover:border-accent/40"
             >
-              <span className="mt-0.5 text-accent">{item.icon}</span>
+              <span className="mt-0.5 shrink-0 text-accent">{item.icon}</span>
               <div>
-                <h3 className="font-display text-[14.5px] font-semibold">
+                <h3 className="font-display text-[13.5px] font-semibold text-ink">
                   {item.title}
                 </h3>
-                <p className="mt-1 max-w-[52ch] text-[13.5px] leading-relaxed text-muted">
+                <p className="mt-0.5 max-w-[52ch] text-[12.5px] leading-relaxed text-muted">
                   {item.body}
                 </p>
               </div>

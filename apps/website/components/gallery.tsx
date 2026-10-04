@@ -1,9 +1,6 @@
 "use client";
 
-import { useRef } from "react";
-import gsap from "gsap";
-import { ScrollTrigger } from "gsap/ScrollTrigger";
-import { useGSAP } from "@gsap/react";
+import { useState } from "react";
 import {
   MicrophoneIcon,
   HandIcon,
@@ -19,22 +16,12 @@ import {
   ClassicVisual,
 } from "./modality-visuals";
 
-gsap.registerPlugin(ScrollTrigger);
-
 /**
- * The input gallery: vertical scroll drives a horizontal pan across five
- * full-height panels.
+ * The input gallery: Five modality families normalized into one rule format.
  *
- * Each panel is one input family and wears that family's hue, so the section
- * reads as a spectrum sweep from cyan to emerald as you move through it.
- *
- * Mechanics follow the canonical pinned-pan recipe exactly: pin the wrapper,
- * translate the inner track by (trackWidth - viewportWidth), and set the scroll
- * distance to that same number so the pan finishes precisely as the pin
- * releases. `start: "top top"` matters — anything else begins the pan before the
- * section is pinned and the first panel enters already half gone.
- *
- * Status labels stay honest here as everywhere: only voice is Alpha.
+ * Designed with a responsive, high-craft card grid and interactive cursor
+ * spotlighting. Eliminates disruptive scroll-pin hijacking so navigation
+ * remains natural, fluid, and predictable across all devices.
  */
 type Panel = {
   readonly id: string;
@@ -54,10 +41,10 @@ const PANELS: readonly Panel[] = [
     index: "01",
     name: "Voice",
     line: "Say it.",
-    body: "Wake words, continuous dictation and intent phrases. Recognition runs on your machine; nothing is streamed to a server.",
+    body: "Wake words, dictation and intent phrases. Runs locally on your machine with zero server streaming.",
     status: "Alpha",
     hue: "var(--hue-voice)",
-    icon: <MicrophoneIcon size={26} weight="duotone" />,
+    icon: <MicrophoneIcon size={24} weight="duotone" />,
     visual: <VoiceVisual />,
   },
   {
@@ -65,10 +52,10 @@ const PANELS: readonly Panel[] = [
     index: "02",
     name: "Hand gestures",
     line: "Point at it.",
-    body: "Pinch, palm, swipe and finger counts, read from the webcam and normalised into the same events as every other input.",
+    body: "Pinch, palm, swipe and finger tracking from your webcam, normalized into standard pipeline events.",
     status: "Planned",
     hue: "var(--hue-gesture)",
-    icon: <HandIcon size={26} weight="duotone" />,
+    icon: <HandIcon size={24} weight="duotone" />,
     visual: <GestureVisual />,
   },
   {
@@ -76,10 +63,10 @@ const PANELS: readonly Panel[] = [
     index: "03",
     name: "Eye tracking",
     line: "Look at it.",
-    body: "Dwell targets, blink patterns and gaze regions, for the moments when a hand is not available at all.",
+    body: "Dwell targets, blink patterns and gaze regions for hands-free cursor navigation.",
     status: "Planned",
     hue: "var(--hue-gaze)",
-    icon: <EyeIcon size={26} weight="duotone" />,
+    icon: <EyeIcon size={24} weight="duotone" />,
     visual: <GazeVisual />,
   },
   {
@@ -87,200 +74,131 @@ const PANELS: readonly Panel[] = [
     index: "04",
     name: "Facial expression",
     line: "Mean it.",
-    body: "Brow raises, head tilt and mouth shapes, used as modifiers rather than triggers so a sentence can change what a gesture does.",
+    body: "Brow raises, head tilt and mouth shapes acting as compound modifiers on primary gestures.",
     status: "Planned",
     hue: "var(--hue-face)",
-    icon: <SmileyIcon size={26} weight="duotone" />,
+    icon: <SmileyIcon size={24} weight="duotone" />,
     visual: <FaceVisual />,
   },
   {
     id: "classic",
     index: "05",
-    name: "Keyboard and controllers",
+    name: "Keyboard & hardware",
     line: "Or just type.",
-    body: "The inputs you already have, combinable with every modality before it. A gesture plus a held key is one trigger, not two.",
+    body: "Mechanical switches, hotkeys and gamepads combinable with every modality into compound rules.",
     status: "Planned",
     hue: "var(--hue-input)",
-    icon: <KeyboardIcon size={26} weight="duotone" />,
+    icon: <KeyboardIcon size={24} weight="duotone" />,
     visual: <ClassicVisual />,
   },
 ];
 
-export function Gallery() {
-  const wrap = useRef<HTMLElement>(null);
-  const scroller = useRef<HTMLDivElement>(null);
-  const track = useRef<HTMLDivElement>(null);
+function GalleryCard({ panel }: { panel: Panel }) {
+  const [coords, setCoords] = useState<{ x: number; y: number } | null>(null);
 
-  useGSAP(
-    () => {
-      if (!wrap.current || !scroller.current || !track.current) return;
+  const handlePointerMove = (e: React.PointerEvent<HTMLElement>) => {
+    const rect = e.currentTarget.getBoundingClientRect();
+    setCoords({
+      x: Math.round(e.clientX - rect.left),
+      y: Math.round(e.clientY - rect.top),
+    });
+  };
 
-      /*
-       * The markup ships as an ordinary horizontally scrollable region and
-       * only becomes a scroll-driven pan where that is actually the better
-       * interaction.
-       *
-       * That order matters. If the pan were the default, anyone outside the
-       * matched conditions would be left with a `w-max` track inside an
-       * `overflow-hidden` section, which is to say four of the five input
-       * families would be silently unreachable. On a page whose whole argument
-       * is that no one should be locked out by their input method, that is the
-       * one bug this section cannot ship with.
-       *
-       * The query excludes phones deliberately. Six panels at 86vw is roughly
-       * five viewports of hijacked vertical scrolling to get past one section,
-       * which on a phone is worse than the swipe gesture people already have.
-       * gsap.matchMedia handles the breakpoint and resize together, and runs
-       * the teardown below when the query stops matching.
-       */
-      const mm = gsap.matchMedia();
-
-      mm.add(
-        "(min-width: 1024px) and (prefers-reduced-motion: no-preference)",
-        () => {
-          const node = scroller.current;
-          if (!node || !track.current || !wrap.current) return;
-
-          const distance = () =>
-            (track.current?.scrollWidth ?? 0) - window.innerWidth;
-
-          // Nothing to pan across: leave the native scroller alone.
-          if (distance() <= 0) return;
-
-          node.style.overflowX = "hidden";
-          // GSAP drives the position now, so the element is no longer a
-          // scrollable region and must stop advertising itself as a tab stop.
-          node.removeAttribute("tabindex");
-          node.removeAttribute("role");
-          node.removeAttribute("aria-label");
-
-          gsap.to(track.current, {
-            x: () => -distance(),
-            ease: "none",
-            scrollTrigger: {
-              trigger: wrap.current,
-              start: "top top",
-              end: () => `+=${distance()}`,
-              pin: true,
-              scrub: 1,
-              invalidateOnRefresh: true,
-              anticipatePin: 1,
-            },
-          });
-
-          return () => {
-            // Hand the section back exactly as it was rendered.
-            node.style.overflowX = "";
-            gsap.set(track.current, { x: 0 });
-            node.setAttribute("tabindex", "0");
-            node.setAttribute("role", "region");
-            node.setAttribute(
-              "aria-label",
-              "Input families, scroll horizontally",
-            );
-          };
-        },
-      );
-
-      return () => mm.revert();
-    },
-    { scope: wrap },
-  );
+  const handlePointerLeave = () => setCoords(null);
 
   return (
+    <article
+      style={{ "--glow": panel.hue } as React.CSSProperties}
+      onPointerMove={handlePointerMove}
+      onPointerLeave={handlePointerLeave}
+      className="group relative flex h-[360px] flex-col justify-between overflow-hidden rounded-2xl border border-subtle/80 bg-surface/90 p-6 transition-all duration-300 hover:border-accent/50 hover:shadow-xl backdrop-blur-sm"
+    >
+      {/* Background Modality Technical Art */}
+      <div className="pointer-events-none absolute inset-0 z-0 opacity-70 transition-opacity duration-300 group-hover:opacity-100">
+        {panel.visual}
+        <div
+          aria-hidden="true"
+          className="absolute inset-0 bg-gradient-to-t from-surface via-surface/75 to-transparent"
+        />
+      </div>
+
+      {/* Dynamic Cursor Spotlight Overlay */}
+      {coords && (
+        <div
+          aria-hidden="true"
+          className="pointer-events-none absolute inset-0 z-0 transition-opacity duration-200"
+          style={{
+            background: `radial-gradient(350px circle at ${coords.x}px ${coords.y}px, color-mix(in srgb, var(--glow) 22%, transparent), transparent 70%)`,
+          }}
+        />
+      )}
+
+      {/* Card Header: Modality Index & Status Badge */}
+      <div className="relative z-10 flex items-center justify-between">
+        <span
+          className="font-mono text-[11px] font-bold tracking-[0.16em]"
+          style={{ color: panel.hue }}
+        >
+          {panel.index}
+        </span>
+        <span
+          data-alpha={panel.status === "Alpha"}
+          className="rounded-full border border-subtle/80 bg-base/60 px-2.5 py-0.5 font-mono text-[10px] font-semibold tracking-wide text-muted uppercase backdrop-blur-sm data-[alpha=true]:border-active/60 data-[alpha=true]:text-active"
+        >
+          {panel.status}
+        </span>
+      </div>
+
+      {/* Card Footer: Icon, Headlines, Copy */}
+      <div className="relative z-10 mt-auto">
+        <span
+          className="mb-2.5 block transition-transform duration-300 group-hover:scale-105"
+          style={{ color: panel.hue }}
+        >
+          {panel.icon}
+        </span>
+        <h3 className="font-display text-xl font-semibold tracking-tight text-ink">
+          {panel.line}
+        </h3>
+        <p className="mt-1 text-[13px] font-medium text-ink/90">{panel.name}</p>
+        <p className="mt-1.5 text-[12.5px] leading-relaxed text-muted line-clamp-3">
+          {panel.body}
+        </p>
+      </div>
+    </article>
+  );
+}
+
+export function Gallery() {
+  return (
     <section
-      ref={wrap}
       id="inputs"
       aria-labelledby="gallery-heading"
-      className="relative overflow-hidden border-y bg-base"
+      className="border-y border-subtle/80 bg-base"
     >
-      <h2 id="gallery-heading" className="sr-only">
-        The five input families
-      </h2>
-
-      {/*
-       * Scroller and track are separate elements on purpose: an element sized
-       * `w-max` cannot scroll itself, so the overflow has to live on a
-       * full-width parent for the no-pan fallback to work at any width.
-       *
-       * tabIndex makes the region keyboard-scrollable, which a bare
-       * overflow container is not. Both it and the role are stripped above
-       * once GSAP takes over and the element stops being scrollable.
-       */}
-      <div
-        ref={scroller}
-        tabIndex={0}
-        role="region"
-        aria-label="Input families, scroll horizontally"
-        className="h-[100dvh] w-full snap-x snap-mandatory overflow-x-auto [scrollbar-width:none] focus-visible:outline-2 focus-visible:-outline-offset-4 focus-visible:outline-accent [&::-webkit-scrollbar]:hidden"
-      >
-        <div ref={track} className="flex h-full w-max items-center gap-6 px-6">
-          {/* Lead-in panel, so the pan opens on a statement rather than a card. */}
-          <article className="flex h-[74vh] w-[86vw] shrink-0 snap-center flex-col justify-end rounded-3xl border bg-surface p-10 lg:w-[38vw]">
+      <div className="mx-auto max-w-[1400px] px-6 py-12 lg:py-16">
+        <div className="flex flex-col justify-between gap-4 md:flex-row md:items-end">
+          <div>
             <p className="label-mono">The inputs</p>
-            <p className="mt-5 font-display text-[clamp(2rem,1.4rem+2.4vw,3.5rem)] leading-[1.05] font-semibold tracking-tight">
-              Five families.
-              <br />
-              <span className="text-muted">One rule format.</span>
-            </p>
-            <p className="mt-5 max-w-[34ch] text-[15px] leading-relaxed text-muted">
-              Every modality normalises to the same event shape, so a rule
-              written for a keyboard shortcut works for a gesture without being
-              rewritten.
-            </p>
-          </article>
-
-          {PANELS.map((panel) => (
-            <article
-              key={panel.id}
-              style={{ "--glow": panel.hue } as React.CSSProperties}
-              className="group relative flex h-[74vh] w-[86vw] shrink-0 snap-center flex-col justify-end overflow-hidden rounded-3xl border bg-surface p-10 transition-shadow duration-500 hover:glow-strong lg:w-[42vw]"
+            <h2
+              id="gallery-heading"
+              className="mt-2 font-display text-2xl font-semibold tracking-tight sm:text-3xl lg:text-4xl"
             >
-              {panel.visual}
-              <div
-                aria-hidden="true"
-                className="absolute inset-0 bg-gradient-to-t from-surface via-surface/60 to-transparent"
-              />
+              Five families.{" "}
+              <span className="text-muted">One rule format.</span>
+            </h2>
+          </div>
+          <p className="max-w-[44ch] text-[13.5px] leading-relaxed text-muted">
+            Every modality normalizes to the same canonical event shape, so a
+            rule written for a key combination works for a gesture without
+            rewrite.
+          </p>
+        </div>
 
-              {/* The panel's own hue, washing in from the top corner. */}
-              <div
-                aria-hidden="true"
-                className="pointer-events-none absolute inset-0"
-                style={{
-                  background:
-                    "radial-gradient(130% 80% at 90% 0%, color-mix(in srgb, var(--glow) 26%, transparent), transparent 64%)",
-                }}
-              />
-
-              <div className="relative">
-                <div className="flex items-center justify-between">
-                  <span
-                    className="font-mono text-[11px] tracking-[0.2em]"
-                    style={{ color: panel.hue }}
-                  >
-                    {panel.index}
-                  </span>
-                  <span
-                    data-alpha={panel.status === "Alpha"}
-                    className="rounded-full border px-2.5 py-0.5 text-[10.5px] font-semibold tracking-wide text-muted uppercase data-[alpha=true]:border-active data-[alpha=true]:text-active"
-                  >
-                    {panel.status}
-                  </span>
-                </div>
-
-                <span className="mt-8 block" style={{ color: panel.hue }}>
-                  {panel.icon}
-                </span>
-
-                <p className="mt-5 font-display text-[clamp(2.25rem,1.6rem+2.6vw,4rem)] leading-[1] font-semibold tracking-tight">
-                  {panel.line}
-                </p>
-                <h3 className="mt-4 text-[15px] font-semibold">{panel.name}</h3>
-                <p className="mt-2 max-w-[38ch] text-[14px] leading-relaxed text-muted">
-                  {panel.body}
-                </p>
-              </div>
-            </article>
+        {/* 5-Card Responsive Grid */}
+        <div className="mt-8 grid grid-cols-1 gap-4 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-5">
+          {PANELS.map((panel) => (
+            <GalleryCard key={panel.id} panel={panel} />
           ))}
         </div>
       </div>

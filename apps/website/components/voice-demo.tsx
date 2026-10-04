@@ -69,28 +69,28 @@ const COMMANDS: readonly Command[] = [
     },
   },
   {
-    id: "inputs",
-    phrases: ["show me the inputs", "the inputs", "inputs", "gallery"],
-    label: "Jumped to inputs",
+    id: "sound",
+    phrases: ["toggle sound", "mute", "unmute", "sound"],
+    label: "Toggled sound effects",
+    shortcut: "⌘ / Ctrl + M",
+    gestureName: "Swipe Up",
+    run: () => {},
+  },
+  {
+    id: "inspect",
+    phrases: ["inspect runtime", "runtime status", "status"],
+    label: "Runtime verified (local)",
     shortcut: "⌘ / Ctrl + I",
     gestureName: "Swipe Left",
-    run: () => scrollToSection("inputs"),
+    run: () => {},
   },
   {
-    id: "pipeline",
-    phrases: ["how it works", "pipeline", "show pipeline"],
-    label: "Jumped to pipeline",
-    shortcut: "⌘ / Ctrl + P",
+    id: "action",
+    phrases: ["trigger action", "dispatch intent", "test"],
+    label: "Action dispatched (in-process)",
+    shortcut: "⌘ / Ctrl + Enter",
     gestureName: "Swipe Right",
-    run: () => scrollToSection("pipeline"),
-  },
-  {
-    id: "top",
-    phrases: ["back to top", "go to top", "top"],
-    label: "Back to top",
-    shortcut: "⌘ / Ctrl + T",
-    gestureName: "Palm Hold",
-    run: () => window.scrollTo({ top: 0, behavior: "smooth" }),
+    run: () => {},
   },
 ];
 
@@ -251,27 +251,15 @@ export function VoiceDemo() {
         if (key === "d") {
           e.preventDefault();
           triggerAction("Switched theme", () => toggleTheme(), "Shortcut");
+        } else if (key === "m") {
+          e.preventDefault();
+          triggerAction("Toggled sound effects", () => {}, "Shortcut");
         } else if (key === "i") {
           e.preventDefault();
-          triggerAction(
-            "Jumped to inputs",
-            () => scrollToSection("inputs"),
-            "Shortcut",
-          );
-        } else if (key === "p") {
+          triggerAction("Runtime verified (local)", () => {}, "Shortcut");
+        } else if (e.key === "Enter") {
           e.preventDefault();
-          triggerAction(
-            "Jumped to pipeline",
-            () => scrollToSection("pipeline"),
-            "Shortcut",
-          );
-        } else if (key === "t") {
-          e.preventDefault();
-          triggerAction(
-            "Back to top",
-            () => window.scrollTo({ top: 0, behavior: "smooth" }),
-            "Shortcut",
-          );
+          triggerAction("Action dispatched (in-process)", () => {}, "Shortcut");
         }
       }
     };
@@ -311,18 +299,10 @@ export function VoiceDemo() {
     if (Math.abs(dx) > 40) {
       if (dx < 0) {
         setGestureFeedback("gesture.swipe (left)");
-        triggerAction(
-          "Jumped to inputs",
-          () => scrollToSection("inputs"),
-          "Gesture",
-        );
+        triggerAction("Runtime verified (local)", () => {}, "Gesture");
       } else {
         setGestureFeedback("gesture.swipe (right)");
-        triggerAction(
-          "Jumped to pipeline",
-          () => scrollToSection("pipeline"),
-          "Gesture",
-        );
+        triggerAction("Action dispatched (in-process)", () => {}, "Gesture");
       }
     } else if (Math.abs(dy) < 15 && Math.abs(dx) < 15) {
       // Tap / Pinch

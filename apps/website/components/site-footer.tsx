@@ -41,15 +41,15 @@ export function ClosingCta() {
         <div className="aurora__blob aurora__blob--two" />
         <div className="aurora__blob aurora__blob--three" />
       </div>
-      <div className="mx-auto flex max-w-[1400px] flex-col items-start gap-8 px-6 py-24 lg:flex-row lg:items-center lg:justify-between lg:py-28">
+      <div className="mx-auto flex max-w-[1400px] flex-col items-start gap-6 px-6 py-12 lg:flex-row lg:items-center lg:justify-between lg:py-16">
         <div>
           <h2
             id="get-heading"
-            className="max-w-[24ch] font-display text-3xl leading-tight font-semibold tracking-tight sm:text-4xl"
+            className="max-w-[24ch] font-display text-2xl leading-tight font-semibold tracking-tight sm:text-3xl"
           >
             Omnivra is pre-1.0 and built in the open.
           </h2>
-          <p className="mt-4 max-w-[52ch] text-[15px] leading-relaxed text-muted">
+          <p className="mt-2 max-w-[52ch] text-[14px] leading-relaxed text-muted">
             The voice path is in alpha and the rest is being built in the
             sequence described above. Follow the repository to track it.
           </p>
@@ -58,13 +58,13 @@ export function ClosingCta() {
         <div className="flex flex-wrap items-center gap-3">
           <a
             href="https://github.com/akshaykumar33/Omnivra#getting-started"
-            className="rounded-lg bg-accent px-5 py-2.5 text-[14px] font-semibold text-base transition-transform active:translate-y-px"
+            className="rounded-lg bg-accent px-4 py-2 text-[13.5px] font-semibold text-base shadow-sm transition-transform active:translate-y-px"
           >
             Get the extension
           </a>
           <a
             href="https://github.com/akshaykumar33/Omnivra"
-            className="flex items-center gap-2 rounded-lg border px-5 py-2.5 text-[14px] font-semibold transition-colors hover:border-accent"
+            className="flex items-center gap-2 rounded-lg border border-subtle/80 bg-surface px-4 py-2 text-[13.5px] font-semibold transition-colors hover:border-accent"
           >
             <GithubLogoIcon size={16} />
             View the source
@@ -77,8 +77,8 @@ export function ClosingCta() {
 
 export function SiteFooter() {
   return (
-    <footer className="border-t">
-      <div className="mx-auto grid max-w-[1400px] gap-10 px-6 py-14 sm:grid-cols-2 lg:grid-cols-4">
+    <footer className="border-t border-subtle/80">
+      <div className="mx-auto grid max-w-[1400px] gap-8 px-6 py-10 sm:grid-cols-2 lg:grid-cols-4">
         <div className="lg:col-span-2">
           <p className="font-display text-[15px] font-semibold tracking-tight">
             Omnivra
@@ -121,9 +121,9 @@ export function SiteFooter() {
         </nav>
       </div>
 
-      <div className="mx-auto max-w-[1400px] px-6 pb-10">
+      <div className="mx-auto max-w-[1400px] px-6 pb-6">
         <div className="rule-fade" />
-        <p className="pt-6 text-[12.5px] text-muted">
+        <p className="pt-4 text-[12px] text-muted">
           Apache-2.0 licensed. Built by Omnivra contributors.
         </p>
       </div>

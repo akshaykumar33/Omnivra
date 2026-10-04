@@ -1,6 +1,7 @@
 "use client";
 
-import React from "react";
+import React, { useState } from "react";
+import { playClick } from "@/lib/sound";
 
 /**
  * Bespoke technical artwork components for each modality and architectural guarantee.
@@ -137,150 +138,183 @@ export function VoiceVisual() {
 }
 
 export function GestureVisual() {
+  const [tilt, setTilt] = useState({ rx: 0, ry: 0 });
+
   return (
     <div
       aria-hidden="true"
-      className="pointer-events-none absolute inset-0 overflow-hidden select-none"
+      onPointerMove={(e) => {
+        const rect = e.currentTarget.getBoundingClientRect();
+        const nx = (e.clientX - rect.left) / rect.width - 0.5;
+        const ny = (e.clientY - rect.top) / rect.height - 0.5;
+        setTilt({
+          rx: Math.round(-ny * 16),
+          ry: Math.round(nx * 16),
+        });
+      }}
+      onPointerLeave={() => setTilt({ rx: 0, ry: 0 })}
+      className="pointer-events-auto absolute inset-0 overflow-hidden select-none [perspective:900px]"
     >
-      <svg
-        viewBox="0 0 600 800"
-        fill="none"
-        xmlns="http://www.w3.org/2000/svg"
-        className="h-full w-full object-cover opacity-60 transition-opacity duration-700 group-hover:opacity-85"
+      <div
+        style={{
+          transform: `rotateX(${tilt.rx}deg) rotateY(${tilt.ry}deg)`,
+          transformOrigin: "center center",
+          transition: "transform 0.12s cubic-bezier(0.16, 1, 0.3, 1)",
+        }}
+        className="h-full w-full"
       >
-        <defs>
-          <radialGradient id="gesture-glow" cx="50%" cy="40%" r="50%">
-            <stop
-              offset="0%"
-              stopColor="var(--hue-gesture)"
-              stopOpacity="0.22"
-            />
-            <stop offset="100%" stopColor="transparent" stopOpacity="0" />
-          </radialGradient>
-        </defs>
-
-        <rect width="600" height="800" fill="url(#gesture-glow)" />
-
-        {/* 3D Skeletal Hand Landmarks (21 Joints) */}
-        {/* Wrist base */}
-        <g
-          stroke="var(--hue-gesture)"
-          strokeOpacity="0.6"
-          strokeWidth="1.8"
-          strokeLinecap="round"
+        <svg
+          viewBox="0 0 600 800"
+          fill="none"
+          xmlns="http://www.w3.org/2000/svg"
+          className="h-full w-full object-cover opacity-60 transition-opacity duration-700 group-hover:opacity-90"
         >
-          {/* Palm base to metacarpals */}
-          <line x1="300" y1="520" x2="220" y2="440" />
-          <line x1="300" y1="520" x2="265" y2="400" />
-          <line x1="300" y1="520" x2="310" y2="390" />
-          <line x1="300" y1="520" x2="355" y2="410" />
-          <line x1="300" y1="520" x2="390" y2="450" />
+          <defs>
+            <radialGradient id="gesture-glow" cx="50%" cy="40%" r="50%">
+              <stop
+                offset="0%"
+                stopColor="var(--hue-gesture)"
+                stopOpacity="0.22"
+              />
+              <stop offset="100%" stopColor="transparent" stopOpacity="0" />
+            </radialGradient>
+          </defs>
 
-          {/* Palm transverse arch */}
-          <line x1="220" y1="440" x2="265" y2="400" />
-          <line x1="265" y1="400" x2="310" y2="390" />
-          <line x1="310" y1="390" x2="355" y2="410" />
-          <line x1="355" y1="410" x2="390" y2="450" />
+          <rect width="600" height="800" fill="url(#gesture-glow)" />
 
-          {/* Thumb */}
-          <line x1="220" y1="440" x2="180" y2="410" />
-          <line x1="180" y1="410" x2="160" y2="370" />
-          <line x1="160" y1="370" x2="175" y2="330" />
+          {/* 3D Skeletal Hand Landmarks (21 Joints) */}
+          {/* Wrist base */}
+          <g
+            stroke="var(--hue-gesture)"
+            strokeOpacity="0.6"
+            strokeWidth="1.8"
+            strokeLinecap="round"
+          >
+            {/* Palm base to metacarpals */}
+            <line x1="300" y1="520" x2="220" y2="440" />
+            <line x1="300" y1="520" x2="265" y2="400" />
+            <line x1="300" y1="520" x2="310" y2="390" />
+            <line x1="300" y1="520" x2="355" y2="410" />
+            <line x1="300" y1="520" x2="390" y2="450" />
 
-          {/* Index Finger (Pointing / Pinch vector) */}
-          <line x1="265" y1="400" x2="260" y2="320" />
-          <line x1="260" y1="320" x2="255" y2="260" />
-          <line x1="255" y1="260" x2="250" y2="210" />
+            {/* Palm transverse arch */}
+            <line x1="220" y1="440" x2="265" y2="400" />
+            <line x1="265" y1="400" x2="310" y2="390" />
+            <line x1="310" y1="390" x2="355" y2="410" />
+            <line x1="355" y1="410" x2="390" y2="450" />
 
-          {/* Middle Finger */}
-          <line x1="310" y1="390" x2="310" y2="300" />
-          <line x1="310" y1="300" x2="310" y2="235" />
-          <line x1="310" y1="235" x2="310" y2="180" />
+            {/* Thumb */}
+            <line x1="220" y1="440" x2="180" y2="410" />
+            <line x1="180" y1="410" x2="160" y2="370" />
+            <line x1="160" y1="370" x2="175" y2="330" />
 
-          {/* Ring Finger */}
-          <line x1="355" y1="410" x2="360" y2="330" />
-          <line x1="360" y1="330" x2="365" y2="270" />
-          <line x1="365" y1="270" x2="370" y2="225" />
+            {/* Index Finger (Pointing / Pinch vector) */}
+            <line x1="265" y1="400" x2="260" y2="320" />
+            <line x1="260" y1="320" x2="255" y2="260" />
+            <line x1="255" y1="260" x2="250" y2="210" />
 
-          {/* Pinky */}
-          <line x1="390" y1="450" x2="410" y2="385" />
-          <line x1="410" y1="385" x2="425" y2="335" />
-          <line x1="425" y1="335" x2="435" y2="295" />
-        </g>
+            {/* Middle Finger */}
+            <line x1="310" y1="390" x2="310" y2="300" />
+            <line x1="310" y1="300" x2="310" y2="235" />
+            <line x1="310" y1="235" x2="310" y2="180" />
 
-        {/* Pinch Proximity Ring between Thumb Tip (175, 330) and Index (250, 210) */}
-        <circle
-          cx="210"
-          cy="270"
-          r="45"
-          stroke="var(--hue-gesture)"
-          strokeWidth="1.2"
-          strokeDasharray="4 3"
-          strokeOpacity="0.7"
-        />
-        <line
-          x1="175"
-          y1="330"
-          x2="250"
-          y2="210"
-          stroke="var(--hue-gesture)"
-          strokeWidth="1"
-          strokeDasharray="2 2"
-          strokeOpacity="0.8"
-        />
+            {/* Ring Finger */}
+            <line x1="355" y1="410" x2="360" y2="330" />
+            <line x1="360" y1="330" x2="365" y2="270" />
+            <line x1="365" y1="270" x2="370" y2="225" />
 
-        {/* 21 Keypoint Joint Circles */}
-        {[
-          [300, 520],
-          [220, 440],
-          [265, 400],
-          [310, 390],
-          [355, 410],
-          [390, 450],
-          [180, 410],
-          [160, 370],
-          [175, 330],
-          [260, 320],
-          [255, 260],
-          [250, 210],
-          [310, 300],
-          [310, 235],
-          [310, 180],
-          [360, 330],
-          [365, 270],
-          [370, 225],
-          [410, 385],
-          [425, 335],
-          [435, 295],
-        ].map(([x, y], idx) => (
-          <g key={idx}>
-            <circle
-              cx={x}
-              cy={y}
-              r="5"
-              fill="var(--bg-surface)"
-              stroke="var(--hue-gesture)"
-              strokeWidth="1.5"
-            />
-            <circle cx={x} cy={y} r="2" fill="var(--hue-gesture)" />
+            {/* Pinky */}
+            <line x1="390" y1="450" x2="410" y2="385" />
+            <line x1="410" y1="385" x2="425" y2="335" />
+            <line x1="425" y1="335" x2="435" y2="295" />
           </g>
-        ))}
-      </svg>
+
+          {/* Pinch Proximity Ring between Thumb Tip (175, 330) and Index (250, 210) */}
+          <circle
+            cx="210"
+            cy="270"
+            r="45"
+            stroke="var(--hue-gesture)"
+            strokeWidth="1.2"
+            strokeDasharray="4 3"
+            strokeOpacity="0.7"
+          />
+          <line
+            x1="175"
+            y1="330"
+            x2="250"
+            y2="210"
+            stroke="var(--hue-gesture)"
+            strokeWidth="1"
+            strokeDasharray="2 2"
+            strokeOpacity="0.8"
+          />
+
+          {/* 21 Keypoint Joint Circles */}
+          {[
+            [300, 520],
+            [220, 440],
+            [265, 400],
+            [310, 390],
+            [355, 410],
+            [390, 450],
+            [180, 410],
+            [160, 370],
+            [175, 330],
+            [260, 320],
+            [255, 260],
+            [250, 210],
+            [310, 300],
+            [310, 235],
+            [310, 180],
+            [360, 330],
+            [365, 270],
+            [370, 225],
+            [410, 385],
+            [425, 335],
+            [435, 295],
+          ].map(([x, y], idx) => (
+            <g key={idx}>
+              <circle
+                cx={x}
+                cy={y}
+                r="5"
+                fill="var(--bg-surface)"
+                stroke="var(--hue-gesture)"
+                strokeWidth="1.5"
+              />
+              <circle cx={x} cy={y} r="2" fill="var(--hue-gesture)" />
+            </g>
+          ))}
+        </svg>
+      </div>
     </div>
   );
 }
 
 export function GazeVisual() {
+  const [reticle, setReticle] = useState({ x: 300, y: 320 });
+
   return (
     <div
       aria-hidden="true"
-      className="pointer-events-none absolute inset-0 overflow-hidden select-none"
+      onPointerMove={(e) => {
+        const rect = e.currentTarget.getBoundingClientRect();
+        const nx = (e.clientX - rect.left) / rect.width;
+        const ny = (e.clientY - rect.top) / rect.height;
+        setReticle({
+          x: Math.round(270 + nx * 60),
+          y: Math.round(290 + ny * 60),
+        });
+      }}
+      onPointerLeave={() => setReticle({ x: 300, y: 320 })}
+      className="pointer-events-auto absolute inset-0 overflow-hidden select-none"
     >
       <svg
         viewBox="0 0 600 800"
         fill="none"
         xmlns="http://www.w3.org/2000/svg"
-        className="h-full w-full object-cover opacity-60 transition-opacity duration-700 group-hover:opacity-85"
+        className="h-full w-full object-cover opacity-60 transition-opacity duration-700 group-hover:opacity-90"
       >
         <defs>
           <radialGradient id="gaze-glow" cx="50%" cy="38%" r="50%">
@@ -302,38 +336,53 @@ export function GazeVisual() {
 
         {/* Iris Circle */}
         <circle
-          cx="300"
-          cy="320"
+          cx={reticle.x}
+          cy={reticle.y}
           r="68"
           stroke="var(--hue-gaze)"
           strokeWidth="2"
           strokeOpacity="0.75"
           fill="var(--bg-surface)"
           fillOpacity="0.4"
+          className="transition-all duration-75 ease-out"
         />
 
         {/* Pupil & Dwell Progress Ring */}
         <circle
-          cx="300"
-          cy="320"
+          cx={reticle.x}
+          cy={reticle.y}
           r="28"
           fill="var(--hue-gaze)"
           fillOpacity="0.9"
+          className="transition-all duration-75 ease-out"
         />
         <circle
-          cx="300"
-          cy="320"
+          cx={reticle.x}
+          cy={reticle.y}
           r="44"
           stroke="var(--hue-gaze)"
           strokeWidth="2.5"
           strokeDasharray="180 90"
           strokeLinecap="round"
+          className="transition-all duration-75 ease-out"
         />
 
         {/* Gaze Reticle & Coordinate Crosshairs */}
         <g stroke="var(--hue-gaze)" strokeWidth="1" strokeOpacity="0.4">
-          <line x1="80" y1="320" x2="520" y2="320" strokeDasharray="3 3" />
-          <line x1="300" y1="120" x2="300" y2="520" strokeDasharray="3 3" />
+          <line
+            x1="80"
+            y1={reticle.y}
+            x2="520"
+            y2={reticle.y}
+            strokeDasharray="3 3"
+          />
+          <line
+            x1={reticle.x}
+            y1="120"
+            x2={reticle.x}
+            y2="520"
+            strokeDasharray="3 3"
+          />
         </g>
 
         {/* Saccade Trajectory Scanpath */}
@@ -436,16 +485,18 @@ export function FaceVisual() {
 }
 
 export function ClassicVisual() {
+  const [activeKey, setActiveKey] = useState<string>("K");
+
   return (
     <div
       aria-hidden="true"
-      className="pointer-events-none absolute inset-0 overflow-hidden select-none"
+      className="pointer-events-auto absolute inset-0 overflow-hidden select-none"
     >
       <svg
         viewBox="0 0 600 800"
         fill="none"
         xmlns="http://www.w3.org/2000/svg"
-        className="h-full w-full object-cover opacity-60 transition-opacity duration-700 group-hover:opacity-85"
+        className="h-full w-full object-cover opacity-60 transition-opacity duration-700 group-hover:opacity-90"
       >
         <defs>
           <radialGradient id="classic-glow" cx="50%" cy="40%" r="50%">
@@ -478,39 +529,51 @@ export function ClassicVisual() {
           ))}
         </g>
 
-        {/* Keycap Matrix Switches */}
+        {/* Interactive Clickable Keycap Matrix Switches */}
         {[
           { label: "CTRL", x: 120, y: 260, w: 70 },
           { label: "ALT", x: 200, y: 260, w: 60 },
           { label: "CMD", x: 270, y: 260, w: 70 },
-          { label: "K", x: 350, y: 260, w: 55, active: true },
+          { label: "K", x: 350, y: 260, w: 55 },
           { label: "SPACE", x: 180, y: 330, w: 220 },
-        ].map((key, i) => (
-          <g key={i}>
-            <rect
-              x={key.x}
-              y={key.y}
-              width={key.w}
-              height="45"
-              rx="8"
-              fill={key.active ? "var(--hue-input)" : "var(--bg-surface)"}
-              fillOpacity={key.active ? 0.3 : 0.8}
-              stroke="var(--hue-input)"
-              strokeWidth={key.active ? 2 : 1}
-            />
-            <text
-              x={key.x + key.w / 2}
-              y={key.y + 27}
-              fill={key.active ? "var(--hue-input)" : "var(--text-muted)"}
-              fontFamily="var(--font-mono)"
-              fontSize="12"
-              fontWeight="600"
-              textAnchor="middle"
+        ].map((key, i) => {
+          const isPressed = activeKey === key.label;
+          return (
+            <g
+              key={i}
+              role="button"
+              tabIndex={0}
+              onClick={() => {
+                setActiveKey(key.label);
+                playClick();
+              }}
+              className="cursor-pointer transition-all duration-150"
             >
-              {key.label}
-            </text>
-          </g>
-        ))}
+              <rect
+                x={key.x}
+                y={key.y + (isPressed ? 3 : 0)}
+                width={key.w}
+                height="45"
+                rx="8"
+                fill={isPressed ? "var(--hue-input)" : "var(--bg-surface)"}
+                fillOpacity={isPressed ? 0.4 : 0.8}
+                stroke="var(--hue-input)"
+                strokeWidth={isPressed ? 2 : 1}
+              />
+              <text
+                x={key.x + key.w / 2}
+                y={key.y + 27 + (isPressed ? 3 : 0)}
+                fill={isPressed ? "var(--hue-input)" : "var(--text-muted)"}
+                fontFamily="var(--font-mono)"
+                fontSize="12"
+                fontWeight="600"
+                textAnchor="middle"
+              >
+                {key.label}
+              </text>
+            </g>
+          );
+        })}
       </svg>
     </div>
   );

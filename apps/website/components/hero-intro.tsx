@@ -69,11 +69,22 @@ export function HeroIntro() {
 
   return (
     <div ref={scope}>
-      <p data-reveal="eyebrow" className="label-mono">
-        Multimodal control layer
-      </p>
+      <div
+        data-reveal="eyebrow"
+        className="inline-flex items-center gap-2.5 rounded-full border border-subtle/80 bg-raised/70 px-3.5 py-1.5 shadow-sm backdrop-blur-md"
+      >
+        <span className="relative flex h-2 w-2">
+          <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-active opacity-75" />
+          <span className="relative inline-flex h-2 w-2 rounded-full bg-active" />
+        </span>
+        <span className="font-mono text-[11px] font-semibold tracking-wider text-ink uppercase">
+          Local Multimodal Runtime
+        </span>
+        <span className="h-3 w-px bg-subtle" />
+        <span className="font-mono text-[11px] text-muted">v0.1.0-alpha</span>
+      </div>
 
-      <h1 className="mt-5 font-display text-[2.75rem] leading-[1.05] font-semibold tracking-tight sm:text-6xl lg:text-[4.5rem]">
+      <h1 className="mt-4 font-display text-[2.25rem] leading-[1.08] font-semibold tracking-tight sm:text-5xl lg:text-[3.5rem]">
         {/* Each word rides inside its own clipping mask. */}
         <span className="flex flex-wrap gap-x-[0.28em]">
           {HEADLINE.map((word, i) => (
@@ -102,13 +113,13 @@ export function HeroIntro() {
 
       <p
         data-reveal="sub"
-        className="mt-6 max-w-[48ch] text-[15.5px] leading-relaxed text-muted"
+        className="mt-4 max-w-[48ch] text-[15px] leading-relaxed text-muted"
       >
         Map voice, gestures and gaze to anything your browser, editor or desktop
         can do. Local-first, and accessible by design.
       </p>
 
-      <div className="mt-9 flex flex-wrap items-center gap-3">
+      <div className="mt-7 flex flex-wrap items-center gap-3">
         <span data-reveal="cta">
           <Magnetic>
             <a
@@ -116,7 +127,7 @@ export function HeroIntro() {
               style={
                 { "--glow": "var(--accent-primary)" } as React.CSSProperties
               }
-              className="glow-soft inline-block rounded-lg bg-accent px-5 py-2.5 text-[14px] font-semibold text-base transition-shadow duration-300 hover:[box-shadow:0_0_0_1px_color-mix(in_srgb,var(--accent-primary)_60%,transparent),0_0_34px_-4px_color-mix(in_srgb,var(--accent-primary)_60%,transparent)] active:translate-y-px"
+              className="inline-flex items-center gap-2 rounded-lg bg-accent px-5 py-2.5 text-[13.5px] font-semibold text-base shadow-sm transition-all duration-200 hover:shadow-[0_0_24px_rgba(56,189,248,0.35)] active:translate-y-px"
             >
               Get the extension
             </a>
@@ -126,7 +137,7 @@ export function HeroIntro() {
         <span data-reveal="cta">
           <a
             href="#pipeline"
-            className="flex items-center gap-2 rounded-lg border px-5 py-2.5 text-[14px] font-semibold transition-colors hover:border-accent"
+            className="flex items-center gap-2 rounded-lg border border-subtle/80 bg-surface/60 px-4 py-2.5 text-[13.5px] font-semibold transition-colors hover:border-accent hover:bg-surface"
           >
             See how it works
             <ArrowDownIcon size={14} weight="bold" />

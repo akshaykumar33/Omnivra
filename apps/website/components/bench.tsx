@@ -86,11 +86,11 @@ const ACTIONS: readonly ActionChoice[] = [
     capability: "ui.theme",
   },
   {
-    id: "scroll",
-    label: "Jump to the input gallery",
-    type: "page.scrollTo",
-    capability: "ui.navigate",
-    payload: { target: "inputs" },
+    id: "notify",
+    label: "Emit runtime notification",
+    type: "runtime.notify",
+    capability: "runtime.event",
+    payload: { status: "success", origin: "omnivra.bench" },
   },
   {
     id: "tone",
@@ -180,7 +180,7 @@ export function Bench() {
       initialize: async () => {},
       shutdown: async () => {},
       supports: (type) =>
-        ["theme.toggle", "page.scrollTo", "audio.tone"].includes(type),
+        ["theme.toggle", "runtime.notify", "audio.tone"].includes(type),
       execute: async (descriptor: ActionDescriptor): Promise<ActionResult> => {
         pulse();
         try {
@@ -197,12 +197,12 @@ export function Bench() {
             return { success: true, actionId: descriptor.id, output: next };
           }
 
-          if (descriptor.type === "page.scrollTo") {
-            const target = String(descriptor.payload?.target ?? "");
-            document
-              .getElementById(target)
-              ?.scrollIntoView({ behavior: "smooth" });
-            return { success: true, actionId: descriptor.id, output: target };
+          if (descriptor.type === "runtime.notify") {
+            return {
+              success: true,
+              actionId: descriptor.id,
+              output: "Notification dispatched locally",
+            };
           }
 
           if (descriptor.type === "audio.tone") {
@@ -376,25 +376,25 @@ export function Bench() {
     <section
       id="bench"
       aria-labelledby="bench-heading"
-      className="mx-auto max-w-[1400px] px-6 py-24 lg:py-32"
+      className="mx-auto max-w-[1400px] px-6 py-12 lg:py-16"
     >
       <h2
         id="bench-heading"
-        className="max-w-[22ch] font-display text-[clamp(2rem,1.4rem+2.4vw,3.5rem)] leading-[1.05] font-semibold tracking-tight"
+        className="max-w-[28ch] font-display text-2xl font-semibold tracking-tight sm:text-3xl lg:text-4xl"
       >
         Run the engine with your own hardware.
       </h2>
-      <p className="mt-5 max-w-[62ch] text-[15px] leading-relaxed text-muted">
+      <p className="mt-2 max-w-[62ch] text-[14px] leading-relaxed text-muted">
         This panel imports the same kernel the extension ships. Compose a rule,
         then fire it with a key, a game controller or a flick of the pointer.
         The events below are the real ones.
       </p>
 
-      <div className="mt-12 grid gap-5 lg:grid-cols-[minmax(0,1fr)_minmax(0,1.1fr)]">
+      <div className="mt-8 grid gap-4 lg:grid-cols-[minmax(0,1fr)_minmax(0,1.1fr)]">
         {/* Composer */}
         <div
           ref={panelRef}
-          className="rounded-[var(--radius-card)] border bg-surface p-6"
+          className="rounded-[var(--radius-card)] border border-subtle/80 bg-surface/90 p-5"
         >
           <div className="grid gap-5 sm:grid-cols-2">
             <label className="block">

@@ -17,48 +17,40 @@
  * mid-page.
  */
 :root {
-  --bg-base: #0c0907;
-  --bg-surface: #141010;
-  --bg-raised: #1d1715;
-  --border-subtle: #2b2220;
-  --border-focus: #e0a458;
-  --text-primary: #f4ede6;
-  --text-muted: #a2928a;
-  --accent-primary: #e0a458;
-  --status-active: #9db88c;
-  --status-warning: #cfb978;
-  --status-danger: #c97a6d;
+  --bg-base: #08080c;
+  --bg-surface: #101016;
+  --bg-raised: #181822;
+  --border-subtle: rgba(255, 255, 255, 0.08);
+  --border-focus: #38bdf8;
+  --text-primary: #f8fafc;
+  --text-muted: #94a3b8;
+  --accent-primary: #38bdf8;
+  --status-active: #10b981;
+  --status-warning: #fbbf24;
+  --status-danger: #f43f5e;
 
   /*
    * Modality hues.
-   *
-   * One hue per input family, used consistently wherever that modality
-   * appears: a categorical palette in the dataviz sense, so the colour tells
-   * you which family you are looking at. Ordered so no two adjacent gallery
-   * panels sit next to each other on the wheel, which is what makes the pan
-   * read as a sweep instead of a smear.
+   * Vibrant, distinct phosphor channels for each input family.
    */
-  --hue-voice: #e0a458;
-  --hue-gesture: #b08ba8;
-  --hue-gaze: #cfb978;
-  --hue-face: #c98478;
-  --hue-input: #9db88c;
+  --hue-voice: #38bdf8;
+  --hue-gesture: #c084fc;
+  --hue-gaze: #34d399;
+  --hue-face: #fbbf24;
+  --hue-input: #818cf8;
 
   /*
-   * Fluid type. Scales continuously rather than stepping at breakpoints, so
-   * oversized display type stays usable from 375px to 4K without a media query.
+   * Fluid type. Balanced and ergonomic, avoiding blown-out sizes.
    */
-  --text-display: clamp(2.5rem, 1.5rem + 4.4vw, 6.5rem);
-  --text-headline: clamp(1.875rem, 1.35rem + 2.4vw, 3.5rem);
-  --text-lead: clamp(1rem, 0.95rem + 0.3vw, 1.25rem);
+  --text-display: clamp(2.25rem, 1.35rem + 3.2vw, 4.5rem);
+  --text-headline: clamp(1.65rem, 1.2rem + 1.8vw, 2.75rem);
+  --text-lead: clamp(0.95rem, 0.9rem + 0.25vw, 1.15rem);
 
   /*
-   * Radius scale, locked. Cards and panels take --radius-card, anything the
-   * user clicks or types into takes --radius-control, badges and the scrollbar
-   * take the pill. Nothing on the page invents a fourth value.
+   * Radius scale.
    */
-  --radius-card: 1rem;
-  --radius-control: 0.625rem;
+  --radius-card: 0.875rem;
+  --radius-control: 0.5rem;
   --radius-pill: 999px;
 
   /* The brand easing curve from docs/design/motion.md. */
@@ -68,76 +60,75 @@
 }
 
 /*
- * Light mode is warm ivory, not white. A cocoa page that flips to #ffffff
- * loses the entire identity, so the light palette keeps the same brown
- * undertone and simply inverts the lightness.
+ * Crisp modern alabaster light mode.
  */
 @media (prefers-color-scheme: light) {
   :root {
-    --bg-base: #faf6f2;
-    --bg-surface: #f3ede6;
-    --bg-raised: #ebe3da;
-    --border-subtle: #ded3c7;
-    --border-focus: #a4682a;
-    --text-primary: #1a1310;
-    --text-muted: #6b5b52;
-    --accent-primary: #a4682a;
-    --status-active: #5c7a4a;
-    --status-warning: #8a6d24;
-    --status-danger: #a4493a;
+    --bg-base: #f8fafc;
+    --bg-surface: #ffffff;
+    --bg-raised: #f1f5f9;
+    --border-subtle: #e2e8f0;
+    --border-focus: #0284c7;
+    --text-primary: #0f172a;
+    --text-muted: #64748b;
+    --accent-primary: #0284c7;
+    --status-active: #059669;
+    --status-warning: #d97706;
+    --status-danger: #dc2626;
 
-    /* Darkened so each hue still clears AA on an ivory surface. */
-    --hue-voice: #a4682a;
-    --hue-gesture: #76527a;
-    --hue-gaze: #806a24;
-    --hue-face: #a04c3e;
-    --hue-input: #4f6f42;
+    --hue-voice: #0284c7;
+    --hue-gesture: #7c3aed;
+    --hue-gaze: #059669;
+    --hue-face: #d97706;
+    --hue-input: #4f46e5;
   }
 }
 
 :root[data-theme="light"] {
-  --bg-base: #faf6f2;
-  --bg-surface: #f3ede6;
-  --bg-raised: #ebe3da;
-  --border-subtle: #ded3c7;
-  --border-focus: #a4682a;
-  --text-primary: #1a1310;
-  --text-muted: #6b5b52;
-  --accent-primary: #a4682a;
-  --status-active: #5c7a4a;
-  --status-warning: #8a6d24;
-  --status-danger: #a4493a;
-  --hue-voice: #a4682a;
-  --hue-gesture: #76527a;
-  --hue-gaze: #806a24;
-  --hue-face: #a04c3e;
-  --hue-input: #4f6f42;
+  --bg-base: #f8fafc;
+  --bg-surface: #ffffff;
+  --bg-raised: #f1f5f9;
+  --border-subtle: #e2e8f0;
+  --border-focus: #0284c7;
+  --text-primary: #0f172a;
+  --text-muted: #64748b;
+  --accent-primary: #0284c7;
+  --status-active: #059669;
+  --status-warning: #d97706;
+  --status-danger: #dc2626;
+
+  --hue-voice: #0284c7;
+  --hue-gesture: #7c3aed;
+  --hue-gaze: #059669;
+  --hue-face: #d97706;
+  --hue-input: #4f46e5;
 }
 
 :root[data-theme="dark"] {
-  --bg-base: #0c0907;
-  --bg-surface: #141010;
-  --bg-raised: #1d1715;
-  --border-subtle: #2b2220;
-  --border-focus: #e0a458;
-  --text-primary: #f4ede6;
-  --text-muted: #a2928a;
-  --accent-primary: #e0a458;
-  --status-active: #9db88c;
-  --status-warning: #cfb978;
-  --status-danger: #c97a6d;
-  --hue-voice: #e0a458;
-  --hue-gesture: #b08ba8;
-  --hue-gaze: #cfb978;
-  --hue-face: #c98478;
-  --hue-input: #9db88c;
+  --bg-base: #08080c;
+  --bg-surface: #101016;
+  --bg-raised: #181822;
+  --border-subtle: rgba(255, 255, 255, 0.08);
+  --border-focus: #38bdf8;
+  --text-primary: #f8fafc;
+  --text-muted: #94a3b8;
+  --accent-primary: #38bdf8;
+  --status-active: #10b981;
+  --status-warning: #fbbf24;
+  --status-danger: #f43f5e;
+
+  --hue-voice: #38bdf8;
+  --hue-gesture: #c084fc;
+  --hue-gaze: #34d399;
+  --hue-face: #fbbf24;
+  --hue-input: #818cf8;
 }
 
-/* High contrast strengthens edges and muted text, never relies on hue alone. */
+/* High contrast strengthens edges and muted text. */
 @media (prefers-contrast: more) {
   :root {
-    --border-subtle: #7a6a62;
-    --text-muted: #ded3c7;
+    --border-subtle: #94a3b8;
+    --text-muted: #cbd5e1;
   }
 }
 
