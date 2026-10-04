@@ -2,8 +2,15 @@
   "name": "@omnivra/browser-extension",
   "version": "0.1.0-alpha.0",
   "private": true,
+  "type": "module",
   "scripts": {
-    "dev": "echo \"Browser extension dev stub\"",
-    "build": "echo \"Browser extension build stub\""
+    "build": "node scripts/build.mjs",
+    "test": "node --test test/*.test.mjs",
+    "test:e2e": "node --test --test-concurrency=1 e2e/*.e2e.mjs",
+    "icons": "node scripts/icons.mjs"
+  },
+  "devDependencies": {
+    "@mediapipe/tasks-vision": "^1.0.1",
+    "playwright": "^1.63.0"
   }
 }

@@ -1,0 +1,109 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <title>Omnivra</title>
+    <style>
+      :root {
+        color-scheme: light dark;
+        --accent: #d97757;
+      }
+      body {
+        font:
+          14px/1.5 system-ui,
+          sans-serif;
+        margin: 0;
+        padding: 16px;
+      }
+      h1 {
+        font-size: 16px;
+        margin: 0 0 12px;
+      }
+      button {
+        width: 100%;
+        padding: 10px;
+        font: inherit;
+        font-weight: 600;
+        border: 0;
+        border-radius: 8px;
+        background: var(--accent);
+        color: #fff;
+        cursor: pointer;
+      }
+      button[aria-pressed="true"] {
+        background: #b3412b;
+      }
+      form {
+        display: flex;
+        gap: 6px;
+        margin-top: 10px;
+      }
+      input {
+        flex: 1;
+        padding: 8px;
+        font: inherit;
+        border-radius: 6px;
+        border: 1px solid #8886;
+      }
+      form button {
+        width: auto;
+      }
+      #status {
+        margin: 10px 0;
+        min-height: 1.5em;
+      }
+      #log {
+        list-style: none;
+        padding: 0;
+        margin: 0;
+        font-size: 13px;
+      }
+      #log li {
+        padding: 4px 0;
+        border-bottom: 1px solid #8883;
+      }
+      .err {
+        color: #d33;
+      }
+      #camera {
+        margin-top: 8px;
+      }
+      #preview {
+        width: 100%;
+        margin-top: 8px;
+        border-radius: 8px;
+        transform: scaleX(-1);
+      }
+      details {
+        margin-top: 14px;
+        font-size: 13px;
+      }
+    </style>
+  </head>
+  <body>
+    <h1>Omnivra voice control</h1>
+    <button id="toggle" type="button" aria-pressed="false">
+      Start listening
+    </button>
+    <button id="camera" type="button" aria-pressed="false">
+      Start gestures
+    </button>
+    <video id="preview" muted playsinline hidden></video>
+    <form id="typed">
+      <label for="cmd" hidden>Type a command</label>
+      <input id="cmd" placeholder="Or type a command…" autocomplete="off" />
+      <button type="submit">Run</button>
+    </form>
+    <p id="status" role="status" aria-live="polite"></p>
+    <ul id="log"></ul>
+    <details>
+      <summary>Commands you can say</summary>
+      <ul id="examples"></ul>
+    </details>
+    <details>
+      <summary>Gestures</summary>
+      <ul id="gesture-list"></ul>
+    </details>
+    <script type="module" src="sidepanel.js"></script>
+  </body>
+</html>
