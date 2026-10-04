@@ -58,11 +58,13 @@ const LISTENER_ORIGIN = new URL(LISTENER_URL).origin;
 let listener;
 let listenerReady;
 let listening = false;
-// Phrase ids already acted on, so an interim hit doesn't run again when the
-// same phrase turns final.
-const handled = new Set();
+// For each phrase id, how many of its words have been used. Continuous
+// recognition keeps appending words to the same phrase ("play … pause"), so
+// only the words after that point can hold a new command.
+const handled = new Map();
 
 function setListening(on) {
+  if (on !== listening) setDuck(on && duckBox.checked);
   listening = on;
   toggle.setAttribute("aria-pressed", String(on));
   toggle.textContent = on ? "Stop listening" : "Start listening";
@@ -128,14 +130,23 @@ function onSpeech(message) {
     const alternatives = message.alternatives.filter(Boolean);
     if (!alternatives.length) return;
     status.textContent = `Heard: "${alternatives[0]}"`;
-    if (handled.has(message.id)) return;
-    const best = parseBest(alternatives);
-    if (best && (message.isFinal || isInstant(best.intent))) {
-      handled.add(message.id);
+    const used = handled.get(message.id) ?? 0;
+    const words = alternatives[0].split(/\s+/);
+    // Alternatives can differ in length; take each one's words after the
+    // already-used count.
+    const tails = alternatives
+      .map((alt) => alt.split(/\s+/).slice(used).join(" "))
+      .filter(Boolean);
+    if (!tails.length) return;
+    const best = parseBest(tails);
+    if (best && (message.isFinal || isInstant(best.intent, best.transcript))) {
+      handled.set(message.id, words.length);
       send(best.intent, `"${best.transcript}"`);
     } else if (message.isFinal) {
-      handled.add(message.id);
-      addLog(`Didn't understand "${alternatives[0]}"`, true);
+      handled.set(message.id, words.length);
+      // Leftovers after a command ("… the video please") aren't worth a
+      // complaint; only report a phrase in which nothing was understood.
+      if (used === 0) addLog(`Didn't understand "${tails[0]}"`, true);
     }
   }
 
@@ -158,6 +169,21 @@ function onSpeech(message) {
     setListening(false);
     stopEngine();
   }
+}
+
+// Lowering video volume while listening keeps the video's sound from drowning
+// out the user's voice. Remembered across sessions.
+const duckBox = document.getElementById("duck");
+chrome.storage.local.get("duck").then(({ duck }) => {
+  if (duck === false) duckBox.checked = false;
+});
+duckBox.addEventListener("change", () => {
+  chrome.storage.local.set({ duck: duckBox.checked });
+  if (listening) setDuck(duckBox.checked);
+});
+
+function setDuck(on) {
+  chrome.runtime.sendMessage({ kind: "intent", intent: { type: "duck", on } });
 }
 
 // Stops whichever engine is running.
