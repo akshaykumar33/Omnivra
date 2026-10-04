@@ -10,7 +10,7 @@ Install Omnivra from the Edge Add-ons store. It updates itself.
 
 ### Chrome, Brave and other Chromium browsers
 
-1. Download `omnivra-extension-<version>.zip` from the latest [`extension-v*` release](https://github.com/akshaykumar33/Omnivra/releases).
+1. Download the latest version: [omnivra-extension.zip](https://github.com/akshaykumar33/Omnivra/releases/latest/download/omnivra-extension.zip). The link always serves the newest release; every version is listed on the [releases page](https://github.com/akshaykumar33/Omnivra/releases).
 2. Unzip it to a folder you'll keep. The browser loads the extension from that folder, so don't delete it.
 3. Open `chrome://extensions` (or `brave://extensions`) and turn on **Developer mode**.
 4. Click **Load unpacked** and choose the unzipped folder.
