@@ -1,6 +1,7 @@
 import type { Metadata, Viewport } from "next";
 import { Inter, Inter_Tight, JetBrains_Mono } from "next/font/google";
 import "./globals.css";
+import { SmoothScroll } from "@/components/smooth-scroll";
 
 /*
  * docs/design/typography.md specifies Inter + JetBrains Mono. Inter Tight is
@@ -60,6 +61,7 @@ export default function RootLayout({
         >
           Skip to content
         </a>
+        <SmoothScroll />
         {children}
       </body>
     </html>

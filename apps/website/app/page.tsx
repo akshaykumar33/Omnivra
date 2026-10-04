@@ -1,8 +1,9 @@
 import { SiteNav } from "@/components/site-nav";
 import { Hero } from "@/components/hero";
 import { Integrations } from "@/components/integrations";
-import { Inputs } from "@/components/inputs";
+import { Gallery } from "@/components/gallery";
 import { Pipeline } from "@/components/pipeline";
+import { WasmEngineHud } from "@/components/wasm-engine-hud";
 import { Accessibility, Privacy } from "@/components/commitments";
 import { ClosingCta, SiteFooter } from "@/components/site-footer";
 
@@ -12,10 +13,11 @@ import { ClosingCta, SiteFooter } from "@/components/site-footer";
  *
  *   Hero          asymmetric split, live demo on the right
  *   Integrations  single hairline-bounded logo row
- *   Inputs        asymmetric bento, 5 cells for 5 modalities
+ *   Gallery       pinned horizontal pan, 5 full-height panels
  *   Pipeline      sticky scroll-scrub sequence
+ *   WasmEngineHud collapsible runtime telemetry HUD
  *   Accessibility full-width statement
- *   Privacy       split with photography
+ *   Privacy       split with technical schematic
  *   ClosingCta    horizontal CTA band
  */
 export default function HomePage() {
@@ -25,8 +27,9 @@ export default function HomePage() {
       <main id="main">
         <Hero />
         <Integrations />
-        <Inputs />
+        <Gallery />
         <Pipeline />
+        <WasmEngineHud />
         <Accessibility />
         <Privacy />
         <ClosingCta />

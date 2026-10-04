@@ -167,26 +167,6 @@ export function Inputs() {
               style={{ "--glow": tint.cssVar } as React.CSSProperties}
               className={`group relative flex min-h-[13rem] flex-col justify-end overflow-hidden rounded-2xl border bg-surface p-5 transition-shadow duration-500 hover:glow-strong ${modality.span}`}
             >
-              {/* Spotlight, in this card's own hue. Fades in only on hover. */}
-              <div
-                aria-hidden="true"
-                className="pointer-events-none absolute inset-0 opacity-0 transition-opacity duration-300 group-hover:opacity-100"
-                style={{
-                  background:
-                    "radial-gradient(320px circle at var(--mx, 50%) var(--my, 50%), color-mix(in srgb, var(--glow) 32%, transparent), transparent 68%)",
-                }}
-              />
-
-              {/* Constant hue wash so the card is tinted even at rest. */}
-              <div
-                aria-hidden="true"
-                className="pointer-events-none absolute inset-0 opacity-70"
-                style={{
-                  background:
-                    "radial-gradient(120% 90% at 85% 0%, color-mix(in srgb, var(--glow) 16%, transparent), transparent 62%)",
-                }}
-              />
-
               {modality.image ? (
                 <>
                   <Image
@@ -194,7 +174,7 @@ export function Inputs() {
                     alt={modality.image.alt}
                     fill
                     sizes="(max-width: 640px) 100vw, 33vw"
-                    className="-z-10 object-cover opacity-45 grayscale transition-opacity duration-500 group-hover:opacity-60"
+                    className="object-cover opacity-45 grayscale transition-opacity duration-500 group-hover:opacity-60"
                   />
                   {/*
                    * Scrim, not a veil: dark enough at the bottom for the text to
@@ -203,10 +183,30 @@ export function Inputs() {
                    */}
                   <div
                     aria-hidden="true"
-                    className="absolute inset-0 -z-10 bg-gradient-to-t from-surface via-surface/80 to-transparent"
+                    className="absolute inset-0 bg-gradient-to-t from-surface via-surface/75 to-transparent"
                   />
                 </>
               ) : null}
+
+              {/* Resting hue wash, so the card is tinted even untouched. */}
+              <div
+                aria-hidden="true"
+                className="pointer-events-none absolute inset-0 opacity-80"
+                style={{
+                  background:
+                    "radial-gradient(120% 90% at 85% 0%, color-mix(in srgb, var(--glow) 20%, transparent), transparent 62%)",
+                }}
+              />
+
+              {/* Hover spotlight, in this card own hue. */}
+              <div
+                aria-hidden="true"
+                className="pointer-events-none absolute inset-0 opacity-0 transition-opacity duration-300 group-hover:opacity-100"
+                style={{
+                  background:
+                    "radial-gradient(320px circle at var(--mx, 50%) var(--my, 50%), color-mix(in srgb, var(--glow) 32%, transparent), transparent 68%)",
+                }}
+              />
 
               <div className="relative">
                 <div className="flex items-center justify-between gap-3">

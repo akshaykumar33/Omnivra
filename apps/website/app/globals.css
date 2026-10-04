@@ -35,6 +35,14 @@
   --hue-face: #fb7185;
   --hue-input: #34d399;
 
+  /*
+   * Fluid type. Scales continuously rather than stepping at breakpoints, so
+   * oversized display type stays usable from 375px to 4K without a media query.
+   */
+  --text-display: clamp(2.75rem, 1.6rem + 4.6vw, 7rem);
+  --text-headline: clamp(2rem, 1.4rem + 2.6vw, 3.75rem);
+  --text-lead: clamp(1rem, 0.95rem + 0.3vw, 1.25rem);
+
   /* The brand easing curve from docs/design/motion.md. */
   --ease-brand: cubic-bezier(0.16, 1, 0.3, 1);
 
