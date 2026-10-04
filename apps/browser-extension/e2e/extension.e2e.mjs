@@ -374,3 +374,65 @@ test("voice: video volume is lowered while listening and restored after", async 
   await panel.click("#toggle");
   await panel.check("#duck");
 });
+
+test("voice: a silent on-device engine falls back to online and is remembered", async () => {
+  const extensionOrigin = `chrome-extension://${new URL(panel.url()).host}`;
+  const silent = await context.newPage();
+  // An on-device engine that hears speech but never returns text: what Chrome
+  // does in some setups when recognition runs inside an extension page.
+  await silent.addInitScript(() => {
+    window.SpeechRecognition = window.webkitSpeechRecognition = class {
+      static available() {
+        return Promise.resolve("available");
+      }
+      start() {
+        setTimeout(() => this.onsoundstart?.(), 100);
+      }
+      stop() {}
+      abort() {}
+    };
+  });
+  await silent.goto(
+    `${extensionOrigin}/sidepanel.html?listenerPort=${server.address().port}`,
+  );
+  await silent.evaluate(() => chrome.storage.local.remove("engine"));
+  await silent.click("#toggle");
+  await silent.waitForFunction(() =>
+    document.getElementById("status").textContent.includes("on this device"),
+  );
+
+  // After the watchdog (6 s) it switches to the online listener by itself.
+  await silent.waitForFunction(
+    () =>
+      document.getElementById("status").textContent.includes("online") &&
+      document.getElementById("toggle").getAttribute("aria-pressed") === "true",
+    null,
+    { timeout: 15000 },
+  );
+  assert.match(
+    await silent.locator("#log li").first().textContent(),
+    /Switched to online/,
+  );
+  const listenerFrame = silent
+    .frames()
+    .find((f) => f.url().includes("/listen"));
+  assert.equal(
+    (await listenerFrame.evaluate(() => window.__started.at(-1))).action,
+    "start",
+  );
+  assert.equal(
+    (await silent.evaluate(() => chrome.storage.local.get("engine"))).engine,
+    "online",
+  );
+
+  // Next time it goes straight to online.
+  await silent.click("#toggle");
+  await silent.click("#toggle");
+  await silent.waitForFunction(() =>
+    document.getElementById("status").textContent.includes("online"),
+  );
+  await silent.click("#toggle");
+  await silent.evaluate(() => chrome.storage.local.remove("engine"));
+  await silent.close();
+  await page.bringToFront();
+});

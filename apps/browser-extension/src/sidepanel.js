@@ -149,6 +149,16 @@ function onSpeech(message) {
         : "Listening (online)…";
   }
 
+  if (message.kind === "error" && message.error === "device-silent") {
+    // On-device recognition heard speech but returned no text in this panel.
+    // Switch to the online listener now and remember it for next time.
+    chrome.storage.local.set({ engine: "online" });
+    addLog("Switched to online recognition; on-device wasn't responding.");
+    stopEngine();
+    startOnline(currentLang);
+    return;
+  }
+
   if (message.kind === "error") {
     // Transient failures (a network blip) are retried by the listener.
     if (!message.fatal) {
@@ -193,27 +203,37 @@ async function startListening() {
   // ensurePermission asks once and listening starts by itself when granted.
   if (!(await ensurePermission("audio"))) return;
   // Match the user's English accent (en-IN, en-GB…) instead of forcing US.
-  const lang = navigator.language.startsWith("en")
+  currentLang = navigator.language.startsWith("en")
     ? navigator.language
     : "en-US";
   handled.clear();
 
-  if (await onDeviceAvailable(lang)) {
+  // On-device first, unless it already proved silent on this browser.
+  const { engine } = await chrome.storage.local.get("engine");
+  if (engine !== "online" && (await onDeviceAvailable(currentLang))) {
     setListening(true);
     status.textContent = "Listening (on this device)…";
-    stopEngine = listenOnDevice(lang, onSpeech);
+    stopEngine = listenOnDevice(currentLang, onSpeech);
     return;
   }
+  await startOnline(currentLang);
+}
 
+let currentLang = "en-US";
+
+// Speech recognition through the website listener, embedded in this panel.
+async function startOnline(lang) {
   status.textContent = "Starting…";
   try {
     await loadListener();
   } catch (error) {
-    status.textContent = "";
+    setListening(false);
     addLog(error.message, true);
     return;
   }
+  handled.clear();
   setListening(true);
+  status.textContent = "Listening (online)…";
   stopEngine = () => toListener({ action: "stop" });
   toListener({ action: "start", lang });
 }

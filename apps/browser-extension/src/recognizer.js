@@ -11,6 +11,8 @@ const Recognition =
 // Sessions in a row that may end without audio before giving up.
 const MAX_STALLS = 5;
 const FATAL = ["not-allowed", "service-not-allowed", "audio-capture"];
+// Speech detected but no text by then means the engine isn't working here.
+const SILENT_AFTER_SPEECH_MS = 6000;
 
 export async function onDeviceAvailable(lang) {
   if (!Recognition?.available) return false;
@@ -32,6 +34,20 @@ export function listenOnDevice(lang, onMessage) {
   let session = 0;
   let stalls = 0;
   let current;
+  // In some Chrome setups the on-device engine hears speech in an extension
+  // page but never returns text. If speech is detected and nothing comes back
+  // in time, report it so the panel can switch to the online listener.
+  let gotResult = false;
+  let watchdog;
+  const watch = () => {
+    if (gotResult || watchdog) return;
+    watchdog = setTimeout(() => {
+      if (gotResult || !wanted) return;
+      wanted = false;
+      current?.abort();
+      onMessage({ kind: "error", error: "device-silent", fatal: true });
+    }, SILENT_AFTER_SPEECH_MS);
+  };
 
   const open = () => {
     const r = new Recognition();
@@ -46,7 +62,11 @@ export function listenOnDevice(lang, onMessage) {
       heardAudio = true;
       stalls = 0;
     };
+    r.onsoundstart = watch;
+    r.onspeechstart = watch;
     r.onresult = (event) => {
+      gotResult = true;
+      clearTimeout(watchdog);
       for (let i = event.resultIndex; i < event.results.length; i++) {
         const result = event.results[i];
         onMessage({
@@ -84,6 +104,7 @@ export function listenOnDevice(lang, onMessage) {
   open();
   return () => {
     wanted = false;
+    clearTimeout(watchdog);
     current?.stop();
   };
 }
