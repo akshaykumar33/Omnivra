@@ -1,4 +1,4 @@
-import { parseCommand, EXAMPLES } from "./commands.js";
+import { parseCommand, parseBest, isInstant, EXAMPLES } from "./commands.js";
 import { GESTURES } from "./gesture-map.js";
 
 const toggle = document.getElementById("toggle");
@@ -40,15 +40,148 @@ document.getElementById("typed").addEventListener("submit", (event) => {
   input.value = "";
 });
 
-const Recognition = window.SpeechRecognition ?? window.webkitSpeechRecognition;
-let recognition;
+// Browsers return no transcripts to speech recognition started in an extension
+// page, so recognition runs in a page on the Omnivra website, embedded here in
+// a hidden iframe and driven with postMessage. Tests may swap in a local
+// stand-in with ?listenerPort=<n>; nothing else can redirect the iframe.
+const testPort = Number.parseInt(
+  new URLSearchParams(location.search).get("listenerPort") ?? "",
+  10,
+);
+const LISTENER_URL =
+  testPort > 0 && testPort < 65536
+    ? `http://localhost:${testPort}/listen`
+    : "https://omnivra.vercel.app/listen";
+const LISTENER_ORIGIN = new URL(LISTENER_URL).origin;
+
+let listener;
+let listenerReady;
 let listening = false;
+// Phrase ids already acted on, so an interim hit doesn't run again when the
+// same phrase turns final.
+const handled = new Set();
 
 function setListening(on) {
   listening = on;
   toggle.setAttribute("aria-pressed", String(on));
   toggle.textContent = on ? "Stop listening" : "Start listening";
   status.textContent = on ? "Listening…" : "";
+}
+
+function toListener(message) {
+  listener.contentWindow.postMessage(
+    { type: "omnivra-listen", ...message },
+    LISTENER_ORIGIN,
+  );
+}
+
+function loadListener() {
+  if (listenerReady) return listenerReady;
+  listener = document.createElement("iframe");
+  listener.src = LISTENER_URL;
+  listener.allow = "microphone";
+  listener.hidden = true;
+  listener.title = "Omnivra speech recognition";
+  listenerReady = new Promise((resolve, reject) => {
+    const timer = setTimeout(
+      () => reject(new Error("Couldn't reach the Omnivra voice service.")),
+      15000,
+    );
+    addEventListener("message", function onReady(event) {
+      if (event.origin !== LISTENER_ORIGIN || event.data?.kind !== "ready")
+        return;
+      clearTimeout(timer);
+      removeEventListener("message", onReady);
+      resolve();
+    });
+  });
+  document.body.append(listener);
+  return listenerReady;
+}
+
+const ERRORS = {
+  "not-allowed": "Allow the microphone in the tab that opened, then try again.",
+  "service-not-allowed": "Speech recognition is turned off in this browser.",
+  network:
+    "Voice needs an internet connection (the browser's speech service is online).",
+  "audio-capture": "No microphone was found.",
+  busy: "The microphone or speech service is busy. Close other tabs using voice, then try again.",
+  unsupported: "Speech recognition isn't available in this browser.",
+};
+
+addEventListener("message", (event) => {
+  if (
+    event.origin !== LISTENER_ORIGIN ||
+    event.data?.source !== "omnivra-listener"
+  )
+    return;
+  const message = event.data;
+
+  if (message.kind === "result" && listening) {
+    const alternatives = message.alternatives.filter(Boolean);
+    if (!alternatives.length) return;
+    status.textContent = `Heard: "${alternatives[0]}"`;
+    if (handled.has(message.id)) return;
+    const best = parseBest(alternatives);
+    if (best && (message.isFinal || isInstant(best.intent))) {
+      handled.add(message.id);
+      send(best.intent, `"${best.transcript}"`);
+    } else if (message.isFinal) {
+      handled.add(message.id);
+      addLog(`Didn't understand "${alternatives[0]}"`, true);
+    }
+  }
+
+  if (message.kind === "error") {
+    // Transient failures (a network blip) are retried by the listener.
+    if (!message.fatal) {
+      status.textContent = "Reconnecting…";
+      return;
+    }
+    addLog(ERRORS[message.error] ?? `Mic error: ${message.error}`, true);
+    if (message.error === "not-allowed") {
+      // A hidden iframe can't show the permission prompt; the page in a tab can.
+      chrome.tabs.create({ url: LISTENER_URL });
+    }
+    setListening(false);
+  }
+});
+
+toggle.addEventListener("click", async () => {
+  if (listening) {
+    setListening(false);
+    toListener({ action: "stop" });
+    return;
+  }
+  status.textContent = "Starting…";
+  try {
+    await loadListener();
+  } catch (error) {
+    status.textContent = "";
+    addLog(error.message, true);
+    return;
+  }
+  handled.clear();
+  setListening(true);
+  toListener({
+    action: "start",
+    // Match the user's English accent (en-IN, en-GB…) instead of forcing US.
+    lang: navigator.language.startsWith("en") ? navigator.language : "en-US",
+  });
+});
+
+for (const { label, intent } of Object.values(GESTURES)) {
+  const li = document.createElement("li");
+  const what =
+    intent.type === "media"
+      ? intent.seconds
+        ? `skip ${intent.seconds}s`
+        : intent.action
+      : intent.type === "scroll"
+        ? `scroll ${intent.direction}`
+        : "next tab";
+  li.textContent = `${label} → ${what}`;
+  document.getElementById("gesture-list").append(li);
 }
 
 async function ensurePermission(kind) {
@@ -64,48 +197,6 @@ async function ensurePermission(kind) {
     status.textContent = `Allow the ${kind === "video" ? "camera" : "microphone"} in the tab that opened, then try again.`;
     return false;
   }
-}
-
-toggle.addEventListener("click", async () => {
-  if (!Recognition) {
-    status.textContent = "Speech recognition isn't available in this browser.";
-    return;
-  }
-  if (listening) {
-    setListening(false);
-    recognition?.stop();
-    return;
-  }
-  if (!(await ensurePermission("audio"))) return;
-
-  recognition = new Recognition();
-  recognition.continuous = true;
-  recognition.lang = "en-US";
-  recognition.onresult = (event) => {
-    const result = event.results[event.results.length - 1];
-    if (result.isFinal) handle(result[0].transcript);
-  };
-  recognition.onerror = (event) => {
-    if (event.error !== "no-speech") addLog(`Mic error: ${event.error}`, true);
-  };
-  // Chrome ends sessions after silence; restart while the user still wants to listen.
-  recognition.onend = () => listening && recognition.start();
-  recognition.start();
-  setListening(true);
-});
-
-for (const { label, intent } of Object.values(GESTURES)) {
-  const li = document.createElement("li");
-  const what =
-    intent.type === "media"
-      ? intent.seconds
-        ? `skip ${intent.seconds}s`
-        : intent.action
-      : intent.type === "scroll"
-        ? `scroll ${intent.direction}`
-        : "next tab";
-  li.textContent = `${label} → ${what}`;
-  document.getElementById("gesture-list").append(li);
 }
 
 const cameraButton = document.getElementById("camera");

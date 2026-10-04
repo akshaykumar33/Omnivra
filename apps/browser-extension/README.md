@@ -46,6 +46,8 @@ Click the Omnivra icon to open the side panel.
 | 🤟 Rock on                       | rewind 10 seconds       |
 | ✌️ Victory                       | next tab                |
 
+You can speak naturally: "please pause the video", "can you scroll down" and "go to the next tab" all work. Short commands such as pause, play and scroll run while you are still speaking. The panel shows what it heard under the buttons.
+
 Page commands don't work on the browser's own pages, such as settings or the extensions page.
 
 Gestures are recognised on your device. Voice uses the browser's speech recognition. The full privacy policy is on the website at `/privacy`.
