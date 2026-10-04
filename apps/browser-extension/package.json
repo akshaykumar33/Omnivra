@@ -5,9 +5,12 @@
   "type": "module",
   "scripts": {
     "build": "node scripts/build.mjs",
-    "test": "node --test test/*.test.mjs"
+    "test": "node --test test/*.test.mjs",
+    "test:e2e": "node --test --test-concurrency=1 e2e/*.e2e.mjs",
+    "icons": "node scripts/icons.mjs"
   },
   "devDependencies": {
-    "@mediapipe/tasks-vision": "^1.0.1"
+    "@mediapipe/tasks-vision": "^1.0.1",
+    "playwright": "^1.63.0"
   }
 }
