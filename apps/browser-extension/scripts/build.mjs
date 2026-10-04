@@ -30,8 +30,10 @@ cpSync(
   join(visionDir, "vision_bundle.mjs"),
   join(dist, "vendor", "vision_bundle.mjs"),
 );
-cpSync(join(visionDir, "wasm"), join(dist, "vendor", "wasm"), {
-  recursive: true,
-});
+// Only the SIMD build is used: every Chromium the manifest allows (116+) has
+// WebAssembly SIMD. Skipping the nosimd and module variants saves ~22 MB.
+for (const file of ["vision_wasm_internal.js", "vision_wasm_internal.wasm"]) {
+  cpSync(join(visionDir, "wasm", file), join(dist, "vendor", "wasm", file));
+}
 cpSync(model, join(dist, "vendor", "gesture_recognizer.task"));
 console.log("Built extension into", dist);
