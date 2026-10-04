@@ -37,6 +37,12 @@ importers:
       '@gsap/react':
         specifier: ^2.1.2
         version: 2.1.2(gsap@3.15.0)(react@19.3.0)
+      '@omnivra/core':
+        specifier: workspace:0.1.0-alpha.0
+        version: link:../../packages/core
+      '@omnivra/types':
+        specifier: workspace:0.1.0-alpha.0
+        version: link:../../packages/types
       '@phosphor-icons/react':
         specifier: ^2.1.10
         version: 2.1.10(react-dom@19.3.0(react@19.3.0))(react@19.3.0)

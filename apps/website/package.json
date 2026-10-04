@@ -12,6 +12,8 @@
   },
   "dependencies": {
     "@gsap/react": "^2.1.2",
+    "@omnivra/core": "workspace:0.1.0-alpha.0",
+    "@omnivra/types": "workspace:0.1.0-alpha.0",
     "@phosphor-icons/react": "^2.1.10",
     "cmdk": "^1.1.1",
     "gsap": "^3.15.0",
