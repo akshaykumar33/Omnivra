@@ -75,7 +75,9 @@ jobs:
         run: |
           version="${GITHUB_REF_NAME#extension-v}"
           cp omnivra-extension.zip "omnivra-extension-$version.zip"
-          gh release create "$GITHUB_REF_NAME" "omnivra-extension-$version.zip" \n            --title "Omnivra extension $version" \n            --notes "Install: download the zip, unzip it, open chrome://extensions (or edge://extensions), turn on Developer mode, click Load unpacked and pick the unzipped folder. See apps/browser-extension/README.md."
+          gh release create "$GITHUB_REF_NAME" "omnivra-extension-$version.zip" \
+            --title "Omnivra extension $version" \
+            --notes "Install: download the zip, unzip it, open chrome://extensions (or edge://extensions), turn on Developer mode, click Load unpacked and pick the unzipped folder. See apps/browser-extension/README.md."
 
       - name: Upload to Chrome Web Store
         if: env.CWS_CLIENT_ID != ''
