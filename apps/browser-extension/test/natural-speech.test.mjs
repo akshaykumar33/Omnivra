@@ -66,7 +66,7 @@ test("search keeps the user's words, including filler-looking ones", () => {
 });
 
 test("the first alternative that is a command wins", () => {
-  assert.deepEqual(parseBest(["pose the radio", "paws", "pause"]), {
+  assert.deepEqual(parseBest(["hello radio", "paws", "pause"]), {
     intent: PAUSE,
     transcript: "paws",
   });
@@ -106,4 +106,16 @@ test("clipped first words seen with real speech recognition", () => {
   // Without an amount these stay ordinary words.
   assert.equal(parseCommand("find"), undefined);
   assert.equal(parseCommand("lots seconds"), undefined);
+});
+
+test("clipped scroll", () => {
+  assert.deepEqual(parseCommand("Roll down"), {
+    type: "scroll",
+    direction: "down",
+  });
+  assert.deepEqual(parseCommand("roll to the top"), {
+    type: "scroll",
+    to: "top",
+  });
+  assert.equal(parseCommand("rock and roll"), undefined);
 });
