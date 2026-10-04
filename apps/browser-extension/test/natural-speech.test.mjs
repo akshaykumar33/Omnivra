@@ -87,3 +87,10 @@ test("only commands that can't still change run before speech ends", () => {
   assert.equal(isInstant({ type: "search", query: "x" }), false);
   assert.equal(isInstant({ type: "gotoTab", index: 1 }), false);
 });
+
+test("long filler-heavy input is handled in linear time", () => {
+  const started = performance.now();
+  assert.equal(parseCommand(" " + "the page ".repeat(5000) + "x"), undefined);
+  assert.deepEqual(parseCommand("pause" + " the page".repeat(5000)), PAUSE);
+  assert.ok(performance.now() - started < 500);
+});

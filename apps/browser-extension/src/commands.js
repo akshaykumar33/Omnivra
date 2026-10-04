@@ -103,12 +103,71 @@ const SOUNDALIKES = [
   [/\bfor ward\b/g, "forward"],
 ];
 
-// Politeness and filler that people add around a command.
-const LEADING =
-  /^(?:(?:hey|ok|okay|omnivra|please|can you|could you|would you|will you|just|now|and|so|then|go ahead and|i want to|let's|lets)\s+)+/;
+// Politeness and filler that people add around a command, stripped one phrase
+// at a time. (A single repeated regex alternation here can backtrack
+// exponentially on long input.)
+const LEADING = [
+  "hey",
+  "ok",
+  "okay",
+  "omnivra",
+  "please",
+  "can you",
+  "could you",
+  "would you",
+  "will you",
+  "just",
+  "now",
+  "and",
+  "so",
+  "then",
+  "go ahead and",
+  "i want to",
+  "lets",
+];
 // Includes a dangling "the"/"a": interim speech often stops mid-phrase ("pause the").
-const TRAILING =
-  /(?:\s+(?:please|now|for me|thanks|thank you|it|this|the video|video|the song|song|the music|music|the page|page|again|the|a))+$/;
+const TRAILING = [
+  "please",
+  "now",
+  "for me",
+  "thanks",
+  "thank you",
+  "it",
+  "this",
+  "video",
+  "song",
+  "music",
+  "page",
+  "again",
+  "the",
+  "a",
+];
+
+function stripLeading(text) {
+  for (let changed = true; changed;) {
+    changed = false;
+    for (const phrase of LEADING) {
+      if (text.startsWith(phrase + " ")) {
+        text = text.slice(phrase.length + 1);
+        changed = true;
+      }
+    }
+  }
+  return text;
+}
+
+function stripTrailing(text) {
+  for (let changed = true; changed;) {
+    changed = false;
+    for (const phrase of TRAILING) {
+      if (text.endsWith(" " + phrase)) {
+        text = text.slice(0, -(phrase.length + 1));
+        changed = true;
+      }
+    }
+  }
+  return text;
+}
 
 function normalize(transcript) {
   let text = transcript
@@ -117,10 +176,9 @@ function normalize(transcript) {
     .replace(/\s+/g, " ")
     .trim();
   for (const [re, word] of SOUNDALIKES) text = text.replace(re, word);
+  text = stripLeading(text);
   // Search queries keep their wording; only strip filler in front of them.
-  text = text.replace(LEADING, "");
-  if (!/^(?:search|google|look up)\b/.test(text))
-    text = text.replace(TRAILING, "");
+  if (!/^(?:search|google|look up)\b/.test(text)) text = stripTrailing(text);
   return text.replace(/^the /, "").trim();
 }
 
