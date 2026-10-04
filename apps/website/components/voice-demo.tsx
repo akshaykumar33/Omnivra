@@ -310,14 +310,14 @@ export function VoiceDemo() {
     // Analyze drag vector
     if (Math.abs(dx) > 40) {
       if (dx < 0) {
-        setGestureFeedback("SWIPE_LEFT (Confidence 98%)");
+        setGestureFeedback("gesture.swipe (left)");
         triggerAction(
           "Jumped to inputs",
           () => scrollToSection("inputs"),
           "Gesture",
         );
       } else {
-        setGestureFeedback("SWIPE_RIGHT (Confidence 97%)");
+        setGestureFeedback("gesture.swipe (right)");
         triggerAction(
           "Jumped to pipeline",
           () => scrollToSection("pipeline"),
@@ -326,7 +326,7 @@ export function VoiceDemo() {
       }
     } else if (Math.abs(dy) < 15 && Math.abs(dx) < 15) {
       // Tap / Pinch
-      setGestureFeedback("PINCH_TRIGGER (Confidence 99%)");
+      setGestureFeedback("gesture.pinch");
       triggerAction("Switched theme", () => toggleTheme(), "Gesture");
     }
   };
@@ -545,7 +545,7 @@ export function VoiceDemo() {
                   type="button"
                   onClick={() => {
                     setGestureFeedback(
-                      `${cmd.gestureName.toUpperCase()} (Confidence 99.1%)`,
+                      `gesture.${cmd.gestureName.toLowerCase().replace(/\s+/g, ".")}`,
                     );
                     triggerAction(cmd.label, cmd.run, "Gesture");
                   }}
@@ -570,7 +570,7 @@ export function VoiceDemo() {
                   Global Shortcut Layer
                 </span>
                 <span className="font-mono text-[11px] text-muted">
-                  Polling 1000Hz
+                  Direct keyboard chord
                 </span>
               </div>
               <p className="mt-2 text-[13px] text-muted leading-relaxed">
@@ -632,7 +632,7 @@ export function VoiceDemo() {
             )
           ) : (
             <span className="font-mono text-[11px] text-muted">
-              Latencies under 16ms • Local dispatch
+              Local in-process dispatch
             </span>
           )}
 

@@ -6,6 +6,9 @@ import {
   ArrowRightIcon,
   PlayIcon,
   ArrowCounterClockwiseIcon,
+  MicrophoneIcon,
+  HandIcon,
+  EyeIcon,
 } from "@phosphor-icons/react";
 import { playClick, playSuccess, playTone } from "@/lib/sound";
 
@@ -21,7 +24,7 @@ import { playClick, playSuccess, playTone } from "@/lib/sound";
 type TraceScenario = {
   readonly id: string;
   readonly label: string;
-  readonly icon: string;
+  readonly icon: React.ReactNode;
   readonly payloads: {
     readonly input: string;
     readonly recognition: string;
@@ -37,7 +40,7 @@ const SCENARIOS: readonly TraceScenario[] = [
   {
     id: "voice-theme",
     label: "Voice: 'Dark mode'",
-    icon: "🎙",
+    icon: <MicrophoneIcon size={15} weight="duotone" className="text-voice" />,
     payloads: {
       input:
         '{\n  "stream": "audio/raw_pcm_16000",\n  "sample_rate": 16000,\n  "buffer_ms": 64,\n  "vad_active": true\n}',
@@ -57,7 +60,7 @@ const SCENARIOS: readonly TraceScenario[] = [
   {
     id: "gesture-pinch",
     label: "Gesture: Pinch",
-    icon: "🤏",
+    icon: <HandIcon size={15} weight="duotone" className="text-gesture" />,
     payloads: {
       input:
         '{\n  "stream": "video/raw_frames_60fps",\n  "resolution": [1280, 720],\n  "frame_id": 98421,\n  "exposure_time_ms": 16.6\n}',
@@ -77,7 +80,7 @@ const SCENARIOS: readonly TraceScenario[] = [
   {
     id: "gaze-dwell",
     label: "Eye: Dwell 400ms",
-    icon: "👁",
+    icon: <EyeIcon size={15} weight="duotone" className="text-gaze" />,
     payloads: {
       input:
         '{\n  "stream": "sensor/ir_eye_tracker",\n  "pupil_diameter_mm": 4.1,\n  "glint_vectors": 2,\n  "frequency_hz": 120\n}',
@@ -229,7 +232,7 @@ export function Pipeline() {
             ) : (
               <PlayIcon size={15} weight="fill" />
             )}
-            {isTracing ? "Tracing packet..." : "Animate pipeline trace"}
+            {isTracing ? "Tracing pipeline..." : "Step through pipeline"}
           </button>
         </div>
 
@@ -318,8 +321,8 @@ export function Pipeline() {
             </div>
 
             <div className="mt-6 flex items-center justify-between border-t pt-4 font-mono text-[11px] text-muted">
-              <span>Security: Local process memory only</span>
-              <span>Memory safety: Zero-copy buffers</span>
+              <span>Security: Local process memory boundary</span>
+              <span>Data flow: Monotonic pipeline</span>
             </div>
           </div>
 

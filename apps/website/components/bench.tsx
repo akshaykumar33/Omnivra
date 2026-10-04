@@ -402,7 +402,7 @@ export function Bench() {
               <select
                 value={triggerId}
                 onChange={(e) => setTriggerId(e.target.value)}
-                className="mt-2 w-full rounded-[var(--radius-control)] border bg-base px-3 py-2.5 text-[14px] text-ink"
+                className="mt-2 w-full cursor-pointer rounded-[var(--radius-control)] border bg-base px-3.5 py-2.5 text-[14px] text-ink outline-none transition-colors hover:border-accent/60 focus:border-accent"
               >
                 {TRIGGERS.map((t) => (
                   <option key={t.id} value={t.id}>
@@ -417,7 +417,7 @@ export function Bench() {
               <select
                 value={actionId}
                 onChange={(e) => setActionId(e.target.value)}
-                className="mt-2 w-full rounded-[var(--radius-control)] border bg-base px-3 py-2.5 text-[14px] text-ink"
+                className="mt-2 w-full cursor-pointer rounded-[var(--radius-control)] border bg-base px-3.5 py-2.5 text-[14px] text-ink outline-none transition-colors hover:border-accent/60 focus:border-accent"
               >
                 {ACTIONS.map((a) => (
                   <option key={a.id} value={a.id}>
@@ -433,7 +433,7 @@ export function Bench() {
             <select
               value={requiredApp}
               onChange={(e) => setRequiredApp(e.target.value)}
-              className="mt-2 w-full rounded-[var(--radius-control)] border bg-base px-3 py-2.5 text-[14px] text-ink"
+              className="mt-2 w-full cursor-pointer rounded-[var(--radius-control)] border bg-base px-3.5 py-2.5 text-[14px] text-ink outline-none transition-colors hover:border-accent/60 focus:border-accent"
             >
               <option value="">Anything</option>
               <option value="browser">browser</option>
