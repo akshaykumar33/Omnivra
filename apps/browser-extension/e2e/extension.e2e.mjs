@@ -37,6 +37,8 @@ before(async () => {
     mkdtempSync(join(tmpdir(), "omnivra-")),
     {
       headless: false,
+      // BROWSER_CHANNEL=msedge runs the same suite in installed Microsoft Edge.
+      channel: process.env.BROWSER_CHANNEL || undefined,
       args: [
         "--headless=new",
         `--disable-extensions-except=${dist}`,
