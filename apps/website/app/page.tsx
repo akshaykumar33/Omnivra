@@ -4,7 +4,6 @@ import { Integrations } from "@/components/integrations";
 import { Gallery } from "@/components/gallery";
 import { Pipeline } from "@/components/pipeline";
 import { Bench } from "@/components/bench";
-import { WasmEngineHud } from "@/components/wasm-engine-hud";
 import { Accessibility, Privacy } from "@/components/commitments";
 import { ClosingCta, SiteFooter } from "@/components/site-footer";
 
@@ -17,7 +16,6 @@ import { ClosingCta, SiteFooter } from "@/components/site-footer";
  *   Gallery       pinned horizontal pan, 5 full-height panels
  *   Pipeline      sticky scroll-scrub sequence
  *   Bench         two-column live console, running the real kernel
- *   WasmEngineHud collapsible runtime telemetry HUD
  *   Accessibility full-width statement
  *   Privacy       split with technical schematic
  *   ClosingCta    horizontal CTA band
@@ -32,7 +30,6 @@ export default function HomePage() {
         <Gallery />
         <Pipeline />
         <Bench />
-        <WasmEngineHud />
         <Accessibility />
         <Privacy />
         <ClosingCta />

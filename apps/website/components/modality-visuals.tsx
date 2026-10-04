@@ -131,30 +131,6 @@ export function VoiceVisual() {
           stroke="var(--hue-voice)"
           strokeWidth="1"
         />
-
-        {/* Acoustic Telemetry HUD overlay */}
-        <g
-          fill="var(--hue-voice)"
-          opacity="0.65"
-          fontFamily="var(--font-mono)"
-          fontSize="11"
-        >
-          <text x="50" y="80">
-            STREAM: LOCAL_PCM_16KHZ
-          </text>
-          <text x="50" y="100">
-            ENGINE: WHISPER_LOCAL_INT8
-          </text>
-          <text x="50" y="120">
-            LATENCY: 12.4ms
-          </text>
-          <text x="440" y="80" textAnchor="end">
-            VAD_THRESH: -24dB
-          </text>
-          <text x="440" y="100" textAnchor="end">
-            EGRESS: BLOCKED
-          </text>
-        </g>
       </svg>
     </div>
   );
@@ -289,30 +265,6 @@ export function GestureVisual() {
             <circle cx={x} cy={y} r="2" fill="var(--hue-gesture)" />
           </g>
         ))}
-
-        {/* Gesture HUD Telemetry */}
-        <g
-          fill="var(--hue-gesture)"
-          opacity="0.65"
-          fontFamily="var(--font-mono)"
-          fontSize="11"
-        >
-          <text x="50" y="80">
-            MODEL: MEDIAPIPE_HANDS_V2
-          </text>
-          <text x="50" y="100">
-            JOINTS_TRACKED: 21/21 (3D)
-          </text>
-          <text x="50" y="120">
-            ACTIVE_POSE: PINCH_READY
-          </text>
-          <text x="440" y="80" textAnchor="end">
-            CONFIDENCE: 98.4%
-          </text>
-          <text x="440" y="100" textAnchor="end">
-            FRAME_TIME: 8.2ms
-          </text>
-        </g>
       </svg>
     </div>
   );
@@ -407,30 +359,6 @@ export function GazeVisual() {
             opacity="0.6"
           />
         ))}
-
-        {/* Gaze Telemetry HUD */}
-        <g
-          fill="var(--hue-gaze)"
-          opacity="0.65"
-          fontFamily="var(--font-mono)"
-          fontSize="11"
-        >
-          <text x="50" y="80">
-            TRACKER: GAZE_ESTIMATION_IR
-          </text>
-          <text x="50" y="100">
-            FIXATION: [X: 1440, Y: 900]
-          </text>
-          <text x="50" y="120">
-            DWELL_TIME: 340ms / 400ms
-          </text>
-          <text x="440" y="80" textAnchor="end">
-            PRECISION: &lt; 0.8 DEG
-          </text>
-          <text x="440" y="100" textAnchor="end">
-            BLINK_FILTER: ACTIVE
-          </text>
-        </g>
       </svg>
     </div>
   );
@@ -502,30 +430,6 @@ export function FaceVisual() {
         ].map(([x, y], i) => (
           <circle key={i} cx={x} cy={y} r="3" fill="var(--hue-face)" />
         ))}
-
-        {/* Face HUD Telemetry */}
-        <g
-          fill="var(--hue-face)"
-          opacity="0.65"
-          fontFamily="var(--font-mono)"
-          fontSize="11"
-        >
-          <text x="50" y="80">
-            ENGINE: 468_LANDMARK_FACE_MESH
-          </text>
-          <text x="50" y="100">
-            ACTION_UNIT: AU04_BROW_LOWER
-          </text>
-          <text x="50" y="120">
-            HEAD_POSE: [P: -2°, Y: 4°, R: 1°]
-          </text>
-          <text x="440" y="80" textAnchor="end">
-            MODIFIER_STATE: SHIFT
-          </text>
-          <text x="440" y="100" textAnchor="end">
-            SAMPLE_RATE: 60FPS
-          </text>
-        </g>
       </svg>
     </div>
   );
@@ -607,30 +511,6 @@ export function ClassicVisual() {
             </text>
           </g>
         ))}
-
-        {/* Telemetry HUD */}
-        <g
-          fill="var(--hue-input)"
-          opacity="0.65"
-          fontFamily="var(--font-mono)"
-          fontSize="11"
-        >
-          <text x="50" y="80">
-            INPUT_BUS: RAW_HID_KEYBOARD
-          </text>
-          <text x="50" y="100">
-            NKRO_POLLING: 1000Hz (1ms)
-          </text>
-          <text x="50" y="120">
-            TRIGGER: COMPOUND_GESTURE_HELD_KEY
-          </text>
-          <text x="440" y="80" textAnchor="end">
-            ZERO_DEVIATION: TRUE
-          </text>
-          <text x="440" y="100" textAnchor="end">
-            HOTKEYS: OVERRIDE_FREE
-          </text>
-        </g>
       </svg>
     </div>
   );
@@ -716,24 +596,24 @@ export function PrivacySandboxVisual() {
           <line x1="520" y1="480" x2="390" y2="400" strokeDasharray="4 3" />
         </g>
 
-        {/* Node Labels */}
+        {/* Architectural labels */}
         <g
-          fill="var(--text-primary)"
+          fill="var(--text-muted)"
           fontFamily="var(--font-mono)"
           fontSize="11"
-          opacity="0.85"
+          opacity="0.8"
         >
           <text x="80" y="190">
-            RAW_MIC_STREAM
+            Microphone input
           </text>
           <text x="80" y="500">
-            WEBCAM_FRAMES
+            Camera frames
           </text>
           <text x="520" y="190" textAnchor="end">
-            PROCESS_ISOLATED
+            Process isolated
           </text>
           <text x="520" y="500" textAnchor="end">
-            EGRESS: 0 BYTES
+            Zero cloud egress
           </text>
         </g>
 
@@ -745,9 +625,9 @@ export function PrivacySandboxVisual() {
           fontSize="11"
           fontWeight="600"
           textAnchor="middle"
-          letterSpacing="0.1em"
+          letterSpacing="0.08em"
         >
-          LOCAL MACHINE BOUNDARY
+          LOCAL EXECUTION ENCLAVE
         </text>
       </svg>
     </div>

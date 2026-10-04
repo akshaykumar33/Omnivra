@@ -57,7 +57,7 @@ export function ClosingCta() {
 
         <div className="flex flex-wrap items-center gap-3">
           <a
-            href="#get"
+            href="https://github.com/akshaykumar33/Omnivra#getting-started"
             className="rounded-lg bg-accent px-5 py-2.5 text-[14px] font-semibold text-base transition-transform active:translate-y-px"
           >
             Get the extension
