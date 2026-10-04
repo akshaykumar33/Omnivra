@@ -17,7 +17,7 @@
   "background": {
     "service_worker": "background.js"
   },
-  "permissions": ["sidePanel", "tabs", "scripting", "search"],
+  "permissions": ["sidePanel", "tabs", "scripting", "search", "storage"],
   "content_security_policy": {
     "extension_pages": "script-src 'self' 'wasm-unsafe-eval'; object-src 'self'"
   },

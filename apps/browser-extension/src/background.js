@@ -14,6 +14,20 @@ async function activeTab() {
 
 // Runs inside the page. Must be self-contained: it is serialized by chrome.scripting.
 function pageAction(intent) {
+  // Lower every video/audio on the page so the microphone hears the user, not
+  // the video; remember each one's volume to restore it exactly.
+  if (intent.type === "duck") {
+    for (const m of document.querySelectorAll("video, audio")) {
+      if (intent.on && m.dataset.omnivraVolume === undefined) {
+        m.dataset.omnivraVolume = String(m.volume);
+        m.volume = m.volume * 0.3;
+      } else if (!intent.on && m.dataset.omnivraVolume !== undefined) {
+        m.volume = Number(m.dataset.omnivraVolume);
+        delete m.dataset.omnivraVolume;
+      }
+    }
+    return undefined;
+  }
   if (intent.type === "scroll") {
     if (intent.to === "top")
       return window.scrollTo({ top: 0, behavior: "smooth" });
@@ -71,6 +85,8 @@ async function closeTab() {
 
 async function run(intent) {
   switch (intent.type) {
+    case "duck":
+      return setDucking(intent.on);
     case "scroll":
     case "media":
       return runInPage(intent);
@@ -116,4 +132,32 @@ chrome.runtime.onMessage.addListener((message, _sender, sendResponse) => {
       sendResponse({ ok: false, note: String(error?.message ?? error) }),
     );
   return true;
+});
+
+// Ducking follows the active tab while listening: the newly active tab is
+// lowered and the one left behind is restored. State lives in session storage
+// because the service worker may be stopped between events.
+async function setDucking(on) {
+  const { duckedTab } = await chrome.storage.session.get("duckedTab");
+  if (duckedTab) await duckTab(duckedTab, false);
+  const tab = on ? await activeTab() : undefined;
+  if (tab?.id) await duckTab(tab.id, true);
+  await chrome.storage.session.set({ ducking: on, duckedTab: tab?.id ?? null });
+}
+
+async function duckTab(tabId, on) {
+  try {
+    await chrome.scripting.executeScript({
+      target: { tabId },
+      func: pageAction,
+      args: [{ type: "duck", on }],
+    });
+  } catch {
+    // Closed tab or a browser page that can't be scripted.
+  }
+}
+
+chrome.tabs.onActivated.addListener(async () => {
+  const { ducking } = await chrome.storage.session.get("ducking");
+  if (ducking) await setDucking(true);
 });

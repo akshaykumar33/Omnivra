@@ -353,3 +353,24 @@ test("voice: allowing the microphone closes the tab, returns, and starts listeni
   assert.equal(active, pageTabId);
   await panel.click("#toggle");
 });
+
+test("voice: video volume is lowered while listening and restored after", async () => {
+  await page.bringToFront();
+  await page.evaluate(() => (document.getElementById("a").volume = 0.8));
+  await panel.click("#toggle");
+  await page.waitForFunction(
+    () => Math.abs(document.getElementById("a").volume - 0.24) < 0.01,
+  );
+  await panel.click("#toggle");
+  await page.waitForFunction(
+    () => Math.abs(document.getElementById("a").volume - 0.8) < 0.01,
+  );
+
+  // Turned off in the panel: listening leaves the volume alone.
+  await panel.uncheck("#duck");
+  await panel.click("#toggle");
+  await panel.waitForTimeout(1000);
+  assert.ok(Math.abs((await audio("a.volume")) - 0.8) < 0.01);
+  await panel.click("#toggle");
+  await panel.check("#duck");
+});

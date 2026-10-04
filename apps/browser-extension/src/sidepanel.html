@@ -78,6 +78,13 @@
         margin-top: 14px;
         font-size: 13px;
       }
+      .option {
+        display: flex;
+        gap: 8px;
+        align-items: center;
+        margin-top: 8px;
+        font-size: 13px;
+      }
     </style>
   </head>
   <body>
@@ -85,6 +92,10 @@
     <button id="toggle" type="button" aria-pressed="false">
       Start listening
     </button>
+    <label class="option">
+      <input id="duck" type="checkbox" checked />
+      Lower video volume while listening
+    </label>
     <button id="camera" type="button" aria-pressed="false">
       Start gestures
     </button>
