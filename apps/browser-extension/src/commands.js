@@ -354,6 +354,63 @@ export function parseCommand(transcript) {
   return spot(text);
 }
 
+// Continuous recognition keeps one growing phrase and keeps rewriting it
+// ("please pause the video" may become "pause the video"). To act on each new
+// command exactly once, count the command words in the phrase: when the count
+// rises past what was already acted on, the newest command runs. Each command
+// has one trigger word, so rewriting the words around them doesn't shift the
+// count.
+const TRIGGERS = new Set([
+  "pause",
+  "stop",
+  "play",
+  "resume",
+  "mute",
+  "unmute",
+  "skip",
+  "rewind",
+  "forward",
+  "back",
+  "scroll",
+  "reload",
+  "refresh",
+  "search",
+  "google",
+  "tab",
+]);
+
+function triggerWords(transcript) {
+  return normalize(transcript).split(" ").map(correctWord);
+}
+
+export function commandCount(transcript) {
+  return triggerWords(transcript).filter((word) => TRIGGERS.has(word)).length;
+}
+
+// The words around the last trigger: two before it ("go back", "next tab",
+// "skip forward") and everything after it ("… 30 seconds", "… to the top").
+function latestSegment(transcript) {
+  const words = triggerWords(transcript);
+  let last = -1;
+  words.forEach((word, i) => {
+    if (TRIGGERS.has(word)) last = i;
+  });
+  return last < 0 ? "" : words.slice(Math.max(0, last - 2)).join(" ");
+}
+
+// Given the recognizer's guesses for one phrase and how many commands in it
+// were already acted on, returns the next command to run, if any, and the
+// phrase's current command count.
+export function nextCommand(alternatives, alreadyActedOn) {
+  for (const transcript of alternatives) {
+    const count = commandCount(transcript);
+    if (count <= alreadyActedOn) continue;
+    const intent = parseCommand(latestSegment(transcript));
+    if (intent) return { intent, transcript, count };
+  }
+  return { count: alternatives.length ? commandCount(alternatives[0]) : 0 };
+}
+
 // Speech recognition offers several guesses; act on the first that is a command.
 export function parseBest(alternatives) {
   for (const transcript of alternatives) {
@@ -400,3 +457,24 @@ export const EXAMPLES = [
   "search for weather in pune",
   "mute",
 ];
+
+// What to do with one recognizer update for a phrase. `actedOn` is how many of
+// the phrase's commands already ran. Returns the command to run (if any), the
+// new actedOn, and whether to report that nothing was understood.
+export function decide(alternatives, isFinal, actedOn = 0) {
+  const next = nextCommand(alternatives, actedOn);
+  // A rewrite can drop a command word; never wait for more commands than the
+  // phrase now has, or the next one would be ignored.
+  const settled = Math.min(actedOn, next.count);
+  if (next.intent && (isFinal || isInstant(next.intent, next.transcript))) {
+    return {
+      run: next.intent,
+      transcript: next.transcript,
+      actedOn: next.count,
+    };
+  }
+  return {
+    actedOn: settled,
+    notUnderstood: isFinal && next.count === 0 && settled === 0,
+  };
+}

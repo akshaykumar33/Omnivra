@@ -1,4 +1,4 @@
-import { parseCommand, parseBest, isInstant, EXAMPLES } from "./commands.js";
+import { parseCommand, decide, EXAMPLES } from "./commands.js";
 import { GESTURES } from "./gesture-map.js";
 import { onDeviceAvailable, listenOnDevice } from "./recognizer.js";
 
@@ -58,9 +58,9 @@ const LISTENER_ORIGIN = new URL(LISTENER_URL).origin;
 let listener;
 let listenerReady;
 let listening = false;
-// For each phrase id, how many of its words have been used. Continuous
-// recognition keeps appending words to the same phrase ("play … pause"), so
-// only the words after that point can hold a new command.
+// For each phrase id, how many of its commands have been acted on.
+// Continuous recognition keeps growing and rewriting one phrase ("play …
+// pause"), so a new command shows up as a higher count (see nextCommand).
 const handled = new Map();
 
 function setListening(on) {
@@ -130,23 +130,15 @@ function onSpeech(message) {
     const alternatives = message.alternatives.filter(Boolean);
     if (!alternatives.length) return;
     status.textContent = `Heard: "${alternatives[0]}"`;
-    const used = handled.get(message.id) ?? 0;
-    const words = alternatives[0].split(/\s+/);
-    // Alternatives can differ in length; take each one's words after the
-    // already-used count.
-    const tails = alternatives
-      .map((alt) => alt.split(/\s+/).slice(used).join(" "))
-      .filter(Boolean);
-    if (!tails.length) return;
-    const best = parseBest(tails);
-    if (best && (message.isFinal || isInstant(best.intent, best.transcript))) {
-      handled.set(message.id, words.length);
-      send(best.intent, `"${best.transcript}"`);
-    } else if (message.isFinal) {
-      handled.set(message.id, words.length);
-      // Leftovers after a command ("… the video please") aren't worth a
-      // complaint; only report a phrase in which nothing was understood.
-      if (used === 0) addLog(`Didn't understand "${tails[0]}"`, true);
+    const outcome = decide(
+      alternatives,
+      message.isFinal,
+      handled.get(message.id),
+    );
+    handled.set(message.id, outcome.actedOn);
+    if (outcome.run) send(outcome.run, `"${outcome.transcript}"`);
+    if (outcome.notUnderstood) {
+      addLog(`Didn't understand "${alternatives[0]}"`, true);
     }
   }
 
