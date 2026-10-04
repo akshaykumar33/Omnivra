@@ -14,3 +14,4 @@ Omnivra uses Architecture Decision Records to document significant engineering a
 | [0008](0008-local-first-strategy.md)    | Local-First On-Device Vision and Voice Inference | Accepted |
 | [0009](0009-security-model.md)          | Capability-Based Permission and Sandboxing Model | Accepted |
 | [0010](0010-cloud-sync.md)              | End-to-End Encrypted Cloud Sync with CRDTs       | Accepted |
+| [0011](0011-offscreen-media-capture.md) | Offscreen Document for Media Capture             | Accepted |
