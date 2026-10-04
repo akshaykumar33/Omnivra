@@ -320,3 +320,36 @@ test("voice: a transient error keeps listening and shows reconnecting", async ()
   );
   await panel.click("#toggle");
 });
+
+test("voice: allowing the microphone closes the tab, returns, and starts listening", async () => {
+  await page.bringToFront();
+  const extensionOrigin = `chrome-extension://${new URL(panel.url()).host}`;
+  const pageTabId = await panel.evaluate(
+    async (url) => (await chrome.tabs.query({ url })).at(0)?.id,
+    page.url(),
+  );
+  assert.equal(
+    await panel.locator("#toggle").getAttribute("aria-pressed"),
+    "false",
+  );
+
+  // What ensurePermission opens when the extension has no microphone grant yet.
+  const prompt = await context.newPage();
+  const closed = prompt.waitForEvent("close");
+  await prompt.goto(
+    `${extensionOrigin}/permission.html?kind=audio&return=${pageTabId}`,
+  );
+  await closed; // closes itself once allowed
+
+  await panel.waitForFunction(
+    () =>
+      document.getElementById("toggle").getAttribute("aria-pressed") === "true",
+  );
+  const active = await panel.evaluate(
+    async () =>
+      (await chrome.tabs.query({ active: true, lastFocusedWindow: true }))[0]
+        ?.id,
+  );
+  assert.equal(active, pageTabId);
+  await panel.click("#toggle");
+});
