@@ -17,11 +17,16 @@ fi
 ZERO="0000000000000000000000000000000000000000"
 PROTECTED_REFS="refs/heads/main refs/heads/develop"
 
-# 1. Branch naming.
-node scripts/check-branch-name.mjs
+UPDATES=$(cat)
+
+# 1. Branch naming, only when a branch is being pushed. Pushing just a release
+#    tag (e.g. extension-v0.1.0) from main is allowed.
+if printf '%s\n' "$UPDATES" | grep -q ' refs/heads/'; then
+  node scripts/check-branch-name.mjs
+fi
 
 # 2. Refuse to push directly to a protected branch, and scan the outgoing range.
-while read -r LOCAL_REF LOCAL_SHA REMOTE_REF REMOTE_SHA; do
+printf '%s\n' "$UPDATES" | while read -r LOCAL_REF LOCAL_SHA REMOTE_REF REMOTE_SHA; do
   [ -z "$LOCAL_REF" ] && continue
 
   for PROTECTED in $PROTECTED_REFS; do
