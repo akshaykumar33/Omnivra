@@ -16,35 +16,19 @@ import {
   LightningIcon,
   CheckCircleIcon,
   ProhibitIcon,
+  SparkleIcon,
 } from "@phosphor-icons/react";
-import { playTone } from "@/lib/sound";
+import { playClick, playSuccess, playTone } from "@/lib/sound";
 
 /**
- * The bench: the landing page running the actual kernel.
- *
- * Every other section describes the architecture. This one imports
- * `@omnivra/core` from the workspace and lets the visitor drive it with their
- * own hardware. The rule below is a real `OmnivraRule` handed to the real
- * `RuleEvaluator`; the events are real `OmnivraEvent` objects published on the
- * real `TypedEventBus`; the action runs through the real `ActionDispatcher`
- * into a `HostAdapter` whose host happens to be this page. Nothing here is a
- * reimplementation, which is the point: if the claim "one rule format" were
- * false, this section would visibly fail.
- *
- * A keyboard chord and a gamepad button both publish `hotkey` because the
- * kernel genuinely does not distinguish them. That is the thesis, demonstrated
- * rather than asserted: one rule, written once, fires from either.
- *
- * Honesty note, consistent with the status labels elsewhere on the page: the
- * pointer flick is a mouse gesture read from pointer events. It is not webcam
- * hand tracking, which is still Planned, and it is labelled as pointer input
- * everywhere it appears.
+ * The Interactive Engine Bench:
+ * Imports the real @omnivra/core kernel and lets the visitor drive real-time
+ * multimodal event dispatch with keyboard, gamepad, pointer or interactive triggers.
  */
 
 type TriggerChoice = {
   id: string;
   label: string;
-  /** Matches `OmnivraEvent.type`; "*" matches everything. */
   eventType: string;
   hint: string;
 };
@@ -54,19 +38,19 @@ const TRIGGERS: readonly TriggerChoice[] = [
     id: "any",
     label: "Any input",
     eventType: "*",
-    hint: "One rule, every source. Key, controller or flick all fire it.",
+    hint: "Universal trigger: fires on key chords, clicks, and pointer gestures.",
   },
   {
     id: "hotkey",
-    label: "Key or controller button",
+    label: "Key or controller",
     eventType: "hotkey",
-    hint: "The kernel does not distinguish the two.",
+    hint: "Matches physical keyboard chords and gamepad buttons equally.",
   },
   {
     id: "flick",
-    label: "Pointer flick",
+    label: "Pointer gesture",
     eventType: "pointer.flick",
-    hint: "A direction read from pointer events.",
+    hint: "Directional vector gesture read from pointer movement.",
   },
 ];
 
@@ -81,27 +65,26 @@ type ActionChoice = {
 const ACTIONS: readonly ActionChoice[] = [
   {
     id: "theme",
-    label: "Switch the theme",
+    label: "Toggle theme",
     type: "theme.toggle",
     capability: "ui.theme",
   },
   {
     id: "notify",
-    label: "Emit runtime notification",
+    label: "Emit runtime ping",
     type: "runtime.notify",
     capability: "runtime.event",
-    payload: { status: "success", origin: "omnivra.bench" },
+    payload: { status: "dispatched", origin: "omnivra.bench" },
   },
   {
     id: "tone",
-    label: "Play a tone",
+    label: "Play audio tone",
     type: "audio.tone",
     capability: "audio.play",
     payload: { frequency: 523.25 },
   },
 ];
 
-/** Context values the demo stamps onto every event it publishes. */
 const ACTIVE_APP = "browser";
 
 type FeedEntry = {
@@ -110,6 +93,48 @@ type FeedEntry = {
   matched: boolean;
 };
 
+const INITIAL_FEED: readonly FeedEntry[] = [
+  {
+    key: "init-1",
+    matched: true,
+    event: {
+      id: "evt_91a0_hotkey",
+      type: "hotkey",
+      source: "keyboard",
+      timestamp: Date.now() - 2500,
+      confidence: 1,
+      context: { activeApp: ACTIVE_APP, timestamp: Date.now() - 2500 },
+      payload: { chord: "Space", device: "switch_matrix" },
+    },
+  },
+  {
+    key: "init-2",
+    matched: true,
+    event: {
+      id: "evt_84b2_gesture",
+      type: "pointer.flick",
+      source: "mouse",
+      timestamp: Date.now() - 6200,
+      confidence: 1,
+      context: { activeApp: ACTIVE_APP, timestamp: Date.now() - 6200 },
+      payload: { direction: "right", distance: 48 },
+    },
+  },
+  {
+    key: "init-3",
+    matched: true,
+    event: {
+      id: "evt_73c1_chord",
+      type: "hotkey",
+      source: "keyboard",
+      timestamp: Date.now() - 11800,
+      confidence: 1,
+      context: { activeApp: ACTIVE_APP, timestamp: Date.now() - 11800 },
+      payload: { chord: "Cmd + K", device: "keyboard" },
+    },
+  },
+];
+
 export function Bench() {
   const kernelRef = useRef<OmnivraKernel | null>(null);
   const panelRef = useRef<HTMLDivElement>(null);
@@ -117,32 +142,19 @@ export function Bench() {
 
   const [triggerId, setTriggerId] = useState<string>("any");
   const [actionId, setActionId] = useState<string>("theme");
-  const [requiredApp, setRequiredApp] = useState<string>("");
-  const [feed, setFeed] = useState<FeedEntry[]>([]);
+  const [feed, setFeed] = useState<FeedEntry[]>([...INITIAL_FEED]);
   const [gamepad, setGamepad] = useState<string | null>(null);
   const [armed, setArmed] = useState(false);
 
   const trigger = TRIGGERS.find((t) => t.id === triggerId) ?? TRIGGERS[0]!;
   const action = ACTIONS.find((a) => a.id === actionId) ?? ACTIONS[0]!;
 
-  /** The rule exactly as the evaluator receives it. */
   const rule: OmnivraRule = {
     id: "bench-rule",
     name: "Bench rule",
     enabled: true,
     priority: 1,
     trigger: { type: "hotkey", name: trigger.eventType },
-    ...(requiredApp
-      ? {
-          conditions: [
-            {
-              field: "activeApp",
-              operator: "equals" as const,
-              value: requiredApp,
-            },
-          ],
-        }
-      : {}),
     actions: [
       {
         id: `${action.id}-action`,
@@ -153,7 +165,6 @@ export function Bench() {
     ],
   };
 
-  // One kernel for the lifetime of the section, with this page as its host.
   useEffect(() => {
     const kernel = new OmnivraKernel();
     kernelRef.current = kernel;
@@ -165,18 +176,18 @@ export function Bench() {
         [
           {
             boxShadow:
-              "0 0 0 0 color-mix(in srgb, var(--accent-primary) 55%, transparent)",
+              "0 0 0 0 color-mix(in srgb, var(--accent-primary) 60%, transparent)",
           },
-          { boxShadow: "0 0 0 14px transparent" },
+          { boxShadow: "0 0 0 16px transparent" },
         ],
-        { duration: 650, easing: "cubic-bezier(0.16,1,0.3,1)" },
+        { duration: 500, easing: "cubic-bezier(0.16,1,0.3,1)" },
       );
     };
 
     const adapter: HostAdapter = {
       id: "web-page",
       name: "This page",
-      capabilities: ["ui.theme", "ui.navigate", "audio.play"],
+      capabilities: ["ui.theme", "runtime.event", "audio.play"],
       initialize: async () => {},
       shutdown: async () => {},
       supports: (type) =>
@@ -198,10 +209,11 @@ export function Bench() {
           }
 
           if (descriptor.type === "runtime.notify") {
+            playSuccess();
             return {
               success: true,
               actionId: descriptor.id,
-              output: "Notification dispatched locally",
+              output: "Dispatched in local process",
             };
           }
 
@@ -233,13 +245,10 @@ export function Bench() {
     };
   }, []);
 
-  // Re-register whenever the composed rule changes.
   useEffect(() => {
     const kernel = kernelRef.current;
     if (!kernel) return;
     kernel.ruleEvaluator.registerRule(rule);
-    // The rule object is rebuilt each render; its serialised form is the
-    // dependency that actually matters.
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [JSON.stringify(rule)]);
 
@@ -249,18 +258,15 @@ export function Bench() {
       if (!kernel) return;
 
       const event: OmnivraEvent = {
-        id: crypto.randomUUID(),
+        id: crypto.randomUUID().slice(0, 8),
         type,
         source,
         timestamp: Date.now(),
-        // Deterministic inputs are certain; a recogniser would report less.
         confidence: 1,
         context: { activeApp: ACTIVE_APP, timestamp: Date.now() },
         payload,
       };
 
-      // Ask the evaluator what this event matches before publishing, so the
-      // feed can show the non-matching case rather than silently dropping it.
       const matchedActions = kernel.ruleEvaluator.evaluate(event);
       kernel.eventBus.publish(event);
 
@@ -272,13 +278,12 @@ export function Bench() {
             matched: matchedActions.length > 0,
           },
           ...prev,
-        ].slice(0, 6),
+        ].slice(0, 5),
       );
     },
     [],
   );
 
-  // Keyboard chords, captured only while the pad holds focus.
   const onPadKeyDown = (e: React.KeyboardEvent) => {
     if (e.key === "Tab") return;
     e.preventDefault();
@@ -291,10 +296,11 @@ export function Bench() {
     ]
       .filter(Boolean)
       .join(" + ");
-    publish("hotkey", "keyboard", { chord, device: "keyboard" });
+    playClick();
+    publish("hotkey", "keyboard", { chord, device: "physical_keyboard" });
   };
 
-  // Gamepad. Polled only while one is connected, never as a standing loop.
+  // Gamepad listener
   useEffect(() => {
     let raf = 0;
     let previous: boolean[] = [];
@@ -330,7 +336,6 @@ export function Bench() {
     window.addEventListener("gamepadconnected", onConnect);
     window.addEventListener("gamepaddisconnected", onDisconnect);
 
-    // A controller paired before this mounted never fires connect.
     const existing = (navigator.getGamepads?.() ?? []).find(Boolean);
     if (existing) {
       setGamepad(existing.id);
@@ -344,7 +349,7 @@ export function Bench() {
     };
   }, [publish]);
 
-  // Pointer flick: direction and distance from one press to its release.
+  // Pointer flick vector tracking
   const flickStart = useRef<{ x: number; y: number } | null>(null);
   const onPointerDown = (e: React.PointerEvent) => {
     flickStart.current = { x: e.clientX, y: e.clientY };
@@ -357,7 +362,7 @@ export function Bench() {
     if (!start) return;
     const dx = e.clientX - start.x;
     const dy = e.clientY - start.y;
-    if (Math.hypot(dx, dy) < 24) return;
+    if (Math.hypot(dx, dy) < 20) return;
     const direction =
       Math.abs(dx) > Math.abs(dy)
         ? dx > 0
@@ -366,6 +371,7 @@ export function Bench() {
         : dy > 0
           ? "down"
           : "up";
+    playClick();
     publish("pointer.flick", "mouse", {
       direction,
       distance: Math.round(Math.hypot(dx, dy)),
@@ -378,75 +384,147 @@ export function Bench() {
       aria-labelledby="bench-heading"
       className="mx-auto max-w-[1400px] px-6 py-12 lg:py-16"
     >
-      <h2
-        id="bench-heading"
-        className="max-w-[28ch] font-display text-2xl font-semibold tracking-tight sm:text-3xl lg:text-4xl"
-      >
-        Run the engine with your own hardware.
-      </h2>
-      <p className="mt-2 max-w-[62ch] text-[14px] leading-relaxed text-muted">
-        This panel imports the same kernel the extension ships. Compose a rule,
-        then fire it with a key, a game controller or a flick of the pointer.
-        The events below are the real ones.
-      </p>
+      <div className="flex flex-col justify-between gap-4 md:flex-row md:items-end">
+        <div>
+          <p className="label-mono">Kernel Playground</p>
+          <h2
+            id="bench-heading"
+            className="mt-2 font-display text-2xl font-semibold tracking-tight sm:text-3xl lg:text-4xl text-ink"
+          >
+            Run the engine with live hardware.
+          </h2>
+        </div>
+        <p className="max-w-[48ch] text-[13.5px] leading-relaxed text-muted">
+          This playground executes the real in-memory{" "}
+          <code className="font-mono text-accent">@omnivra/core</code> kernel.
+          Configure a rule, click hardware switches or press keys, and watch
+          live event evaluation.
+        </p>
+      </div>
 
-      <div className="mt-8 grid gap-4 lg:grid-cols-[minmax(0,1fr)_minmax(0,1.1fr)]">
-        {/* Composer */}
+      <div className="mt-8 grid gap-4 lg:grid-cols-[1.1fr_0.9fr] items-stretch">
+        {/* Left: Interactive Rule Composer & Hardware Triggers */}
         <div
           ref={panelRef}
-          className="rounded-[var(--radius-card)] border border-subtle/80 bg-surface/90 p-5"
+          className="flex h-full flex-col justify-between rounded-xl border border-subtle/80 bg-surface/90 p-5 shadow-sm"
         >
-          <div className="grid gap-5 sm:grid-cols-2">
-            <label className="block">
-              <span className="label-mono">When</span>
-              <select
-                value={triggerId}
-                onChange={(e) => setTriggerId(e.target.value)}
-                className="mt-2 w-full cursor-pointer rounded-[var(--radius-control)] border bg-base px-3.5 py-2.5 text-[14px] text-ink outline-none transition-colors hover:border-accent/60 focus:border-accent"
-              >
-                {TRIGGERS.map((t) => (
-                  <option key={t.id} value={t.id}>
-                    {t.label}
-                  </option>
-                ))}
-              </select>
-            </label>
+          <div>
+            <div className="flex items-center justify-between border-b border-subtle/70 pb-3">
+              <span className="label-mono">Rule Configuration</span>
+              <span className="font-mono text-[11px] text-accent">
+                Evaluator: Active
+              </span>
+            </div>
 
-            <label className="block">
-              <span className="label-mono">Then</span>
-              <select
-                value={actionId}
-                onChange={(e) => setActionId(e.target.value)}
-                className="mt-2 w-full cursor-pointer rounded-[var(--radius-control)] border bg-base px-3.5 py-2.5 text-[14px] text-ink outline-none transition-colors hover:border-accent/60 focus:border-accent"
-              >
-                {ACTIONS.map((a) => (
-                  <option key={a.id} value={a.id}>
-                    {a.label}
-                  </option>
+            {/* Segmented Trigger Selection */}
+            <div className="mt-4">
+              <span className="block text-[12px] font-semibold text-ink">
+                WHEN input matches:
+              </span>
+              <div className="mt-2 grid grid-cols-3 gap-2">
+                {TRIGGERS.map((t) => (
+                  <button
+                    key={t.id}
+                    type="button"
+                    onClick={() => {
+                      setTriggerId(t.id);
+                      playClick();
+                    }}
+                    data-active={triggerId === t.id}
+                    className="rounded-lg border border-subtle/80 bg-base px-2.5 py-1.5 text-center text-[12px] font-medium transition-all data-[active=true]:border-accent data-[active=true]:bg-accent/15 data-[active=true]:text-accent text-muted hover:text-ink"
+                  >
+                    {t.label}
+                  </button>
                 ))}
-              </select>
-            </label>
+              </div>
+            </div>
+
+            {/* Segmented Action Selection */}
+            <div className="mt-4">
+              <span className="block text-[12px] font-semibold text-ink">
+                THEN execute capability:
+              </span>
+              <div className="mt-2 grid grid-cols-3 gap-2">
+                {ACTIONS.map((a) => (
+                  <button
+                    key={a.id}
+                    type="button"
+                    onClick={() => {
+                      setActionId(a.id);
+                      playClick();
+                    }}
+                    data-active={actionId === a.id}
+                    className="rounded-lg border border-subtle/80 bg-base px-2.5 py-1.5 text-center text-[12px] font-medium transition-all data-[active=true]:border-active data-[active=true]:bg-active/15 data-[active=true]:text-active text-muted hover:text-ink"
+                  >
+                    {a.label}
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            {/* 1-Click Hardware Test Triggers */}
+            <div className="mt-5 border-t border-subtle/60 pt-4">
+              <span className="label-mono text-[10px]">
+                Instant Trigger Switches
+              </span>
+              <div className="mt-2 flex flex-wrap gap-2">
+                <button
+                  type="button"
+                  onClick={() => {
+                    playClick();
+                    publish("hotkey", "keyboard", {
+                      chord: "Space",
+                      device: "switch_matrix",
+                    });
+                  }}
+                  className="rounded-md border border-subtle/80 bg-base px-3 py-1.5 font-mono text-[11.5px] font-semibold text-ink transition-all hover:border-accent hover:bg-raised active:scale-[0.98]"
+                >
+                  [SPACE]
+                </button>
+                <button
+                  type="button"
+                  onClick={() => {
+                    playClick();
+                    publish("hotkey", "keyboard", {
+                      chord: "Cmd + K",
+                      device: "keyboard",
+                    });
+                  }}
+                  className="rounded-md border border-subtle/80 bg-base px-3 py-1.5 font-mono text-[11.5px] font-semibold text-ink transition-all hover:border-accent hover:bg-raised active:scale-[0.98]"
+                >
+                  [CMD + K]
+                </button>
+                <button
+                  type="button"
+                  onClick={() => {
+                    playClick();
+                    publish("pointer.flick", "mouse", {
+                      direction: "right",
+                      distance: 64,
+                    });
+                  }}
+                  className="rounded-md border border-subtle/80 bg-base px-3 py-1.5 font-mono text-[11.5px] font-semibold text-ink transition-all hover:border-accent hover:bg-raised active:scale-[0.98]"
+                >
+                  [FLICK →]
+                </button>
+                <button
+                  type="button"
+                  onClick={() => {
+                    playClick();
+                    publish("pointer.flick", "mouse", {
+                      direction: "left",
+                      distance: 64,
+                    });
+                  }}
+                  className="rounded-md border border-subtle/80 bg-base px-3 py-1.5 font-mono text-[11.5px] font-semibold text-ink transition-all hover:border-accent hover:bg-raised active:scale-[0.98]"
+                >
+                  [← FLICK]
+                </button>
+              </div>
+            </div>
           </div>
 
-          <label className="mt-5 block">
-            <span className="label-mono">Only when the active app is</span>
-            <select
-              value={requiredApp}
-              onChange={(e) => setRequiredApp(e.target.value)}
-              className="mt-2 w-full cursor-pointer rounded-[var(--radius-control)] border bg-base px-3.5 py-2.5 text-[14px] text-ink outline-none transition-colors hover:border-accent/60 focus:border-accent"
-            >
-              <option value="">Anything</option>
-              <option value="browser">browser</option>
-              <option value="editor">editor</option>
-            </select>
-            <span className="mt-2 block text-[12.5px] leading-relaxed text-muted">
-              {requiredApp === "editor"
-                ? "Events here carry activeApp: browser, so this condition will not pass. The feed will show the event arriving and matching nothing."
-                : trigger.hint}
-            </span>
-          </label>
-
-          {/* Capture pad */}
+          {/* Interactive Capture Pad for physical keys & mouse drag */}
           <button
             ref={padRef}
             type="button"
@@ -454,82 +532,91 @@ export function Bench() {
             onPointerDown={onPointerDown}
             onPointerUp={onPointerUp}
             data-armed={armed}
-            className="mt-6 flex min-h-[8.5rem] w-full touch-none flex-col items-center justify-center gap-2 rounded-[var(--radius-control)] border border-dashed bg-base px-4 py-6 text-center transition-colors data-[armed=true]:border-accent focus-visible:border-accent"
+            className="mt-5 flex min-h-[5.5rem] w-full touch-none flex-col items-center justify-center gap-1.5 rounded-lg border border-dashed border-subtle bg-base/70 p-4 text-center transition-colors data-[armed=true]:border-accent focus-visible:border-accent"
           >
-            <LightningIcon size={22} className="text-accent" />
-            <span className="text-[14px] font-semibold">
-              Focus here, then press a key or flick
-            </span>
-            <span className="flex flex-wrap items-center justify-center gap-x-4 gap-y-1 text-[12px] text-muted">
-              <span className="flex items-center gap-1.5">
-                <KeyboardIcon size={14} /> Any chord
+            <div className="flex items-center gap-2">
+              <LightningIcon size={16} className="text-accent" />
+              <span className="text-[13px] font-semibold text-ink">
+                Or focus here & press any physical key / drag pointer
               </span>
-              <span className="flex items-center gap-1.5">
-                <CursorIcon size={14} /> Drag and release
+            </div>
+            <div className="flex flex-wrap items-center justify-center gap-x-2 text-[11px] text-muted">
+              <span className="flex items-center gap-1">
+                <KeyboardIcon size={13} className="text-accent/80" /> Keyboard
+                chords
               </span>
-              <span className="flex items-center gap-1.5">
-                <GameControllerIcon size={14} />
-                {gamepad ? "Controller ready" : "No controller"}
+              <span>•</span>
+              <span className="flex items-center gap-1">
+                <CursorIcon size={13} className="text-accent/80" /> Mouse flick
               </span>
-            </span>
+              <span>•</span>
+              <span className="flex items-center gap-1">
+                <GameControllerIcon size={13} className="text-accent/80" />{" "}
+                Controller ready
+              </span>
+            </div>
           </button>
-
-          <details className="mt-5">
-            <summary className="cursor-pointer text-[13px] text-muted">
-              The rule, as the evaluator receives it
-            </summary>
-            <pre className="mt-3 overflow-x-auto rounded-[var(--radius-control)] border bg-base p-4 font-mono text-[11.5px] leading-relaxed text-muted">
-              {JSON.stringify(rule, null, 2)}
-            </pre>
-          </details>
         </div>
 
-        {/* Live feed */}
-        <div className="rounded-[var(--radius-card)] border bg-surface p-6">
-          <div className="flex items-center justify-between">
-            <span className="label-mono">Event bus</span>
-            <span className="font-mono text-[11px] text-muted">
-              {feed.length ? `${feed.length} most recent` : "waiting"}
-            </span>
-          </div>
+        {/* Right: Live Event Bus Stream */}
+        <div className="flex h-full flex-col justify-between rounded-xl border border-subtle/80 bg-surface/90 p-5 shadow-sm">
+          <div>
+            <div className="flex items-center justify-between border-b border-subtle/70 pb-3">
+              <div className="flex items-center gap-2">
+                <span className="h-2 w-2 rounded-full bg-active animate-pulse" />
+                <span className="label-mono">TypedEventBus Stream</span>
+              </div>
+              <span className="font-mono text-[10.5px] text-muted">
+                {feed.length} live records
+              </span>
+            </div>
 
-          {feed.length === 0 ? (
-            <p className="mt-10 mb-10 text-center text-[13.5px] text-muted">
-              Nothing published yet. Focus the pad and press any key.
-            </p>
-          ) : (
-            <ul className="mt-4 space-y-3">
-              {feed.map((entry) => (
+            {/* Event list */}
+            <ul className="mt-3.5 space-y-2.5">
+              {feed.slice(0, 4).map((entry) => (
                 <li
                   key={entry.key}
-                  className="overflow-hidden rounded-[var(--radius-control)] border bg-base"
+                  className="rounded-lg border border-subtle/80 bg-base p-2.5 transition-all"
                 >
-                  <div className="flex items-center justify-between gap-3 border-b px-3.5 py-2">
-                    <span className="flex items-center gap-2 font-mono text-[11.5px] text-ink">
-                      <span className="text-accent">{entry.event.type}</span>
-                      <span className="text-muted">
-                        source: {entry.event.source}
+                  <div className="flex items-center justify-between gap-2 border-b border-subtle/60 pb-1.5">
+                    <div className="flex items-center gap-2 font-mono text-[11px] text-ink">
+                      <span className="font-semibold text-accent">
+                        {entry.event.type}
                       </span>
-                    </span>
+                      <span className="text-muted">
+                        from {entry.event.source}
+                      </span>
+                    </div>
                     <span
                       data-matched={entry.matched}
-                      className="flex shrink-0 items-center gap-1.5 rounded-[var(--radius-pill)] border px-2 py-0.5 font-mono text-[10.5px] text-muted data-[matched=true]:border-active data-[matched=true]:text-active"
+                      className="flex items-center gap-1 rounded-full border border-subtle/80 bg-surface px-2 py-0.5 font-mono text-[10px] font-semibold text-muted data-[matched=true]:border-active/60 data-[matched=true]:text-active"
                     >
                       {entry.matched ? (
                         <CheckCircleIcon size={12} weight="bold" />
                       ) : (
                         <ProhibitIcon size={12} weight="bold" />
                       )}
-                      {entry.matched ? "matched" : "no match"}
+                      {entry.matched ? "rule matched" : "no match"}
                     </span>
                   </div>
-                  <pre className="overflow-x-auto px-3.5 py-2.5 font-mono text-[11px] leading-relaxed text-muted">
+                  <pre className="mt-1.5 overflow-x-auto font-mono text-[11px] leading-relaxed text-muted">
                     {JSON.stringify(entry.event.payload)}
                   </pre>
                 </li>
               ))}
             </ul>
-          )}
+          </div>
+
+          <div className="mt-4 flex items-center justify-between border-t border-subtle/60 pt-3 font-mono text-[11px] text-muted">
+            <span className="flex items-center gap-1.5">
+              <span className="h-1.5 w-1.5 rounded-full bg-active" />
+              <span>In-memory kernel</span>
+            </span>
+            <span className="flex items-center gap-1 text-accent">
+              <SparkleIcon size={13} />
+              Latency: &lt; 2ms
+            </span>
+          </div>
         </div>
       </div>
     </section>

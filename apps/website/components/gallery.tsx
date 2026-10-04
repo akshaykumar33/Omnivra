@@ -93,7 +93,13 @@ const PANELS: readonly Panel[] = [
   },
 ];
 
-function GalleryCard({ panel }: { panel: Panel }) {
+function GalleryCard({
+  panel,
+  className = "",
+}: {
+  panel: Panel;
+  className?: string;
+}) {
   const [coords, setCoords] = useState<{ x: number; y: number } | null>(null);
 
   const handlePointerMove = (e: React.PointerEvent<HTMLElement>) => {
@@ -111,14 +117,15 @@ function GalleryCard({ panel }: { panel: Panel }) {
       style={{ "--glow": panel.hue } as React.CSSProperties}
       onPointerMove={handlePointerMove}
       onPointerLeave={handlePointerLeave}
-      className="group relative flex h-[360px] flex-col justify-between overflow-hidden rounded-2xl border border-subtle/80 bg-surface/90 p-6 transition-all duration-300 hover:border-accent/50 hover:shadow-xl backdrop-blur-sm"
+      className={`group relative flex h-[370px] flex-col justify-between overflow-hidden rounded-2xl border border-subtle/80 bg-surface/90 p-6 transition-all duration-300 hover:border-accent/60 hover:shadow-xl backdrop-blur-sm ${className}`}
     >
-      {/* Background Modality Technical Art */}
-      <div className="pointer-events-none absolute inset-0 z-0 opacity-70 transition-opacity duration-300 group-hover:opacity-100">
+      {/* Background Modality Technical Art: Unveiled and Vibrant */}
+      <div className="pointer-events-none absolute inset-0 z-0 opacity-90 transition-opacity duration-300 group-hover:opacity-100">
         {panel.visual}
+        {/* Soft bottom veil to ensure text readability */}
         <div
           aria-hidden="true"
-          className="absolute inset-0 bg-gradient-to-t from-surface via-surface/75 to-transparent"
+          className="absolute inset-x-0 bottom-0 h-48 bg-gradient-to-t from-surface via-surface/90 to-transparent"
         />
       </div>
 
@@ -128,7 +135,7 @@ function GalleryCard({ panel }: { panel: Panel }) {
           aria-hidden="true"
           className="pointer-events-none absolute inset-0 z-0 transition-opacity duration-200"
           style={{
-            background: `radial-gradient(350px circle at ${coords.x}px ${coords.y}px, color-mix(in srgb, var(--glow) 22%, transparent), transparent 70%)`,
+            background: `radial-gradient(350px circle at ${coords.x}px ${coords.y}px, color-mix(in srgb, var(--glow) 25%, transparent), transparent 70%)`,
           }}
         />
       )}
@@ -136,14 +143,14 @@ function GalleryCard({ panel }: { panel: Panel }) {
       {/* Card Header: Modality Index & Status Badge */}
       <div className="relative z-10 flex items-center justify-between">
         <span
-          className="font-mono text-[11px] font-bold tracking-[0.16em]"
+          className="font-mono text-[12px] font-bold tracking-[0.16em]"
           style={{ color: panel.hue }}
         >
           {panel.index}
         </span>
         <span
           data-alpha={panel.status === "Alpha"}
-          className="rounded-full border border-subtle/80 bg-base/60 px-2.5 py-0.5 font-mono text-[10px] font-semibold tracking-wide text-muted uppercase backdrop-blur-sm data-[alpha=true]:border-active/60 data-[alpha=true]:text-active"
+          className="rounded-full border border-subtle/80 bg-base/80 px-2.5 py-0.5 font-mono text-[10px] font-semibold tracking-wide text-muted uppercase backdrop-blur-sm data-[alpha=true]:border-active/60 data-[alpha=true]:text-active"
         >
           {panel.status}
         </span>
@@ -195,10 +202,14 @@ export function Gallery() {
           </p>
         </div>
 
-        {/* 5-Card Responsive Grid */}
-        <div className="mt-8 grid grid-cols-1 gap-4 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-5">
-          {PANELS.map((panel) => (
-            <GalleryCard key={panel.id} panel={panel} />
+        {/* 5-Card Ergonomic Bento Grid (3 on top row, 2 widescreen on bottom row) */}
+        <div className="mt-8 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-6">
+          {PANELS.map((panel, idx) => (
+            <GalleryCard
+              key={panel.id}
+              panel={panel}
+              className={idx < 3 ? "lg:col-span-2" : "lg:col-span-3"}
+            />
           ))}
         </div>
       </div>

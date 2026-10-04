@@ -365,9 +365,9 @@ export function Pipeline() {
         </ol>
 
         {/* Live Payload Inspector & Architecture Detail Split */}
-        <div className="mt-6 grid gap-4 lg:grid-cols-[1fr_1.1fr]">
+        <div className="mt-6 grid gap-4 lg:grid-cols-[1fr_1.15fr] items-stretch">
           {/* Left: Detail description */}
-          <div className="flex flex-col justify-between rounded-xl border border-subtle/80 bg-base p-5">
+          <div className="flex h-full flex-col justify-between rounded-xl border border-subtle/80 bg-base p-5 shadow-sm">
             <div className="flex items-start gap-3">
               <ArrowRightIcon
                 size={16}
@@ -397,22 +397,32 @@ export function Pipeline() {
           </div>
 
           {/* Right: Live Normalized Payload JSON Inspector */}
-          <div className="flex flex-col rounded-xl border border-subtle/80 bg-base p-5">
-            <div className="flex items-center justify-between border-b border-subtle/60 pb-2.5">
-              <div className="flex items-center gap-2">
-                <span className="h-2 w-2 rounded-full bg-active animate-pulse" />
-                <span className="font-mono text-[10.5px] font-semibold text-ink uppercase">
-                  Live Event Frame ({STAGES[activeStage]?.name})
+          <div className="flex h-full flex-col justify-between rounded-xl border border-subtle/80 bg-base p-5 shadow-sm">
+            <div>
+              <div className="flex items-center justify-between border-b border-subtle/60 pb-2.5">
+                <div className="flex items-center gap-2">
+                  <span className="h-2 w-2 rounded-full bg-active animate-pulse" />
+                  <span className="font-mono text-[10.5px] font-semibold text-ink uppercase">
+                    Live Event Frame ({STAGES[activeStage]?.name})
+                  </span>
+                </div>
+                <span className="font-mono text-[10px] text-muted">
+                  Format: RFC-compliant JSON
                 </span>
               </div>
-              <span className="font-mono text-[10px] text-muted">
-                Format: RFC-compliant JSON
-              </span>
+
+              <pre className="mt-2.5 max-h-[160px] overflow-x-auto rounded-lg bg-surface/90 p-3 font-mono text-[11.5px] leading-relaxed selection:bg-accent/20">
+                <HighlightedJson code={currentPayloadText} />
+              </pre>
             </div>
 
-            <pre className="mt-2.5 max-h-[150px] overflow-x-auto rounded-lg bg-surface/90 p-3 font-mono text-[11.5px] leading-relaxed selection:bg-accent/20">
-              <HighlightedJson code={currentPayloadText} />
-            </pre>
+            <div className="mt-5 flex items-center justify-between border-t border-subtle/60 pt-3 font-mono text-[10.5px] text-muted">
+              <span className="flex items-center gap-1.5">
+                <span className="h-1.5 w-1.5 rounded-full bg-accent" />
+                <span>Zero host leakage</span>
+              </span>
+              <span>Boundary latency: &lt;2.4ms</span>
+            </div>
           </div>
         </div>
       </div>

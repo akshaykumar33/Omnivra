@@ -31,24 +31,24 @@ export function VoiceVisual() {
         viewBox="0 0 600 800"
         fill="none"
         xmlns="http://www.w3.org/2000/svg"
-        className="h-full w-full object-cover opacity-60 transition-opacity duration-700 group-hover:opacity-85"
+        className="h-full w-full object-cover opacity-90 transition-opacity duration-300 group-hover:opacity-100"
       >
         <defs>
           <linearGradient id="voice-grad" x1="0%" y1="0%" x2="100%" y2="100%">
-            <stop offset="0%" stopColor="var(--hue-voice)" stopOpacity="0.8" />
+            <stop offset="0%" stopColor="var(--hue-voice)" stopOpacity="0.9" />
             <stop
               offset="50%"
               stopColor="var(--accent-primary)"
-              stopOpacity="0.4"
+              stopOpacity="0.6"
             />
             <stop
               offset="100%"
               stopColor="var(--hue-voice)"
-              stopOpacity="0.05"
+              stopOpacity="0.1"
             />
           </linearGradient>
           <radialGradient id="voice-glow" cx="50%" cy="40%" r="50%">
-            <stop offset="0%" stopColor="var(--hue-voice)" stopOpacity="0.25" />
+            <stop offset="0%" stopColor="var(--hue-voice)" stopOpacity="0.35" />
             <stop offset="100%" stopColor="transparent" stopOpacity="0" />
           </radialGradient>
         </defs>
@@ -58,8 +58,8 @@ export function VoiceVisual() {
         {/* Concentric Audio Frequency Rings */}
         <g
           stroke="var(--hue-voice)"
-          strokeOpacity="0.2"
-          strokeWidth="1"
+          strokeOpacity="0.4"
+          strokeWidth="1.2"
           strokeDasharray="3 3"
         >
           <circle cx="300" cy="320" r="80" />
@@ -69,7 +69,7 @@ export function VoiceVisual() {
         </g>
 
         {/* Radial Decibel Ticks */}
-        <g stroke="var(--hue-voice)" strokeOpacity="0.35" strokeWidth="1.5">
+        <g stroke="var(--hue-voice)" strokeOpacity="0.6" strokeWidth="1.5">
           {Array.from({ length: 36 }).map((_, i) => {
             const angle = (i * 10 * Math.PI) / 180;
             const r1 = 190 + (i % 3 === 0 ? 12 : 4);
@@ -167,14 +167,14 @@ export function GestureVisual() {
           viewBox="0 0 600 800"
           fill="none"
           xmlns="http://www.w3.org/2000/svg"
-          className="h-full w-full object-cover opacity-60 transition-opacity duration-700 group-hover:opacity-90"
+          className="h-full w-full object-cover opacity-90 transition-opacity duration-300 group-hover:opacity-100"
         >
           <defs>
             <radialGradient id="gesture-glow" cx="50%" cy="40%" r="50%">
               <stop
                 offset="0%"
                 stopColor="var(--hue-gesture)"
-                stopOpacity="0.22"
+                stopOpacity="0.3"
               />
               <stop offset="100%" stopColor="transparent" stopOpacity="0" />
             </radialGradient>
@@ -186,8 +186,8 @@ export function GestureVisual() {
           {/* Wrist base */}
           <g
             stroke="var(--hue-gesture)"
-            strokeOpacity="0.6"
-            strokeWidth="1.8"
+            strokeOpacity="0.75"
+            strokeWidth="2"
             strokeLinecap="round"
           >
             {/* Palm base to metacarpals */}
@@ -314,11 +314,11 @@ export function GazeVisual() {
         viewBox="0 0 600 800"
         fill="none"
         xmlns="http://www.w3.org/2000/svg"
-        className="h-full w-full object-cover opacity-60 transition-opacity duration-700 group-hover:opacity-90"
+        className="h-full w-full object-cover opacity-90 transition-opacity duration-300 group-hover:opacity-100"
       >
         <defs>
           <radialGradient id="gaze-glow" cx="50%" cy="38%" r="50%">
-            <stop offset="0%" stopColor="var(--hue-gaze)" stopOpacity="0.22" />
+            <stop offset="0%" stopColor="var(--hue-gaze)" stopOpacity="0.32" />
             <stop offset="100%" stopColor="transparent" stopOpacity="0" />
           </radialGradient>
         </defs>
@@ -329,8 +329,8 @@ export function GazeVisual() {
         <path
           d="M 120 320 C 200 210, 400 210, 480 320 C 400 430, 200 430, 120 320 Z"
           stroke="var(--hue-gaze)"
-          strokeWidth="1.8"
-          strokeOpacity="0.5"
+          strokeWidth="2"
+          strokeOpacity="0.75"
           fill="none"
         />
 
@@ -340,8 +340,8 @@ export function GazeVisual() {
           cy={reticle.y}
           r="68"
           stroke="var(--hue-gaze)"
-          strokeWidth="2"
-          strokeOpacity="0.75"
+          strokeWidth="2.2"
+          strokeOpacity="0.85"
           fill="var(--bg-surface)"
           fillOpacity="0.4"
           className="transition-all duration-75 ease-out"
@@ -353,7 +353,7 @@ export function GazeVisual() {
           cy={reticle.y}
           r="28"
           fill="var(--hue-gaze)"
-          fillOpacity="0.9"
+          fillOpacity="0.95"
           className="transition-all duration-75 ease-out"
         />
         <circle
@@ -368,7 +368,7 @@ export function GazeVisual() {
         />
 
         {/* Gaze Reticle & Coordinate Crosshairs */}
-        <g stroke="var(--hue-gaze)" strokeWidth="1" strokeOpacity="0.4">
+        <g stroke="var(--hue-gaze)" strokeWidth="1.2" strokeOpacity="0.6">
           <line
             x1="80"
             y1={reticle.y}
@@ -389,9 +389,9 @@ export function GazeVisual() {
         <path
           d="M 160 480 L 220 380 L 300 320 L 410 260 L 460 340"
           stroke="var(--hue-gaze)"
-          strokeWidth="1.2"
+          strokeWidth="1.4"
           strokeDasharray="4 4"
-          strokeOpacity="0.6"
+          strokeOpacity="0.8"
         />
         {[
           [160, 480],
@@ -403,9 +403,9 @@ export function GazeVisual() {
             key={i}
             cx={x}
             cy={y}
-            r="3"
+            r="3.5"
             fill="var(--hue-gaze)"
-            opacity="0.6"
+            opacity="0.85"
           />
         ))}
       </svg>
@@ -423,11 +423,11 @@ export function FaceVisual() {
         viewBox="0 0 600 800"
         fill="none"
         xmlns="http://www.w3.org/2000/svg"
-        className="h-full w-full object-cover opacity-60 transition-opacity duration-700 group-hover:opacity-85"
+        className="h-full w-full object-cover opacity-90 transition-opacity duration-300 group-hover:opacity-100"
       >
         <defs>
           <radialGradient id="face-glow" cx="50%" cy="38%" r="50%">
-            <stop offset="0%" stopColor="var(--hue-face)" stopOpacity="0.22" />
+            <stop offset="0%" stopColor="var(--hue-face)" stopOpacity="0.3" />
             <stop offset="100%" stopColor="transparent" stopOpacity="0" />
           </radialGradient>
         </defs>
@@ -437,8 +437,8 @@ export function FaceVisual() {
         {/* Facial Mesh Triangulation Wireframe */}
         <g
           stroke="var(--hue-face)"
-          strokeOpacity="0.4"
-          strokeWidth="1"
+          strokeOpacity="0.6"
+          strokeWidth="1.2"
           strokeLinejoin="round"
         >
           {/* Forehead / Brow lines */}
@@ -477,7 +477,7 @@ export function FaceVisual() {
           [300, 380],
           [300, 450],
         ].map(([x, y], i) => (
-          <circle key={i} cx={x} cy={y} r="3" fill="var(--hue-face)" />
+          <circle key={i} cx={x} cy={y} r="3.5" fill="var(--hue-face)" />
         ))}
       </svg>
     </div>
@@ -496,11 +496,11 @@ export function ClassicVisual() {
         viewBox="0 0 600 800"
         fill="none"
         xmlns="http://www.w3.org/2000/svg"
-        className="h-full w-full object-cover opacity-60 transition-opacity duration-700 group-hover:opacity-90"
+        className="h-full w-full object-cover opacity-90 transition-opacity duration-300 group-hover:opacity-100"
       >
         <defs>
           <radialGradient id="classic-glow" cx="50%" cy="40%" r="50%">
-            <stop offset="0%" stopColor="var(--hue-input)" stopOpacity="0.22" />
+            <stop offset="0%" stopColor="var(--hue-input)" stopOpacity="0.3" />
             <stop offset="100%" stopColor="transparent" stopOpacity="0" />
           </radialGradient>
         </defs>
@@ -508,7 +508,7 @@ export function ClassicVisual() {
         <rect width="600" height="800" fill="url(#classic-glow)" />
 
         {/* Matrix Wiring Circuit */}
-        <g stroke="var(--hue-input)" strokeOpacity="0.3" strokeWidth="1">
+        <g stroke="var(--hue-input)" strokeOpacity="0.45" strokeWidth="1">
           {Array.from({ length: 6 }).map((_, i) => (
             <line
               key={`h-${i}`}
@@ -589,14 +589,14 @@ export function PrivacySandboxVisual() {
         viewBox="0 0 600 700"
         fill="none"
         xmlns="http://www.w3.org/2000/svg"
-        className="h-full w-full object-cover opacity-75"
+        className="h-full w-full object-cover opacity-95"
       >
         <defs>
           <radialGradient id="priv-glow" cx="50%" cy="45%" r="55%">
             <stop
               offset="0%"
               stopColor="var(--accent-primary)"
-              stopOpacity="0.25"
+              stopOpacity="0.35"
             />
             <stop offset="100%" stopColor="transparent" stopOpacity="0" />
           </radialGradient>
@@ -612,14 +612,14 @@ export function PrivacySandboxVisual() {
           stroke="var(--accent-primary)"
           strokeWidth="2"
           strokeDasharray="6 4"
-          strokeOpacity="0.6"
+          strokeOpacity="0.8"
         />
         <circle
           cx="300"
           cy="340"
           r="230"
           stroke="var(--border-subtle)"
-          strokeWidth="1"
+          strokeWidth="1.2"
           strokeDasharray="3 3"
         />
 
@@ -639,7 +639,7 @@ export function PrivacySandboxVisual() {
         <path
           d="M 300 280 L 350 305 V 345 C 350 380 300 405 300 405 C 300 405 250 380 250 345 V 305 Z"
           fill="var(--accent-primary)"
-          fillOpacity="0.15"
+          fillOpacity="0.2"
           stroke="var(--accent-primary)"
           strokeWidth="2"
         />
@@ -652,19 +652,23 @@ export function PrivacySandboxVisual() {
         />
 
         {/* Ingress Pipes (Local Mic, Camera, Sensors) */}
-        <g stroke="var(--accent-primary)" strokeWidth="1.5" strokeOpacity="0.7">
+        <g
+          stroke="var(--accent-primary)"
+          strokeWidth="1.8"
+          strokeOpacity="0.85"
+        >
           <line x1="80" y1="200" x2="210" y2="280" strokeDasharray="4 3" />
           <line x1="80" y1="480" x2="210" y2="400" strokeDasharray="4 3" />
           <line x1="520" y1="200" x2="390" y2="280" strokeDasharray="4 3" />
           <line x1="520" y1="480" x2="390" y2="400" strokeDasharray="4 3" />
         </g>
 
-        {/* Architectural labels */}
+        {/* Architectural labels with high contrast */}
         <g
-          fill="var(--text-muted)"
+          fill="var(--text-primary)"
           fontFamily="var(--font-mono)"
-          fontSize="11"
-          opacity="0.8"
+          fontSize="11.5"
+          fontWeight="500"
         >
           <text x="80" y="190">
             Microphone input
@@ -675,7 +679,13 @@ export function PrivacySandboxVisual() {
           <text x="520" y="190" textAnchor="end">
             Process isolated
           </text>
-          <text x="520" y="500" textAnchor="end">
+          <text
+            x="520"
+            y="500"
+            textAnchor="end"
+            fill="var(--accent-primary)"
+            fontWeight="700"
+          >
             Zero cloud egress
           </text>
         </g>
@@ -685,8 +695,8 @@ export function PrivacySandboxVisual() {
           y="460"
           fill="var(--accent-primary)"
           fontFamily="var(--font-mono)"
-          fontSize="11"
-          fontWeight="600"
+          fontSize="11.5"
+          fontWeight="700"
           textAnchor="middle"
           letterSpacing="0.08em"
         >

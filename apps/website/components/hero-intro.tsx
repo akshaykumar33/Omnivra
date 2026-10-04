@@ -71,16 +71,16 @@ export function HeroIntro() {
     <div ref={scope}>
       <div
         data-reveal="eyebrow"
-        className="inline-flex items-center gap-2.5 rounded-full border border-subtle/80 bg-raised/70 px-3.5 py-1.5 shadow-sm backdrop-blur-md"
+        className="inline-flex items-center gap-2.5 rounded-full border border-accent/30 bg-accent/10 px-3.5 py-1.5 shadow-sm backdrop-blur-md"
       >
         <span className="relative flex h-2 w-2">
           <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-active opacity-75" />
           <span className="relative inline-flex h-2 w-2 rounded-full bg-active" />
         </span>
-        <span className="font-mono text-[11px] font-semibold tracking-wider text-ink uppercase">
+        <span className="font-mono text-[11px] font-semibold tracking-wider text-accent uppercase">
           Local Multimodal Runtime
         </span>
-        <span className="h-3 w-px bg-subtle" />
+        <span className="h-3 w-px bg-accent/30" />
         <span className="font-mono text-[11px] text-muted">v0.1.0-alpha</span>
       </div>
 
@@ -100,8 +100,8 @@ export function HeroIntro() {
                   (word.tone === "muted"
                     ? "text-muted"
                     : word.tone === "spectrum"
-                      ? "text-spectrum"
-                      : "")
+                      ? "bg-gradient-to-r from-sky-400 via-cyan-300 to-indigo-400 bg-clip-text text-transparent font-medium"
+                      : "text-ink")
                 }
               >
                 {word.text}
@@ -116,7 +116,7 @@ export function HeroIntro() {
         className="mt-4 max-w-[48ch] text-[15px] leading-relaxed text-muted"
       >
         Map voice, gestures and gaze to anything your browser, editor or desktop
-        can do. Local-first, and accessible by design.
+        can do. Local-first, zero cloud egress, and accessible by design.
       </p>
 
       <div className="mt-7 flex flex-wrap items-center gap-3">
