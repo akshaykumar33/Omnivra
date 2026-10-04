@@ -75,7 +75,7 @@ before(async () => {
   // Speech recognition runs in an embedded page on the website; point the
   // panel at a stand-in that speaks the same postMessage protocol.
   await panel.goto(
-    `chrome-extension://${id}/sidepanel.html?listener=${encodeURIComponent(origin + "/listen")}`,
+    `chrome-extension://${id}/sidepanel.html?listenerPort=${server.address().port}`,
   );
   page = await context.newPage();
   await page.goto(origin);

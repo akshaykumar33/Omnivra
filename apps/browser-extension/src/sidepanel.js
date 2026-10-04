@@ -42,10 +42,16 @@ document.getElementById("typed").addEventListener("submit", (event) => {
 
 // Browsers return no transcripts to speech recognition started in an extension
 // page, so recognition runs in a page on the Omnivra website, embedded here in
-// a hidden iframe and driven with postMessage. Tests can point it elsewhere.
+// a hidden iframe and driven with postMessage. Tests may swap in a local
+// stand-in with ?listenerPort=<n>; nothing else can redirect the iframe.
+const testPort = Number.parseInt(
+  new URLSearchParams(location.search).get("listenerPort") ?? "",
+  10,
+);
 const LISTENER_URL =
-  new URLSearchParams(location.search).get("listener") ??
-  "https://omnivra.vercel.app/listen";
+  testPort > 0 && testPort < 65536
+    ? `http://localhost:${testPort}/listen`
+    : "https://omnivra.vercel.app/listen";
 const LISTENER_ORIGIN = new URL(LISTENER_URL).origin;
 
 let listener;
