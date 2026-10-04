@@ -1,0 +1,15 @@
+{
+  "manifest_version": 3,
+  "name": "Omnivra",
+  "description": "Control your browser by voice and hand gestures: play, pause, skip, scroll, switch tabs and search.",
+  "version": "0.1.0",
+  "minimum_chrome_version": "116",
+  "action": { "default_title": "Open Omnivra" },
+  "side_panel": { "default_path": "sidepanel.html" },
+  "background": { "service_worker": "background.js" },
+  "permissions": ["sidePanel", "tabs", "scripting", "search"],
+  "content_security_policy": {
+    "extension_pages": "script-src 'self' 'wasm-unsafe-eval'; object-src 'self'"
+  },
+  "host_permissions": ["<all_urls>"]
+}
