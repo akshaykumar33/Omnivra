@@ -220,7 +220,7 @@ test("voice: acts on interim speech once, picks the right alternative", async ()
   const listener = () =>
     panel.frames().find((f) => f.url().includes("/listen"));
   await panel.waitForFunction(() =>
-    document.querySelector("iframe[allow=microphone]"),
+    document.querySelector('iframe[title="Omnivra speech recognition"]'),
   );
   await new Promise((r) => setTimeout(r, 300));
   const started = await listener().evaluate(() => window.__started.at(-1));

@@ -1,5 +1,6 @@
 import { parseCommand, parseBest, isInstant, EXAMPLES } from "./commands.js";
 import { GESTURES } from "./gesture-map.js";
+import { onDeviceAvailable, listenOnDevice } from "./recognizer.js";
 
 const toggle = document.getElementById("toggle");
 const status = document.getElementById("status");
@@ -79,7 +80,8 @@ function loadListener() {
   if (listenerReady) return listenerReady;
   listener = document.createElement("iframe");
   listener.src = LISTENER_URL;
-  listener.allow = "microphone";
+  // On-device recognition is a separate feature that must be delegated too.
+  listener.allow = "microphone; on-device-speech-recognition";
   listener.hidden = true;
   listener.title = "Omnivra speech recognition";
   listenerReady = new Promise((resolve, reject) => {
@@ -116,8 +118,12 @@ addEventListener("message", (event) => {
     event.data?.source !== "omnivra-listener"
   )
     return;
-  const message = event.data;
+  onSpeech(event.data);
+});
 
+// Results and errors from either engine: on-device in this panel, or the
+// online listener embedded from the website.
+function onSpeech(message) {
   if (message.kind === "result" && listening) {
     const alternatives = message.alternatives.filter(Boolean);
     if (!alternatives.length) return;
@@ -133,6 +139,13 @@ addEventListener("message", (event) => {
     }
   }
 
+  if (message.kind === "state" && message.engine && listening) {
+    status.textContent =
+      message.engine === "device"
+        ? "Listening (on this device)…"
+        : "Listening (online)…";
+  }
+
   if (message.kind === "error") {
     // Transient failures (a network blip) are retried by the listener.
     if (!message.fatal) {
@@ -143,13 +156,17 @@ addEventListener("message", (event) => {
     // steals focus from whatever the user is doing.
     addLog(ERRORS[message.error] ?? `Mic error: ${message.error}`, true);
     setListening(false);
+    stopEngine();
   }
-});
+}
+
+// Stops whichever engine is running.
+let stopEngine = () => {};
 
 toggle.addEventListener("click", () => {
   if (!listening) return startListening();
   setListening(false);
-  toListener({ action: "stop" });
+  stopEngine();
 });
 
 async function startListening() {
@@ -157,6 +174,19 @@ async function startListening() {
   // embeds it, which is this extension, not the website. If it is missing,
   // ensurePermission asks once and listening starts by itself when granted.
   if (!(await ensurePermission("audio"))) return;
+  // Match the user's English accent (en-IN, en-GB…) instead of forcing US.
+  const lang = navigator.language.startsWith("en")
+    ? navigator.language
+    : "en-US";
+  handled.clear();
+
+  if (await onDeviceAvailable(lang)) {
+    setListening(true);
+    status.textContent = "Listening (on this device)…";
+    stopEngine = listenOnDevice(lang, onSpeech);
+    return;
+  }
+
   status.textContent = "Starting…";
   try {
     await loadListener();
@@ -165,13 +195,9 @@ async function startListening() {
     addLog(error.message, true);
     return;
   }
-  handled.clear();
   setListening(true);
-  toListener({
-    action: "start",
-    // Match the user's English accent (en-IN, en-GB…) instead of forcing US.
-    lang: navigator.language.startsWith("en") ? navigator.language : "en-US",
-  });
+  stopEngine = () => toListener({ action: "stop" });
+  toListener({ action: "start", lang });
 }
 
 for (const { label, intent } of Object.values(GESTURES)) {

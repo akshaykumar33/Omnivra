@@ -107,3 +107,15 @@ test("clipped first words seen with real speech recognition", () => {
   assert.equal(parseCommand("find"), undefined);
   assert.equal(parseCommand("lots seconds"), undefined);
 });
+
+test("clipped scroll", () => {
+  assert.deepEqual(parseCommand("Roll down"), {
+    type: "scroll",
+    direction: "down",
+  });
+  assert.deepEqual(parseCommand("roll to the top"), {
+    type: "scroll",
+    to: "top",
+  });
+  assert.equal(parseCommand("rock and roll"), undefined);
+});

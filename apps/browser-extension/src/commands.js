@@ -110,6 +110,8 @@ const SOUNDALIKES = [
   [/\bun mute\b/g, "unmute"],
   [/\b(?:tap|tabs|tub)\b/g, "tab"],
   [/\bscroll (?:dawn|done)\b/g, "scroll down"],
+  // A clipped "scroll" often arrives as "roll".
+  [/^roll (?=up\b|down\b|to\b)/g, "scroll "],
   [/\b(?:re wind|rewinds|rewine)\b/g, "rewind"],
   [/\bsecs?\b/g, "seconds"],
   [/\bfor ward\b/g, "forward"],
