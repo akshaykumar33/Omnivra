@@ -28,10 +28,26 @@ const PAGE = `<!doctype html><title>Fixture</title>
   document.getElementById("a").src = URL.createObjectURL(new Blob([buf], { type: "audio/wav" }));
 </script></body>`;
 
+// Stand-in for the website's /listen page: same messages, results injected by the test.
+const FAKE_LISTENER = `<!doctype html><title>listener</title><script>
+  const post = (m) => parent.postMessage({ source: "omnivra-listener", ...m }, "*");
+  window.__started = [];
+  addEventListener("message", (e) => {
+    if (e.data?.type !== "omnivra-listen") return;
+    window.__started.push(e.data);
+    post({ kind: "state", listening: e.data.action === "start" });
+  });
+  window.__emit = (id, alternatives, isFinal) => post({ kind: "result", id, alternatives, isFinal });
+  window.__error = (error) => post({ kind: "error", error });
+  post({ kind: "ready" });
+</script>`;
+
 let server, context, panel, page, origin;
 
 before(async () => {
-  server = createServer((_req, res) => res.end(PAGE)).listen(0);
+  server = createServer((req, res) =>
+    res.end(req.url.startsWith("/listen") ? FAKE_LISTENER : PAGE),
+  ).listen(0);
   origin = `http://localhost:${server.address().port}`;
   context = await chromium.launchPersistentContext(
     mkdtempSync(join(tmpdir(), "omnivra-")),
@@ -56,28 +72,11 @@ before(async () => {
   const id = new URL(worker.url()).host;
 
   panel = await context.newPage();
-  // Replace the browser's speech engine with one the tests can feed, so the
-  // panel's real listening loop (interim results, alternatives) is exercised.
-  await panel.addInitScript(() => {
-    window.SpeechRecognition = window.webkitSpeechRecognition = class {
-      constructor() {
-        window.__recognition = this;
-      }
-      start() {
-        this.onstart?.();
-      }
-      stop() {}
-    };
-    // Builds an onresult event: emit(0, ["paws", "pause"], false)
-    window.__emit = (index, alternatives, isFinal) => {
-      const result = alternatives.map((transcript) => ({ transcript }));
-      result.isFinal = isFinal;
-      const results = [];
-      results[index] = result;
-      window.__recognition.onresult({ resultIndex: index, results });
-    };
-  });
-  await panel.goto(`chrome-extension://${id}/sidepanel.html`);
+  // Speech recognition runs in an embedded page on the website; point the
+  // panel at a stand-in that speaks the same postMessage protocol.
+  await panel.goto(
+    `chrome-extension://${id}/sidepanel.html?listener=${encodeURIComponent(origin + "/listen")}`,
+  );
   page = await context.newPage();
   await page.goto(origin);
   await page.bringToFront();
@@ -218,9 +217,18 @@ test("voice: acts on interim speech once, picks the right alternative", async ()
     () =>
       document.getElementById("toggle").getAttribute("aria-pressed") === "true",
   );
+  const listener = () =>
+    panel.frames().find((f) => f.url().includes("/listen"));
+  await panel.waitForFunction(() =>
+    document.querySelector("iframe[allow=microphone]"),
+  );
+  await new Promise((r) => setTimeout(r, 300));
+  const started = await listener().evaluate(() => window.__started.at(-1));
+  assert.equal(started.action, "start");
+  assert.match(started.lang, /^en/);
   const emit = (i, alts, final) =>
-    panel.evaluate(
-      ([i, alts, final]) => window.__emit(i, alts, final),
+    listener().evaluate(
+      ([i, alts, final]) => window.__emit("s0:" + i, alts, final),
       [i, alts, final],
     );
   const logCount = () => panel.locator("#log li").count();
@@ -260,4 +268,33 @@ test("voice: acts on interim speech once, picks the right alternative", async ()
   );
 
   await panel.click("#toggle");
+  assert.equal(
+    (await listener().evaluate(() => window.__started.at(-1))).action,
+    "stop",
+  );
+});
+
+test("voice: a blocked microphone opens the listener page to grant access", async () => {
+  await panel.click("#toggle");
+  await panel.waitForFunction(
+    () =>
+      document.getElementById("toggle").getAttribute("aria-pressed") === "true",
+  );
+  const opened = context.waitForEvent("page");
+  await panel
+    .frames()
+    .find((f) => f.url().includes("/listen"))
+    .evaluate(() => window.__error("not-allowed"));
+  const tab = await opened;
+  assert.ok(tab.url().endsWith("/listen"));
+  await tab.close();
+  assert.equal(
+    await panel.locator("#toggle").getAttribute("aria-pressed"),
+    "false",
+  );
+  assert.match(
+    await panel.locator("#log li").first().textContent(),
+    /Allow the microphone/,
+  );
+  await page.bringToFront();
 });
