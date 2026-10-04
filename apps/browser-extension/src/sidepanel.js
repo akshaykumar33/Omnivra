@@ -1,6 +1,5 @@
 import { parseCommand, decide, EXAMPLES } from "./commands.js";
 import { GESTURES } from "./gesture-map.js";
-import { onDeviceAvailable, listenOnDevice } from "./recognizer.js";
 
 const toggle = document.getElementById("toggle");
 const status = document.getElementById("status");
@@ -42,9 +41,10 @@ document.getElementById("typed").addEventListener("submit", (event) => {
 });
 
 // Browsers return no transcripts to speech recognition started in an extension
-// page, so recognition runs in a page on the Omnivra website, embedded here in
-// a hidden iframe and driven with postMessage. Tests may swap in a local
-// stand-in with ?listenerPort=<n>; nothing else can redirect the iframe.
+// page, so recognition runs in a page on the Omnivra website: preferably in a
+// pinned background tab (startInTab), else embedded here as a hidden iframe
+// (startOnline). Tests may swap in a local stand-in with ?listenerPort=<n>;
+// nothing else can change where the listener comes from.
 const testPort = Number.parseInt(
   new URLSearchParams(location.search).get("listenerPort") ?? "",
   10,
@@ -123,8 +123,7 @@ addEventListener("message", (event) => {
   onSpeech(event.data);
 });
 
-// Results and errors from either engine: on-device in this panel, or the
-// online listener embedded from the website.
+// Results and errors from the website listener, in a tab or embedded here.
 function onSpeech(message) {
   if (message.kind === "result" && listening) {
     const alternatives = message.alternatives.filter(Boolean);
@@ -147,16 +146,6 @@ function onSpeech(message) {
       message.engine === "device"
         ? "Listening (on this device)…"
         : "Listening (online)…";
-  }
-
-  if (message.kind === "error" && message.error === "device-silent") {
-    // On-device recognition heard speech but returned no text in this panel.
-    // Switch to the online listener now and remember it for next time.
-    chrome.storage.local.set({ engine: "online" });
-    addLog("Switched to online recognition; on-device wasn't responding.");
-    stopEngine();
-    startOnline(currentLang);
-    return;
   }
 
   if (message.kind === "error") {
@@ -198,30 +187,128 @@ toggle.addEventListener("click", () => {
 });
 
 async function startListening() {
-  // The embedded listener uses the microphone permission of the page that
-  // embeds it, which is this extension, not the website. If it is missing,
-  // ensurePermission asks once and listening starts by itself when granted.
-  if (!(await ensurePermission("audio"))) return;
   // Match the user's English accent (en-IN, en-GB…) instead of forcing US.
-  currentLang = navigator.language.startsWith("en")
+  const lang = navigator.language.startsWith("en")
     ? navigator.language
     : "en-US";
   handled.clear();
-
-  // On-device first, unless it already proved silent on this browser.
-  const { engine } = await chrome.storage.local.get("engine");
-  if (engine !== "online" && (await onDeviceAvailable(currentLang))) {
-    setListening(true);
-    status.textContent = "Listening (on this device)…";
-    stopEngine = listenOnDevice(currentLang, onSpeech);
-    return;
-  }
-  await startOnline(currentLang);
+  status.textContent = "Starting…";
+  if (await startInTab(lang)) return;
+  // The tab couldn't connect: fall back to the listener inside this panel.
+  // It uses the extension's microphone permission, so check that first.
+  if (!(await ensurePermission("audio"))) return;
+  await startOnline(lang);
 }
 
-let currentLang = "en-US";
+// Fast path: the website listener in a pinned background tab, where the
+// browser's on-device engine works (it doesn't inside extension pages or
+// iframes). The tab never takes focus except to show a first-time microphone
+// prompt, and closes when listening stops.
+const TAB_CONNECT_TIMEOUT_MS = 15000;
 
-// Speech recognition through the website listener, embedded in this panel.
+async function startInTab(lang) {
+  const [userTab] = await chrome.tabs.query({
+    active: true,
+    lastFocusedWindow: true,
+  });
+  // Listen before opening the tab so a fast-loading page can't connect first.
+  let tab;
+  const early = [];
+  let accept;
+  const onConnect = (p) => {
+    if (p.name !== "omnivra-voice" || p.sender?.origin !== LISTENER_ORIGIN) {
+      return;
+    }
+    if (!tab) early.push(p);
+    else if (p.sender?.tab?.id === tab.id) accept(p);
+  };
+  chrome.runtime.onConnectExternal.addListener(onConnect);
+  const port = await new Promise((resolve) => {
+    const timer = setTimeout(() => accept(undefined), TAB_CONNECT_TIMEOUT_MS);
+    accept = (p) => {
+      clearTimeout(timer);
+      chrome.runtime.onConnectExternal.removeListener(onConnect);
+      resolve(p);
+    };
+    chrome.tabs
+      .create({
+        url: `${LISTENER_URL}?ext=${chrome.runtime.id}`,
+        pinned: true,
+        active: false,
+      })
+      .then(
+        (created) => {
+          tab = created;
+          // Only the tab we just opened, on the listener's origin.
+          const mine = early.find((p) => p.sender?.tab?.id === tab.id);
+          if (mine) accept(mine);
+        },
+        () => accept(undefined),
+      );
+  });
+  if (!tab) return false;
+  if (!port) {
+    chrome.tabs.remove(tab.id).catch(() => {});
+    return false;
+  }
+
+  let stopped = false;
+  const stop = () => {
+    if (stopped) return;
+    stopped = true;
+    chrome.tabs.onRemoved.removeListener(onTabClosed);
+    try {
+      port.postMessage({ type: "omnivra-listen", action: "stop" });
+      port.disconnect();
+    } catch {
+      // Already gone.
+    }
+    chrome.tabs.remove(tab.id).catch(() => {});
+  };
+  function onTabClosed(tabId) {
+    if (tabId !== tab.id || stopped) return;
+    stopped = true;
+    if (listening) {
+      setListening(false);
+      addLog("The voice tab was closed, so listening stopped.");
+    }
+  }
+  chrome.tabs.onRemoved.addListener(onTabClosed);
+
+  port.onMessage.addListener((message) => {
+    if (message?.source !== "omnivra-listener") return;
+    // First use: the microphone prompt shows in that tab, so bring it forward,
+    // then return to where the user was once it's allowed.
+    if (message.kind === "needs-permission") {
+      chrome.tabs.update(tab.id, { active: true });
+      status.textContent = "Click Allow in the Omnivra tab.";
+      return;
+    }
+    if (message.kind === "permission-ok") {
+      if (userTab?.id) chrome.tabs.update(userTab.id, { active: true });
+      return;
+    }
+    onSpeech(message);
+  });
+  port.onDisconnect.addListener(() => {
+    if (!stopped && listening) {
+      stopped = true;
+      setListening(false);
+      addLog(
+        "Voice stopped unexpectedly. Click Start listening to resume.",
+        true,
+      );
+    }
+  });
+
+  setListening(true);
+  status.textContent = "Listening…";
+  stopEngine = stop;
+  port.postMessage({ type: "omnivra-listen", action: "start", lang });
+  return true;
+}
+
+// Fallback: the website listener embedded in this panel (online engine only).
 async function startOnline(lang) {
   status.textContent = "Starting…";
   try {

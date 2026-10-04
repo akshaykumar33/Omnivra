@@ -30,23 +30,47 @@ const PAGE = `<!doctype html><title>Fixture</title>
 
 // Stand-in for the website's /listen page: same messages, results injected by the test.
 const FAKE_LISTENER = `<!doctype html><title>listener</title><script>
-  const post = (m) => parent.postMessage({ source: "omnivra-listener", ...m }, "*");
   window.__started = [];
-  addEventListener("message", (e) => {
-    if (e.data?.type !== "omnivra-listen") return;
-    window.__started.push(e.data);
-    post({ kind: "state", listening: e.data.action === "start" });
-  });
+  const onCommand = (data) => {
+    if (data?.type !== "omnivra-listen") return;
+    window.__started.push(data);
+    post({ kind: "state", listening: data.action === "start" });
+  };
+  // Like the real page: a pinned tab opened with ?ext= talks over an extension
+  // port (unless the test blocks it); an embedded copy uses postMessage.
+  const ext = new URLSearchParams(location.search).get("ext");
+  let post;
+  if (top === self && ext && !__BLOCK_TAB__) {
+    const port = chrome.runtime.connect(ext, { name: "omnivra-voice" });
+    post = (m) => port.postMessage({ source: "omnivra-listener", ...m });
+    port.onMessage.addListener(onCommand);
+  } else {
+    post = (m) => parent.postMessage({ source: "omnivra-listener", ...m }, "*");
+    addEventListener("message", (e) => onCommand(e.data));
+  }
   window.__emit = (id, alternatives, isFinal) => post({ kind: "result", id, alternatives, isFinal });
   window.__error = (error, fatal = true) => post({ kind: "error", error, fatal });
   post({ kind: "ready" });
 </script>`;
 
 let server, context, panel, page, origin;
+// When true, the stand-in listener refuses to connect from a tab, so the
+// panel's in-panel fallback can be tested.
+let blockTab = false;
+
+// The stand-in listener: the pinned tab, or the iframe in the panel.
+function listenerFrame() {
+  const tab = context.pages().find((p) => p.url().includes("/listen?ext="));
+  return tab ?? panel.frames().find((f) => f.url().includes("/listen"));
+}
 
 before(async () => {
   server = createServer((req, res) =>
-    res.end(req.url.startsWith("/listen") ? FAKE_LISTENER : PAGE),
+    res.end(
+      req.url.startsWith("/listen")
+        ? FAKE_LISTENER.replace("__BLOCK_TAB__", String(blockTab))
+        : PAGE,
+    ),
   ).listen(0);
   origin = `http://localhost:${server.address().port}`;
   context = await chromium.launchPersistentContext(
@@ -209,25 +233,72 @@ test("gesture recognizer starts on the camera and stops cleanly", async () => {
   await page.bringToFront();
 });
 
-test("voice: acts on interim speech once, picks the right alternative", async () => {
+// Starts listening and returns the stand-in listener once it got "start".
+async function startVoice() {
   await page.bringToFront();
-  await page.evaluate(() => document.getElementById("a").play());
   await panel.click("#toggle");
   await panel.waitForFunction(
     () =>
       document.getElementById("toggle").getAttribute("aria-pressed") === "true",
   );
-  const listener = () =>
-    panel.frames().find((f) => f.url().includes("/listen"));
-  await panel.waitForFunction(() =>
-    document.querySelector('iframe[title="Omnivra speech recognition"]'),
+  for (let i = 0; i < 50; i++) {
+    const frame = listenerFrame();
+    const started = await frame
+      ?.evaluate(() => window.__started?.at(-1)?.action)
+      .catch(() => undefined);
+    if (started === "start") return frame;
+    await new Promise((r) => setTimeout(r, 100));
+  }
+  throw new Error("listener never started");
+}
+
+async function stopVoice() {
+  if (
+    (await panel.locator("#toggle").getAttribute("aria-pressed")) === "true"
+  ) {
+    await panel.click("#toggle");
+  }
+}
+
+test("voice: listens in a pinned background tab that never takes focus", async () => {
+  const pageTabId = await panel.evaluate(
+    async (url) => (await chrome.tabs.query({ url })).at(0)?.id,
+    page.url(),
   );
-  await new Promise((r) => setTimeout(r, 300));
-  const started = await listener().evaluate(() => window.__started.at(-1));
-  assert.equal(started.action, "start");
-  assert.match(started.lang, /^en/);
+  await startVoice();
+  const tabs = await panel.evaluate(async () =>
+    (await chrome.tabs.query({})).map((t) => ({
+      url: t.url,
+      pinned: t.pinned,
+      active: t.active,
+      id: t.id,
+    })),
+  );
+  const voiceTab = tabs.find((t) => t.url.includes("/listen?ext="));
+  assert.equal(voiceTab.pinned, true);
+  assert.equal(voiceTab.active, false);
+  const active = await panel.evaluate(
+    async () =>
+      (await chrome.tabs.query({ active: true, lastFocusedWindow: true }))[0]
+        ?.id,
+  );
+  assert.equal(active, pageTabId);
+
+  // Stop listening closes the tab.
+  await stopVoice();
+  await panel.waitForFunction(
+    async () =>
+      !(await chrome.tabs.query({})).some((t) =>
+        t.url.includes("/listen?ext="),
+      ),
+  );
+});
+
+test("voice: acts on interim speech once, picks the right alternative", async () => {
+  await page.evaluate(() => document.getElementById("a").play());
+  const listener = await startVoice();
   const emit = (i, alts, final) =>
-    listener().evaluate(
+    listener.evaluate(
       ([i, alts, final]) => window.__emit("s0:" + i, alts, final),
       [i, alts, final],
     );
@@ -252,12 +323,7 @@ test("voice: acts on interim speech once, picks the right alternative", async ()
     (n) => document.querySelectorAll("#log li").length > n,
     before + 1,
   );
-  assert.ok(
-    Math.abs(
-      (await page.evaluate(() => document.getElementById("a").currentTime)) -
-        30,
-    ) < 1,
-  );
+  assert.ok(Math.abs((await audio("a.currentTime")) - 30) < 1);
   assert.equal(page.url(), url);
 
   // Unrecognised final speech is reported.
@@ -266,34 +332,40 @@ test("voice: acts on interim speech once, picks the right alternative", async ()
     await panel.locator("#log li").first().textContent(),
     /Didn't understand/,
   );
+  await stopVoice();
+});
 
-  await panel.click("#toggle");
-  assert.equal(
-    (await listener().evaluate(() => window.__started.at(-1))).action,
-    "stop",
+test("voice: closing the voice tab stops listening cleanly", async () => {
+  const listener = await startVoice();
+  await listener.close();
+  await panel.waitForFunction(
+    () =>
+      document.getElementById("toggle").getAttribute("aria-pressed") ===
+      "false",
   );
+  assert.match(
+    await panel.locator("#log li").first().textContent(),
+    /voice tab was closed|stopped/,
+  );
+  await page.bringToFront();
 });
 
 test("voice: a refused microphone stops listening without opening tabs", async () => {
-  await panel.click("#toggle");
-  await panel.waitForFunction(
-    () =>
-      document.getElementById("toggle").getAttribute("aria-pressed") === "true",
-  );
+  const listener = await startVoice();
   const pagesBefore = context.pages().length;
-  // Even repeated refusals must not open tabs (each would steal focus).
-  const listener = panel.frames().find((f) => f.url().includes("/listen"));
+  // Even repeated refusals must not open more tabs (each would steal focus).
   await listener.evaluate(() => {
     window.__error("not-allowed");
     window.__error("not-allowed");
     window.__error("not-allowed");
   });
-  await panel.waitForTimeout(1000);
-  assert.equal(context.pages().length, pagesBefore);
-  assert.equal(
-    await panel.locator("#toggle").getAttribute("aria-pressed"),
-    "false",
+  await panel.waitForFunction(
+    () =>
+      document.getElementById("toggle").getAttribute("aria-pressed") ===
+      "false",
   );
+  await panel.waitForTimeout(500);
+  assert.ok(context.pages().length <= pagesBefore);
   assert.match(
     await panel.locator("#log li").first().textContent(),
     /Microphone access for Omnivra is off/,
@@ -302,15 +374,8 @@ test("voice: a refused microphone stops listening without opening tabs", async (
 });
 
 test("voice: a transient error keeps listening and shows reconnecting", async () => {
-  await panel.click("#toggle");
-  await panel.waitForFunction(
-    () =>
-      document.getElementById("toggle").getAttribute("aria-pressed") === "true",
-  );
-  await panel
-    .frames()
-    .find((f) => f.url().includes("/listen"))
-    .evaluate(() => window.__error("network", false));
+  const listener = await startVoice();
+  await listener.evaluate(() => window.__error("network", false));
   await panel.waitForFunction(() =>
     document.getElementById("status").textContent.includes("Reconnecting"),
   );
@@ -318,7 +383,36 @@ test("voice: a transient error keeps listening and shows reconnecting", async ()
     await panel.locator("#toggle").getAttribute("aria-pressed"),
     "true",
   );
-  await panel.click("#toggle");
+  await stopVoice();
+});
+
+test("voice: falls back to listening inside the panel if the tab can't connect", async () => {
+  blockTab = true;
+  try {
+    await page.bringToFront();
+    await panel.click("#toggle");
+    // The tab is given up on after the connect timeout (15 s).
+    await panel.waitForFunction(
+      () =>
+        document.querySelector('iframe[title="Omnivra speech recognition"]'),
+      null,
+      { timeout: 25000 },
+    );
+    await panel.waitForFunction(
+      () =>
+        document.getElementById("toggle").getAttribute("aria-pressed") ===
+        "true",
+    );
+    const tabs = await panel.evaluate(async () =>
+      (await chrome.tabs.query({})).filter((t) =>
+        t.url.includes("/listen?ext="),
+      ),
+    );
+    assert.equal(tabs.length, 0, "the unconnected tab is closed");
+    await stopVoice();
+  } finally {
+    blockTab = false;
+  }
 });
 
 test("voice: allowing the microphone closes the tab, returns, and starts listening", async () => {
@@ -373,66 +467,4 @@ test("voice: video volume is lowered while listening and restored after", async 
   assert.ok(Math.abs((await audio("a.volume")) - 0.8) < 0.01);
   await panel.click("#toggle");
   await panel.check("#duck");
-});
-
-test("voice: a silent on-device engine falls back to online and is remembered", async () => {
-  const extensionOrigin = `chrome-extension://${new URL(panel.url()).host}`;
-  const silent = await context.newPage();
-  // An on-device engine that hears speech but never returns text: what Chrome
-  // does in some setups when recognition runs inside an extension page.
-  await silent.addInitScript(() => {
-    window.SpeechRecognition = window.webkitSpeechRecognition = class {
-      static available() {
-        return Promise.resolve("available");
-      }
-      start() {
-        setTimeout(() => this.onsoundstart?.(), 100);
-      }
-      stop() {}
-      abort() {}
-    };
-  });
-  await silent.goto(
-    `${extensionOrigin}/sidepanel.html?listenerPort=${server.address().port}`,
-  );
-  await silent.evaluate(() => chrome.storage.local.remove("engine"));
-  await silent.click("#toggle");
-  await silent.waitForFunction(() =>
-    document.getElementById("status").textContent.includes("on this device"),
-  );
-
-  // After the watchdog (6 s) it switches to the online listener by itself.
-  await silent.waitForFunction(
-    () =>
-      document.getElementById("status").textContent.includes("online") &&
-      document.getElementById("toggle").getAttribute("aria-pressed") === "true",
-    null,
-    { timeout: 15000 },
-  );
-  assert.match(
-    await silent.locator("#log li").first().textContent(),
-    /Switched to online/,
-  );
-  const listenerFrame = silent
-    .frames()
-    .find((f) => f.url().includes("/listen"));
-  assert.equal(
-    (await listenerFrame.evaluate(() => window.__started.at(-1))).action,
-    "start",
-  );
-  assert.equal(
-    (await silent.evaluate(() => chrome.storage.local.get("engine"))).engine,
-    "online",
-  );
-
-  // Next time it goes straight to online.
-  await silent.click("#toggle");
-  await silent.click("#toggle");
-  await silent.waitForFunction(() =>
-    document.getElementById("status").textContent.includes("online"),
-  );
-  await silent.click("#toggle");
-  await silent.evaluate(() => chrome.storage.local.remove("engine"));
-  await silent.close();
-  await page.bringToFront();
 });

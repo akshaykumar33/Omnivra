@@ -28,5 +28,8 @@
     "48": "icons/icon-48.png",
     "128": "icons/icon-128.png"
   },
-  "homepage_url": "https://github.com/akshaykumar33/Omnivra"
+  "homepage_url": "https://github.com/akshaykumar33/Omnivra",
+  "externally_connectable": {
+    "matches": ["https://omnivra.vercel.app/*", "http://localhost/*"]
+  }
 }
