@@ -46,6 +46,8 @@ interface SpeechRecognition extends EventTarget {
   interimResults: boolean;
   lang: string;
   maxAlternatives: number;
+  /** On-device recognition (Chrome 139+). */
+  processLocally?: boolean;
   start(): void;
   stop(): void;
   abort(): void;
@@ -56,9 +58,24 @@ interface SpeechRecognition extends EventTarget {
   onstart: (() => void) | null;
 }
 
-declare const SpeechRecognition: { new (): SpeechRecognition } | undefined;
+interface SpeechRecognitionOptions {
+  langs: string[];
+  processLocally?: boolean;
+}
+
+interface SpeechRecognitionConstructor {
+  new (): SpeechRecognition;
+  /** Whether a language model is ready on this device (Chrome 139+). */
+  available?(
+    options: SpeechRecognitionOptions,
+  ): Promise<"available" | "downloadable" | "downloading" | "unavailable">;
+  /** Downloads an on-device language model (Chrome 139+). */
+  install?(options: SpeechRecognitionOptions): Promise<boolean>;
+}
+
+declare const SpeechRecognition: SpeechRecognitionConstructor | undefined;
 
 interface Window {
-  SpeechRecognition?: { new (): SpeechRecognition };
-  webkitSpeechRecognition?: { new (): SpeechRecognition };
+  SpeechRecognition?: SpeechRecognitionConstructor;
+  webkitSpeechRecognition?: SpeechRecognitionConstructor;
 }

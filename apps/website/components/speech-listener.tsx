@@ -59,6 +59,8 @@ export function SpeechListener() {
     let recognition: SpeechRecognition | undefined;
     let wanted = false;
     let lang = "en-US";
+    // On-device recognition: faster, works offline, and audio stays local.
+    let onDevice = false;
     let session = 0;
     // Consecutive transient failures (e.g. "network"); reset by any result.
     let failures = 0;
@@ -75,6 +77,7 @@ export function SpeechListener() {
       r.interimResults = true;
       r.maxAlternatives = 5;
       r.lang = lang;
+      if (onDevice) r.processLocally = true;
       r.onresult = (event) => {
         failures = 0;
         for (let i = event.resultIndex; i < event.results.length; i++) {
@@ -91,6 +94,13 @@ export function SpeechListener() {
       };
       r.onerror = (event) => {
         if (event.error === "no-speech" || event.error === "aborted") return;
+        // The on-device model can't take this language; fall back to the
+        // browser's online service and keep listening.
+        if (onDevice && event.error === "language-not-supported") {
+          onDevice = false;
+          post({ kind: "state", listening: true, engine: "cloud" });
+          return;
+        }
         const fatal =
           FATAL.includes(event.error) ||
           (event.error === "network" && ++failures > 3);
@@ -126,7 +136,7 @@ export function SpeechListener() {
       r.start();
     };
 
-    const start = (language: string) => {
+    const start = async (language: string) => {
       lang = language;
       wanted = true;
       failures = 0;
@@ -134,8 +144,30 @@ export function SpeechListener() {
       const previous = recognition;
       recognition = undefined;
       previous?.abort();
+      onDevice = await deviceModelReady(language);
+      if (!wanted) return;
       open();
-      post({ kind: "state", listening: true });
+      post({
+        kind: "state",
+        listening: true,
+        engine: onDevice ? "device" : "cloud",
+      });
+    };
+
+    // Use an installed on-device model when there is one; otherwise start a
+    // download for next time and use the online service meanwhile.
+    const deviceModelReady = async (language: string) => {
+      if (!Recognition.available) return false;
+      const options = { langs: [language], processLocally: true };
+      try {
+        const status = await Recognition.available(options);
+        if (status === "available") return true;
+        if (status === "downloadable")
+          Recognition.install?.(options).catch(() => {});
+      } catch {
+        // Unsupported option or language: use the online service.
+      }
+      return false;
     };
 
     const onMessage = (event: MessageEvent<Command>) => {
@@ -144,7 +176,7 @@ export function SpeechListener() {
         event.data?.type !== "omnivra-listen"
       )
         return;
-      if (event.data.action === "start") start(event.data.lang ?? "en-US");
+      if (event.data.action === "start") void start(event.data.lang ?? "en-US");
       if (event.data.action === "stop") {
         wanted = false;
         recognition?.stop();
