@@ -1,24 +1,36 @@
 import type { Metadata, Viewport } from "next";
-import { Inter, Inter_Tight, JetBrains_Mono } from "next/font/google";
+import {
+  Bricolage_Grotesque,
+  Instrument_Sans,
+  JetBrains_Mono,
+} from "next/font/google";
 import "./globals.css";
 import { SmoothScroll } from "@/components/smooth-scroll";
 
 /*
- * docs/design/typography.md specifies Inter + JetBrains Mono. Inter Tight is
- * added for display sizes only: the documented 32px `display` step is an
- * in-product size, and at marketing scale Inter's default cut reads loose.
+ * Display face: Bricolage Grotesque.
+ *
+ * The obvious move for a warm, expensive-looking page is a high-contrast
+ * display serif, and it is the wrong one: it is the single most recognisable
+ * tell in machine-designed work, and it would make a developer tool look like
+ * a restaurant. Bricolage is a grotesque with an optical-size axis, so the
+ * headline weight tightens as it scales up and the same family still sets a
+ * 15px label without looking like a shrunken poster.
+ *
+ * Body face: Instrument Sans, which is quieter than the display face on
+ * purpose. Mono stays JetBrains per docs/design/typography.md.
  */
-const inter = Inter({
+const display = Bricolage_Grotesque({
   subsets: ["latin"],
-  variable: "--font-inter",
+  variable: "--font-display-face",
   display: "swap",
+  axes: ["opsz"],
 });
 
-const interTight = Inter_Tight({
+const body = Instrument_Sans({
   subsets: ["latin"],
-  variable: "--font-inter-tight",
+  variable: "--font-body",
   display: "swap",
-  weight: ["500", "600", "700"],
 });
 
 const jetbrains = JetBrains_Mono({
@@ -42,8 +54,8 @@ export const metadata: Metadata = {
 
 export const viewport: Viewport = {
   themeColor: [
-    { media: "(prefers-color-scheme: dark)", color: "#0a0d14" },
-    { media: "(prefers-color-scheme: light)", color: "#ffffff" },
+    { media: "(prefers-color-scheme: dark)", color: "#0c0907" },
+    { media: "(prefers-color-scheme: light)", color: "#faf6f2" },
   ],
 };
 
@@ -53,7 +65,7 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body
-        className={`${inter.variable} ${interTight.variable} ${jetbrains.variable}`}
+        className={`${display.variable} ${body.variable} ${jetbrains.variable}`}
       >
         <a
           href="#main"

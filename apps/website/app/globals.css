@@ -1,47 +1,65 @@
 @import "tailwindcss";
 
 /*
- * Base tokens are transcribed from docs/design/design-tokens.md. That table is
- * the source of truth; this file binds it to Tailwind and extends it for the
- * marketing surface (see docs/design/surfaces.md).
+ * Palette: matte cocoa.
+ *
+ * The page is a warm near-black built on brown rather than blue, with bone
+ * text and a caramel accent. "Matte" is three decisions, not one colour: every
+ * value is desaturated well below full chroma, glows are wide and low-opacity
+ * instead of tight and bright, and a fixed grain layer sits over the whole
+ * document so large dark fields read as a surface rather than as empty space.
+ *
+ * Caramel doubles as the voice hue on purpose. Voice is the one modality that
+ * actually ships, so the brand's interactive colour and the shipping
+ * capability's colour being the same thing is accurate rather than decorative.
  *
  * The page theme is `auto`: it follows prefers-color-scheme and never inverts
  * mid-page.
  */
 :root {
-  --bg-base: #0a0d14;
-  --bg-surface: #101522;
-  --bg-raised: #182032;
-  --border-subtle: #1e293b;
-  --border-focus: #0284c7;
-  --text-primary: #f8fafc;
-  --text-muted: #94a3b8;
-  --accent-primary: #38bdf8;
-  --status-active: #10b981;
-  --status-warning: #f59e0b;
-  --status-danger: #ef4444;
+  --bg-base: #0c0907;
+  --bg-surface: #141010;
+  --bg-raised: #1d1715;
+  --border-subtle: #2b2220;
+  --border-focus: #e0a458;
+  --text-primary: #f4ede6;
+  --text-muted: #a2928a;
+  --accent-primary: #e0a458;
+  --status-active: #9db88c;
+  --status-warning: #cfb978;
+  --status-danger: #c97a6d;
 
   /*
    * Modality hues.
    *
-   * Not decoration: one hue per input family, used consistently wherever that
-   * modality appears. This is a categorical palette in the dataviz sense, so
-   * the page gets real colour variety without the accent drifting at random.
-   * The brand accent above stays the single interactive colour.
+   * One hue per input family, used consistently wherever that modality
+   * appears: a categorical palette in the dataviz sense, so the colour tells
+   * you which family you are looking at. Ordered so no two adjacent gallery
+   * panels sit next to each other on the wheel, which is what makes the pan
+   * read as a sweep instead of a smear.
    */
-  --hue-voice: #22d3ee;
-  --hue-gesture: #c084fc;
-  --hue-gaze: #fbbf24;
-  --hue-face: #fb7185;
-  --hue-input: #34d399;
+  --hue-voice: #e0a458;
+  --hue-gesture: #b08ba8;
+  --hue-gaze: #cfb978;
+  --hue-face: #c98478;
+  --hue-input: #9db88c;
 
   /*
    * Fluid type. Scales continuously rather than stepping at breakpoints, so
    * oversized display type stays usable from 375px to 4K without a media query.
    */
-  --text-display: clamp(2.75rem, 1.6rem + 4.6vw, 7rem);
-  --text-headline: clamp(2rem, 1.4rem + 2.6vw, 3.75rem);
+  --text-display: clamp(2.5rem, 1.5rem + 4.4vw, 6.5rem);
+  --text-headline: clamp(1.875rem, 1.35rem + 2.4vw, 3.5rem);
   --text-lead: clamp(1rem, 0.95rem + 0.3vw, 1.25rem);
+
+  /*
+   * Radius scale, locked. Cards and panels take --radius-card, anything the
+   * user clicks or types into takes --radius-control, badges and the scrollbar
+   * take the pill. Nothing on the page invents a fourth value.
+   */
+  --radius-card: 1rem;
+  --radius-control: 0.625rem;
+  --radius-pill: 999px;
 
   /* The brand easing curve from docs/design/motion.md. */
   --ease-brand: cubic-bezier(0.16, 1, 0.3, 1);
@@ -49,69 +67,77 @@
   color-scheme: dark light;
 }
 
+/*
+ * Light mode is warm ivory, not white. A cocoa page that flips to #ffffff
+ * loses the entire identity, so the light palette keeps the same brown
+ * undertone and simply inverts the lightness.
+ */
 @media (prefers-color-scheme: light) {
   :root {
-    --bg-base: #ffffff;
-    --bg-surface: #f8fafc;
-    --bg-raised: #f1f5f9;
-    --border-subtle: #e2e8f0;
-    --text-primary: #0f172a;
-    --text-muted: #64748b;
-    --accent-primary: #0284c7;
-    --status-active: #059669;
-    --status-warning: #d97706;
-    --status-danger: #dc2626;
+    --bg-base: #faf6f2;
+    --bg-surface: #f3ede6;
+    --bg-raised: #ebe3da;
+    --border-subtle: #ded3c7;
+    --border-focus: #a4682a;
+    --text-primary: #1a1310;
+    --text-muted: #6b5b52;
+    --accent-primary: #a4682a;
+    --status-active: #5c7a4a;
+    --status-warning: #8a6d24;
+    --status-danger: #a4493a;
 
-    /* Darkened so each hue still clears contrast on a white surface. */
-    --hue-voice: #0891b2;
-    --hue-gesture: #7c3aed;
-    --hue-gaze: #b45309;
-    --hue-face: #e11d48;
-    --hue-input: #059669;
+    /* Darkened so each hue still clears AA on an ivory surface. */
+    --hue-voice: #a4682a;
+    --hue-gesture: #76527a;
+    --hue-gaze: #806a24;
+    --hue-face: #a04c3e;
+    --hue-input: #4f6f42;
   }
 }
 
 :root[data-theme="light"] {
-  --bg-base: #ffffff;
-  --bg-surface: #f8fafc;
-  --bg-raised: #f1f5f9;
-  --border-subtle: #e2e8f0;
-  --text-primary: #0f172a;
-  --text-muted: #64748b;
-  --accent-primary: #0284c7;
-  --status-active: #059669;
-  --status-warning: #d97706;
-  --status-danger: #dc2626;
-  --hue-voice: #0891b2;
-  --hue-gesture: #7c3aed;
-  --hue-gaze: #b45309;
-  --hue-face: #e11d48;
-  --hue-input: #059669;
+  --bg-base: #faf6f2;
+  --bg-surface: #f3ede6;
+  --bg-raised: #ebe3da;
+  --border-subtle: #ded3c7;
+  --border-focus: #a4682a;
+  --text-primary: #1a1310;
+  --text-muted: #6b5b52;
+  --accent-primary: #a4682a;
+  --status-active: #5c7a4a;
+  --status-warning: #8a6d24;
+  --status-danger: #a4493a;
+  --hue-voice: #a4682a;
+  --hue-gesture: #76527a;
+  --hue-gaze: #806a24;
+  --hue-face: #a04c3e;
+  --hue-input: #4f6f42;
 }
 
 :root[data-theme="dark"] {
-  --bg-base: #0a0d14;
-  --bg-surface: #101522;
-  --bg-raised: #182032;
-  --border-subtle: #1e293b;
-  --text-primary: #f8fafc;
-  --text-muted: #94a3b8;
-  --accent-primary: #38bdf8;
-  --status-active: #10b981;
-  --status-warning: #f59e0b;
-  --status-danger: #ef4444;
-  --hue-voice: #22d3ee;
-  --hue-gesture: #c084fc;
-  --hue-gaze: #fbbf24;
-  --hue-face: #fb7185;
-  --hue-input: #34d399;
+  --bg-base: #0c0907;
+  --bg-surface: #141010;
+  --bg-raised: #1d1715;
+  --border-subtle: #2b2220;
+  --border-focus: #e0a458;
+  --text-primary: #f4ede6;
+  --text-muted: #a2928a;
+  --accent-primary: #e0a458;
+  --status-active: #9db88c;
+  --status-warning: #cfb978;
+  --status-danger: #c97a6d;
+  --hue-voice: #e0a458;
+  --hue-gesture: #b08ba8;
+  --hue-gaze: #cfb978;
+  --hue-face: #c98478;
+  --hue-input: #9db88c;
 }
 
 /* High contrast strengthens edges and muted text, never relies on hue alone. */
 @media (prefers-contrast: more) {
   :root {
-    --border-subtle: #64748b;
-    --text-muted: #cbd5e1;
+    --border-subtle: #7a6a62;
+    --text-muted: #ded3c7;
   }
 }
 
@@ -138,8 +164,8 @@
   --color-face: var(--hue-face);
   --color-input: var(--hue-input);
 
-  --font-sans: var(--font-inter), ui-sans-serif, system-ui, sans-serif;
-  --font-display: var(--font-inter-tight), var(--font-inter), sans-serif;
+  --font-sans: var(--font-body), ui-sans-serif, system-ui, sans-serif;
+  --font-display: var(--font-display-face), var(--font-body), sans-serif;
   --font-mono: var(--font-jetbrains), ui-monospace, monospace;
 
   --ease-brand: cubic-bezier(0.16, 1, 0.3, 1);
@@ -152,6 +178,21 @@
 
   html {
     scroll-behavior: smooth;
+    /*
+     * `clip`, not `hidden`. Both stop sideways scrolling, but `hidden` turns
+     * the element into a scroll container, which silently breaks every
+     * `position: sticky` descendant and the pinned gallery with it.
+     */
+    overflow-x: clip;
+
+    /*
+     * Scrollbars are themed everywhere, not just on the document. The standard
+     * properties cover Firefox and anything current; the WebKit block below
+     * does Chrome and Safari, which still ignore them for custom styling of
+     * this kind. Both are needed, neither is redundant.
+     */
+    scrollbar-width: thin;
+    scrollbar-color: var(--border-subtle) transparent;
   }
 
   @media (prefers-reduced-motion: reduce) {
@@ -160,13 +201,74 @@
     }
   }
 
+  ::-webkit-scrollbar {
+    width: 12px;
+    height: 12px;
+  }
+
+  ::-webkit-scrollbar-track {
+    background: transparent;
+  }
+
+  ::-webkit-scrollbar-thumb {
+    background: var(--border-subtle);
+    border-radius: var(--radius-pill);
+    /*
+     * A transparent border clipped to the padding box insets the thumb without
+     * needing a second element, so it reads as a slim pill floating in the
+     * gutter rather than a bar wedged against the edge.
+     */
+    border: 3px solid transparent;
+    background-clip: padding-box;
+  }
+
+  ::-webkit-scrollbar-thumb:hover {
+    background: color-mix(in srgb, var(--accent-primary) 60%, var(--bg-raised));
+    background-clip: padding-box;
+  }
+
+  ::-webkit-scrollbar-corner {
+    background: transparent;
+  }
+
   body {
     background: var(--bg-base);
     color: var(--text-primary);
-    font-family: var(--font-sans);
+    /*
+     * The font variable from next/font, not the Tailwind theme token. `@theme
+     * inline` inlines its values into generated utilities and deliberately
+     * does not emit them as custom properties, so `var(--font-sans)` resolves
+     * to nothing here and the page silently falls back to system-ui.
+     */
+    font-family: var(--font-body), ui-sans-serif, system-ui, sans-serif;
     -webkit-font-smoothing: antialiased;
     text-rendering: optimizeLegibility;
     overflow-x: hidden;
+  }
+
+  /*
+   * The matte layer.
+   *
+   * Fine film grain over the entire document. This is what stops large cocoa
+   * fields from looking like flat dark paint and makes them read as a matte
+   * surface instead. Fixed and pointer-events-none so it never repaints on
+   * scroll and never intercepts a click.
+   */
+  body::after {
+    content: "";
+    position: fixed;
+    inset: 0;
+    z-index: 60;
+    pointer-events: none;
+    opacity: 0.4;
+    mix-blend-mode: overlay;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.82' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='160' height='160' filter='url(%23n)' opacity='0.5'/%3E%3C/svg%3E");
+  }
+
+  @media (prefers-color-scheme: light) {
+    body::after {
+      opacity: 0.22;
+    }
   }
 
   /* Focus is always visible and never signalled by colour alone. */
@@ -177,7 +279,7 @@
   }
 
   ::selection {
-    background: color-mix(in srgb, var(--accent-primary) 28%, transparent);
+    background: color-mix(in srgb, var(--accent-primary) 30%, transparent);
     color: var(--text-primary);
   }
 }
@@ -211,10 +313,21 @@
    * content. Only `transform` is animated, so this stays on the compositor and
    * never triggers layout or paint. Sits behind everything and takes no
    * pointer events.
+   *
+   * Kept deliberately dim here. On a cocoa base these are a warmth gradient,
+   * not a light show: at the opacity a cool-tech page can carry, warm blobs
+   * turn the background orange and the whole thing starts to look like a
+   * sunset stock photo.
    */
   .aurora {
     position: absolute;
-    inset: -20% -10% auto -10%;
+    /*
+     * No horizontal overhang. The blobs inside are already clipped by this
+     * element's own overflow, so bleeding the container past the viewport
+     * bought nothing visually and widened the document by 10%, which is a
+     * horizontal scrollbar on every mobile browser that honours it.
+     */
+    inset: -20% 0 auto 0;
     height: 120%;
     z-index: -1;
     pointer-events: none;
@@ -224,15 +337,15 @@
 
   .aurora__blob {
     position: absolute;
-    border-radius: 999px;
-    filter: blur(90px);
-    opacity: 0.5;
+    border-radius: var(--radius-pill);
+    filter: blur(110px);
+    opacity: 0.3;
     will-change: transform;
   }
 
   @media (prefers-color-scheme: light) {
     .aurora__blob {
-      opacity: 0.28;
+      opacity: 0.2;
     }
   }
 
@@ -243,7 +356,7 @@
     left: -8rem;
     background: radial-gradient(
       circle,
-      color-mix(in srgb, var(--hue-voice) 55%, transparent),
+      color-mix(in srgb, var(--hue-voice) 50%, transparent),
       transparent 68%
     );
     animation: drift-a 26s var(--ease-brand) infinite alternate;
@@ -256,7 +369,7 @@
     right: -6rem;
     background: radial-gradient(
       circle,
-      color-mix(in srgb, var(--hue-gesture) 50%, transparent),
+      color-mix(in srgb, var(--hue-gesture) 45%, transparent),
       transparent 68%
     );
     animation: drift-b 32s var(--ease-brand) infinite alternate;
@@ -269,7 +382,7 @@
     left: 32%;
     background: radial-gradient(
       circle,
-      color-mix(in srgb, var(--accent-primary) 45%, transparent),
+      color-mix(in srgb, var(--hue-face) 40%, transparent),
       transparent 70%
     );
     animation: drift-c 38s var(--ease-brand) infinite alternate;
@@ -293,13 +406,57 @@
     }
   }
 
+  /*
+   * Command palette shell.
+   *
+   * cmdk owns the overlay and the positioner, so the only way to reach them is
+   * by class. Radix sets data-state on both, which is what drives the entrance
+   * and exit here rather than a JS animation library: the dialog unmounts on
+   * close, and CSS is the one thing guaranteed to have finished first.
+   */
+  .omni-palette-overlay {
+    position: fixed;
+    inset: 0;
+    z-index: 100;
+    background: color-mix(in srgb, var(--bg-base) 82%, transparent);
+    backdrop-filter: blur(8px);
+    animation: palette-fade 160ms var(--ease-brand);
+  }
+
+  .omni-palette-content {
+    position: fixed;
+    z-index: 101;
+    top: 12vh;
+    left: 50%;
+    width: min(42rem, calc(100vw - 2rem));
+    transform: translateX(-50%);
+    animation: palette-in 180ms var(--ease-brand);
+  }
+
+  .omni-palette-content[data-state="closed"] {
+    animation: palette-fade 120ms var(--ease-brand) reverse;
+  }
+
+  @keyframes palette-fade {
+    from {
+      opacity: 0;
+    }
+  }
+
+  @keyframes palette-in {
+    from {
+      opacity: 0;
+      transform: translateX(-50%) translateY(-0.5rem) scale(0.97);
+    }
+  }
+
   /* Gradient text, used once, on the single line that carries the promise. */
   .text-spectrum {
     background: linear-gradient(
       100deg,
       var(--hue-voice),
-      var(--accent-primary) 45%,
-      var(--hue-gesture)
+      var(--hue-gaze) 40%,
+      var(--hue-face)
     );
     -webkit-background-clip: text;
     background-clip: text;
@@ -308,35 +465,43 @@
 }
 
 /*
- * Reduced motion stops the drift and every transition. The aurora stays as a
- * static colour field, which is the point of it; only the movement goes.
- */
-/*
  * Glow recipes, declared with @utility so they compose with variants like
  * hover:. A class defined inside @layer utilities cannot take a variant in
  * Tailwind v4, so hover:glow-strong would silently do nothing.
  *
  * Each reads `--glow` from the element, so a card tinted with its modality hue
  * glows in that hue instead of one global colour.
+ *
+ * Matte means the spread does the work, not the brightness. The hairline ring
+ * stays faint and the bloom is pushed wide and far down, so an element looks
+ * lit from somewhere warm rather than outlined in neon.
  */
 @utility glow-soft {
   box-shadow:
+    inset 0 1px 0
+      color-mix(in srgb, var(--glow, var(--accent-primary)) 14%, transparent),
     0 0 0 1px
-      color-mix(in srgb, var(--glow, var(--accent-primary)) 22%, transparent),
-    0 18px 50px -24px
-      color-mix(in srgb, var(--glow, var(--accent-primary)) 55%, transparent);
+      color-mix(in srgb, var(--glow, var(--accent-primary)) 16%, transparent),
+    0 24px 70px -34px
+      color-mix(in srgb, var(--glow, var(--accent-primary)) 60%, transparent);
 }
 
 @utility glow-strong {
   box-shadow:
+    inset 0 1px 0
+      color-mix(in srgb, var(--glow, var(--accent-primary)) 22%, transparent),
     0 0 0 1px
-      color-mix(in srgb, var(--glow, var(--accent-primary)) 40%, transparent),
-    0 0 28px -6px
-      color-mix(in srgb, var(--glow, var(--accent-primary)) 45%, transparent),
-    0 24px 70px -30px
-      color-mix(in srgb, var(--glow, var(--accent-primary)) 70%, transparent);
+      color-mix(in srgb, var(--glow, var(--accent-primary)) 32%, transparent),
+    0 0 40px -14px
+      color-mix(in srgb, var(--glow, var(--accent-primary)) 38%, transparent),
+    0 34px 90px -40px
+      color-mix(in srgb, var(--glow, var(--accent-primary)) 75%, transparent);
 }
 
+/*
+ * Reduced motion stops the drift and every transition. The aurora stays as a
+ * static colour field, which is the point of it; only the movement goes.
+ */
 @media (prefers-reduced-motion: reduce) {
   *,
   *::before,

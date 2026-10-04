@@ -190,9 +190,16 @@ export function SiteNav() {
 
             <a
               href="#get"
-              className="flex items-center gap-1.5 rounded-lg border px-3.5 py-2 text-[13px] font-semibold transition-colors hover:border-accent active:translate-y-px"
+              className="flex shrink-0 items-center gap-1.5 rounded-[var(--radius-control)] border px-3.5 py-2 text-[13px] font-semibold whitespace-nowrap transition-colors hover:border-accent active:translate-y-px"
             >
-              Get the extension
+              {/*
+               * The full label plus the logo, the search button and two icon
+               * buttons stop fitting on one line somewhere under 480px, and
+               * `whitespace-nowrap` turns that from a wrap into an overflow.
+               * Below that width the label shortens instead.
+               */}
+              <span className="max-[479px]:hidden">Get the extension</span>
+              <span className="min-[480px]:hidden">Get it</span>
               <ArrowUpRightIcon size={13} weight="bold" />
             </a>
           </div>

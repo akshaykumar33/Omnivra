@@ -116,50 +116,73 @@ export function Gallery() {
       if (!wrap.current || !scroller.current || !track.current) return;
 
       /*
-       * The markup ships as an ordinary horizontally scrollable region, and
-       * only becomes a scroll-driven pan once GSAP has actually taken over.
+       * The markup ships as an ordinary horizontally scrollable region and
+       * only becomes a scroll-driven pan where that is actually the better
+       * interaction.
        *
-       * That order matters. If the pan were the default, anyone who never
-       * reaches this branch — reduced motion, no JavaScript, a GSAP failure —
-       * would be left with a `w-max` track inside an `overflow-hidden`
-       * section, which is to say four of the five input families would be
-       * silently unreachable. On a page whose whole argument is that no one
-       * should be locked out by their input method, that is the one bug this
-       * section cannot ship with.
+       * That order matters. If the pan were the default, anyone outside the
+       * matched conditions would be left with a `w-max` track inside an
+       * `overflow-hidden` section, which is to say four of the five input
+       * families would be silently unreachable. On a page whose whole argument
+       * is that no one should be locked out by their input method, that is the
+       * one bug this section cannot ship with.
+       *
+       * The query excludes phones deliberately. Six panels at 86vw is roughly
+       * five viewports of hijacked vertical scrolling to get past one section,
+       * which on a phone is worse than the swipe gesture people already have.
+       * gsap.matchMedia handles the breakpoint and resize together, and runs
+       * the teardown below when the query stops matching.
        */
-      if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+      const mm = gsap.matchMedia();
 
-      const distance = () =>
-        (track.current?.scrollWidth ?? 0) - window.innerWidth;
+      mm.add(
+        "(min-width: 1024px) and (prefers-reduced-motion: no-preference)",
+        () => {
+          const node = scroller.current;
+          if (!node || !track.current || !wrap.current) return;
 
-      // Nothing to pan across: leave the native scroller alone.
-      if (distance() <= 0) return;
+          const distance = () =>
+            (track.current?.scrollWidth ?? 0) - window.innerWidth;
 
-      const node = scroller.current;
-      node.style.overflowX = "hidden";
-      // GSAP drives the position now, so the element is no longer a scrollable
-      // region and must stop advertising itself as a tab stop.
-      node.removeAttribute("tabindex");
-      node.removeAttribute("role");
-      node.removeAttribute("aria-label");
+          // Nothing to pan across: leave the native scroller alone.
+          if (distance() <= 0) return;
 
-      gsap.to(track.current, {
-        x: () => -distance(),
-        ease: "none",
-        scrollTrigger: {
-          trigger: wrap.current,
-          start: "top top",
-          end: () => `+=${distance()}`,
-          pin: true,
-          scrub: 1,
-          invalidateOnRefresh: true,
-          anticipatePin: 1,
+          node.style.overflowX = "hidden";
+          // GSAP drives the position now, so the element is no longer a
+          // scrollable region and must stop advertising itself as a tab stop.
+          node.removeAttribute("tabindex");
+          node.removeAttribute("role");
+          node.removeAttribute("aria-label");
+
+          gsap.to(track.current, {
+            x: () => -distance(),
+            ease: "none",
+            scrollTrigger: {
+              trigger: wrap.current,
+              start: "top top",
+              end: () => `+=${distance()}`,
+              pin: true,
+              scrub: 1,
+              invalidateOnRefresh: true,
+              anticipatePin: 1,
+            },
+          });
+
+          return () => {
+            // Hand the section back exactly as it was rendered.
+            node.style.overflowX = "";
+            gsap.set(track.current, { x: 0 });
+            node.setAttribute("tabindex", "0");
+            node.setAttribute("role", "region");
+            node.setAttribute(
+              "aria-label",
+              "Input families, scroll horizontally",
+            );
+          };
         },
-      });
+      );
 
-      return () => {
-        node.style.overflowX = "";
-      };
+      return () => mm.revert();
     },
     { scope: wrap },
   );
