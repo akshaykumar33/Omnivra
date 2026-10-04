@@ -100,7 +100,8 @@ function loadListener() {
 }
 
 const ERRORS = {
-  "not-allowed": "Allow the microphone in the tab that opened, then try again.",
+  "not-allowed":
+    "Microphone access for Omnivra is off. Click Start listening to allow it.",
   "service-not-allowed": "Speech recognition is turned off in this browser.",
   network:
     "Voice needs an internet connection (the browser's speech service is online).",
@@ -138,11 +139,9 @@ addEventListener("message", (event) => {
       status.textContent = "Reconnecting…";
       return;
     }
+    // Never open tabs from here: errors can repeat, and a tab per error
+    // steals focus from whatever the user is doing.
     addLog(ERRORS[message.error] ?? `Mic error: ${message.error}`, true);
-    if (message.error === "not-allowed") {
-      // A hidden iframe can't show the permission prompt; the page in a tab can.
-      chrome.tabs.create({ url: LISTENER_URL });
-    }
     setListening(false);
   }
 });
@@ -153,6 +152,10 @@ toggle.addEventListener("click", async () => {
     toListener({ action: "stop" });
     return;
   }
+  // The embedded listener uses the microphone permission of the page that
+  // embeds it, which is this extension, not the website. Check it here; if it
+  // is missing, ensurePermission opens one tab where it can be granted.
+  if (!(await ensurePermission("audio"))) return;
   status.textContent = "Starting…";
   try {
     await loadListener();

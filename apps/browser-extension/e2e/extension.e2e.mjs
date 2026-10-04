@@ -274,27 +274,29 @@ test("voice: acts on interim speech once, picks the right alternative", async ()
   );
 });
 
-test("voice: a blocked microphone opens the listener page to grant access", async () => {
+test("voice: a refused microphone stops listening without opening tabs", async () => {
   await panel.click("#toggle");
   await panel.waitForFunction(
     () =>
       document.getElementById("toggle").getAttribute("aria-pressed") === "true",
   );
-  const opened = context.waitForEvent("page");
-  await panel
-    .frames()
-    .find((f) => f.url().includes("/listen"))
-    .evaluate(() => window.__error("not-allowed"));
-  const tab = await opened;
-  assert.ok(tab.url().endsWith("/listen"));
-  await tab.close();
+  const pagesBefore = context.pages().length;
+  // Even repeated refusals must not open tabs (each would steal focus).
+  const listener = panel.frames().find((f) => f.url().includes("/listen"));
+  await listener.evaluate(() => {
+    window.__error("not-allowed");
+    window.__error("not-allowed");
+    window.__error("not-allowed");
+  });
+  await panel.waitForTimeout(1000);
+  assert.equal(context.pages().length, pagesBefore);
   assert.equal(
     await panel.locator("#toggle").getAttribute("aria-pressed"),
     "false",
   );
   assert.match(
     await panel.locator("#log li").first().textContent(),
-    /Allow the microphone/,
+    /Microphone access for Omnivra is off/,
   );
   await page.bringToFront();
 });
