@@ -202,6 +202,146 @@ function normalize(transcript) {
   return text.replace(/^the /, "").trim();
 }
 
+// Words commands are made of. A heard word close to one of these (one or two
+// letters off, same first letter) is read as it: "pauze", "paws" → "pause".
+const VOCABULARY = [
+  "pause",
+  "play",
+  "resume",
+  "stop",
+  "mute",
+  "unmute",
+  "skip",
+  "rewind",
+  "forward",
+  "back",
+  "scroll",
+  "down",
+  "top",
+  "bottom",
+  "next",
+  "previous",
+  "tab",
+  "close",
+  "open",
+  "reload",
+  "refresh",
+  "seconds",
+  "search",
+];
+// Everyday words never "corrected" into a command word.
+const KEEP = new Set([
+  "now",
+  "know",
+  "not",
+  "nut",
+  "post",
+  "pose it",
+  "plan",
+  "slay",
+]);
+
+function editDistance(a, b) {
+  const row = Array.from({ length: b.length + 1 }, (_, i) => i);
+  for (let i = 1; i <= a.length; i++) {
+    let previous = row[0];
+    row[0] = i;
+    for (let j = 1; j <= b.length; j++) {
+      const temp = row[j];
+      row[j] = Math.min(
+        row[j] + 1,
+        row[j - 1] + 1,
+        previous + (a[i - 1] === b[j - 1] ? 0 : 1),
+      );
+      previous = temp;
+    }
+  }
+  return row[b.length];
+}
+
+function correctWord(word) {
+  if (word.length < 3 || KEEP.has(word) || VOCABULARY.includes(word))
+    return word;
+  if (Number.isFinite(Number(word))) return word;
+  let best = word;
+  let bestDistance = Infinity;
+  for (const target of VOCABULARY) {
+    if (target[0] !== word[0]) continue;
+    // One letter off for short words, two only for long ones: "page" and
+    // "past" must not become "pause". Known mishearings are in SOUNDALIKES.
+    const allowed = target.length >= 6 ? 2 : 1;
+    const distance = editDistance(word, target);
+    if (distance <= allowed && distance < bestDistance) {
+      best = target;
+      bestDistance = distance;
+    }
+  }
+  return best;
+}
+
+// Finds a command anywhere in a sentence ("could you just pause this thing").
+// Patterns are tried in order; for play/pause the last one said wins.
+const SPOTTERS = [
+  [
+    /\b(?:search(?: for)?|google|look up) (.+)$/,
+    (m) => ({ type: "search", query: m[1] }),
+  ],
+  [/\bclose\b.*\btab\b/, () => ({ type: "closeTab" })],
+  [/\b(?:new|open)\b.*\btab\b/, () => ({ type: "newTab" })],
+  [/\b(?:next|right)\b.*\btab\b/, () => ({ type: "switchTab", offset: 1 })],
+  [
+    /\b(?:previous|prev|last|left)\b.*\btab\b/,
+    () => ({ type: "switchTab", offset: -1 }),
+  ],
+  [
+    /\btab (?:number )?(\w+)\b/,
+    (m) => toNumber(m[1]) && { type: "gotoTab", index: toNumber(m[1]) },
+  ],
+  [/\bunmute\b/, () => ({ type: "media", action: "unmute" })],
+  [/\bmute\b/, () => ({ type: "media", action: "mute" })],
+  [
+    /\b(?:rewind|back)\b(?: \w+)*? (\w+) seconds?\b/,
+    (m) => toNumber(m[1]) && seek(-toNumber(m[1])),
+  ],
+  [
+    /\b(?:skip|forward|ahead)\b(?: \w+)*? (\w+) seconds?\b/,
+    (m) => toNumber(m[1]) && seek(toNumber(m[1])),
+  ],
+  [/\brewind\b/, () => seek(-10)],
+  [/\b(?:skip|fast forward)\b/, () => seek(10)],
+  [
+    /\b(?:pause|stop|play|resume)\b/,
+    (m, text) => {
+      const said = [...text.matchAll(/\b(pause|stop|play|resume)\b/g)];
+      const last = said.at(-1)[1];
+      return {
+        type: "media",
+        action: last === "pause" || last === "stop" ? "pause" : "play",
+      };
+    },
+  ],
+  [/\bscroll\b.*\btop\b/, () => ({ type: "scroll", to: "top" })],
+  [/\bscroll\b.*\bbottom\b/, () => ({ type: "scroll", to: "bottom" })],
+  [/\bscroll\b.*\b(up|down)\b/, (m) => ({ type: "scroll", direction: m[1] })],
+  [/\b(?:reload|refresh)\b/, () => ({ type: "reload" })],
+  [/\bgo back\b/, () => ({ type: "historyBack" })],
+  [/\bgo forward\b/, () => ({ type: "historyForward" })],
+];
+
+function seek(seconds) {
+  return { type: "media", action: "seek", seconds };
+}
+
+function spot(text) {
+  const words = text.split(" ").map(correctWord).join(" ");
+  for (const [re, intent] of SPOTTERS) {
+    const match = words.match(re);
+    const result = match && intent(match, words);
+    if (result) return result;
+  }
+  return undefined;
+}
+
 export function parseCommand(transcript) {
   const text = normalize(transcript);
   for (const rule of RULES) {
@@ -210,7 +350,8 @@ export function parseCommand(transcript) {
     const intent = match && rule.intent(match);
     if (intent) return intent;
   }
-  return undefined;
+  // Not an exact command: look for one inside the sentence.
+  return spot(text);
 }
 
 // Speech recognition offers several guesses; act on the first that is a command.
@@ -231,10 +372,14 @@ const WAIT_FOR_FINAL = new Set([
 
 // Commands safe to run before the speaker has finished: nothing they could
 // still say would change them. "go back" may become "go back 10 seconds" and
-// "tab" needs its number, so those wait for the final transcript.
-export function isInstant(intent) {
+// "tab" needs its number, so those wait for the final transcript. A seek is
+// complete once its amount has been said ("skip 30 seconds").
+export function isInstant(intent, transcript = "") {
   if (WAIT_FOR_FINAL.has(intent.type)) return false;
-  return !(intent.type === "media" && intent.action === "seek");
+  if (intent.type === "media" && intent.action === "seek") {
+    return /\bsec(?:ond)?s?\b/i.test(transcript);
+  }
+  return true;
 }
 
 export const EXAMPLES = [
