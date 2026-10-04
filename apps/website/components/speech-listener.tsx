@@ -10,8 +10,8 @@ import { useEffect, useState } from "react";
  * iframe and drives it with postMessage. Messages are only exchanged with a
  * parent whose origin is a browser extension.
  *
- * Opened directly in a tab, the page instead asks for microphone access,
- * which a side panel cannot prompt for.
+ * Microphone permission belongs to the embedding page (the extension), so the
+ * extension asks for it; opened directly, this page only explains itself.
  */
 
 type Command = {
@@ -37,7 +37,6 @@ function parentExtensionOrigin(): string | undefined {
 
 export function SpeechListener() {
   const [embedded, setEmbedded] = useState<boolean | null>(null);
-  const [mic, setMic] = useState<"unknown" | "granted" | "denied">("unknown");
 
   useEffect(() => {
     const parentOrigin = parentExtensionOrigin();
@@ -160,18 +159,10 @@ export function SpeechListener() {
     };
   }, []);
 
-  const allow = async () => {
-    try {
-      const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
-      stream.getTracks().forEach((track) => track.stop());
-      setMic("granted");
-    } catch {
-      setMic("denied");
-    }
-  };
-
   if (embedded !== false) return null;
 
+  // Opened directly. Microphone access is granted to the extension (it embeds
+  // this page), so there is nothing to allow here.
   return (
     <main
       id="main"
@@ -186,45 +177,11 @@ export function SpeechListener() {
       <h1 style={{ fontSize: "var(--text-headline)", marginBottom: "1rem" }}>
         Omnivra voice
       </h1>
-      {mic === "granted" ? (
-        <p role="status">
-          Microphone allowed. Close this tab and click{" "}
-          <strong>Start listening</strong> in the Omnivra side panel.
-        </p>
-      ) : (
-        <>
-          <p style={{ marginBottom: "1.5rem" }}>
-            The Omnivra extension listens through this page, so it needs
-            microphone access here once. Audio goes to your browser&apos;s
-            speech recognition; Omnivra stores nothing.
-          </p>
-          <button
-            type="button"
-            onClick={allow}
-            style={{
-              padding: "0.75rem 1.25rem",
-              borderRadius: "var(--radius-control)",
-              border: 0,
-              background: "var(--accent-primary)",
-              color: "var(--bg-base)",
-              font: "inherit",
-              fontWeight: 600,
-              cursor: "pointer",
-            }}
-          >
-            Allow microphone
-          </button>
-          {mic === "denied" && (
-            <p
-              role="alert"
-              style={{ marginTop: "1rem", color: "var(--status-danger)" }}
-            >
-              The microphone is blocked. Allow it from the icon in the address
-              bar, then try again.
-            </p>
-          )}
-        </>
-      )}
+      <p>
+        This page does speech recognition for the Omnivra browser extension and
+        only works inside its side panel. To use voice, open the side panel and
+        click <strong>Start listening</strong>. You can close this tab.
+      </p>
     </main>
   );
 }
