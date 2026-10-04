@@ -100,7 +100,8 @@ function loadListener() {
 }
 
 const ERRORS = {
-  "not-allowed": "Allow the microphone in the tab that opened, then try again.",
+  "not-allowed":
+    "Microphone access for Omnivra is off. Click Start listening to allow it.",
   "service-not-allowed": "Speech recognition is turned off in this browser.",
   network:
     "Voice needs an internet connection (the browser's speech service is online).",
@@ -138,21 +139,24 @@ addEventListener("message", (event) => {
       status.textContent = "Reconnecting…";
       return;
     }
+    // Never open tabs from here: errors can repeat, and a tab per error
+    // steals focus from whatever the user is doing.
     addLog(ERRORS[message.error] ?? `Mic error: ${message.error}`, true);
-    if (message.error === "not-allowed") {
-      // A hidden iframe can't show the permission prompt; the page in a tab can.
-      chrome.tabs.create({ url: LISTENER_URL });
-    }
     setListening(false);
   }
 });
 
-toggle.addEventListener("click", async () => {
-  if (listening) {
-    setListening(false);
-    toListener({ action: "stop" });
-    return;
-  }
+toggle.addEventListener("click", () => {
+  if (!listening) return startListening();
+  setListening(false);
+  toListener({ action: "stop" });
+});
+
+async function startListening() {
+  // The embedded listener uses the microphone permission of the page that
+  // embeds it, which is this extension, not the website. If it is missing,
+  // ensurePermission asks once and listening starts by itself when granted.
+  if (!(await ensurePermission("audio"))) return;
   status.textContent = "Starting…";
   try {
     await loadListener();
@@ -168,7 +172,7 @@ toggle.addEventListener("click", async () => {
     // Match the user's English accent (en-IN, en-GB…) instead of forcing US.
     lang: navigator.language.startsWith("en") ? navigator.language : "en-US",
   });
-});
+}
 
 for (const { label, intent } of Object.values(GESTURES)) {
   const li = document.createElement("li");
@@ -184,20 +188,52 @@ for (const { label, intent } of Object.values(GESTURES)) {
   document.getElementById("gesture-list").append(li);
 }
 
+// Chrome remembers a granted permission for the extension, so after the first
+// time this returns at once without prompting.
 async function ensurePermission(kind) {
+  const name = kind === "video" ? "camera" : "microphone";
   try {
-    const stream = await navigator.mediaDevices.getUserMedia({ [kind]: true });
-    stream.getTracks().forEach((t) => t.stop());
+    const { state } = await navigator.permissions.query({ name });
+    if (state === "granted") return true;
+  } catch {
+    // Older browsers can't query; fall through to asking.
+  }
+  try {
+    // A side panel may leave the request pending forever instead of
+    // rejecting it, so give up quickly and ask in a tab instead.
+    const request = navigator.mediaDevices.getUserMedia({ [kind]: true });
+    request.then(
+      (stream) => stream.getTracks().forEach((t) => t.stop()),
+      () => {},
+    );
+    await Promise.race([
+      request,
+      new Promise((_, reject) => setTimeout(reject, 1500)),
+    ]);
     return true;
   } catch {
-    // Side panels can't show the permission prompt; a full tab can.
-    chrome.tabs.create({
-      url: chrome.runtime.getURL(`permission.html?kind=${kind}`),
+    // Side panels can't show Chrome's permission prompt, so ask in a tab. That
+    // tab closes itself once allowed, returns to the user's tab, and the
+    // feature starts (see the permission-granted message below).
+    const [current] = await chrome.tabs.query({
+      active: true,
+      lastFocusedWindow: true,
     });
-    status.textContent = `Allow the ${kind === "video" ? "camera" : "microphone"} in the tab that opened, then try again.`;
+    chrome.tabs.create({
+      url: chrome.runtime.getURL(
+        `permission.html?kind=${kind}&return=${current?.id ?? ""}`,
+      ),
+    });
+    status.textContent = `Click Allow in Chrome's prompt to turn on the ${name}.`;
     return false;
   }
 }
+
+chrome.runtime.onMessage.addListener((message) => {
+  if (message?.kind !== "permission-granted") return;
+  if (message.device === "audio" && !listening) startListening();
+  if (message.device === "video" && !stopGestures) startCamera();
+});
 
 const cameraButton = document.getElementById("camera");
 const preview = document.getElementById("preview");
@@ -209,12 +245,14 @@ function setCamera(on, text) {
   preview.hidden = !on;
 }
 
-cameraButton.addEventListener("click", async () => {
-  if (stopGestures) {
-    stopGestures();
-    stopGestures = undefined;
-    return setCamera(false);
-  }
+cameraButton.addEventListener("click", () => {
+  if (!stopGestures) return startCamera();
+  stopGestures();
+  stopGestures = undefined;
+  setCamera(false);
+});
+
+async function startCamera() {
   if (!(await ensurePermission("video"))) return;
   cameraButton.textContent = "Loading…";
   try {
@@ -229,4 +267,4 @@ cameraButton.addEventListener("click", async () => {
     setCamera(false);
     addLog(`Camera error: ${error?.message ?? error}`, true);
   }
-});
+}
