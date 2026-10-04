@@ -8,6 +8,7 @@ Welcome to the Omnivra engineering and product documentation.
 - [Engineering Standards](engineering/engineering-principles.md) — Architecture principles, coding standards, performance budgets.
 - [Development Guides](development/local-development.md) — Local setup, testing, and debugging.
 - [Security & Privacy](security/threat-model.md) — Threat model, capability boundaries, and privacy invariants.
+- [Browser Extension](browser-extension/README.md) — How voice and gesture reach every site, the user guide, permissions, and Web Store submission.
 
 ## Delivery Protocol
 
