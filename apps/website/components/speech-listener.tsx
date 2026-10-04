@@ -20,6 +20,12 @@ type Command = {
   lang?: string;
 };
 
+// Sessions in a row that may end without audio before listening gives up.
+const MAX_STALLS = 5;
+
+// Errors that retrying won't fix.
+const FATAL = ["not-allowed", "service-not-allowed", "audio-capture"];
+
 // Chromium extension IDs are 32 letters a–p. Edge uses the same scheme.
 const EXTENSION_ORIGIN = /^chrome-extension:\/\/[a-p]{32}$/;
 
@@ -53,23 +59,32 @@ export function SpeechListener() {
 
     let recognition: SpeechRecognition | undefined;
     let wanted = false;
+    let lang = "en-US";
     let session = 0;
+    // Consecutive transient failures (e.g. "network"); reset by any result.
+    let failures = 0;
+    // Consecutive sessions that ended without capturing any audio.
+    let stalls = 0;
 
-    const start = (lang: string) => {
-      recognition?.abort();
+    // Browsers end a session after a result or a pause, and restarting the
+    // same object is unreliable (Edge stops delivering results), so every
+    // session gets a fresh recognizer.
+    const open = () => {
       const r = new Recognition();
+      const id = ++session;
       r.continuous = true;
       r.interimResults = true;
       r.maxAlternatives = 5;
       r.lang = lang;
       r.onresult = (event) => {
+        failures = 0;
         for (let i = event.resultIndex; i < event.results.length; i++) {
           const result = event.results[i];
           if (!result) continue;
           post({
             kind: "result",
-            // Unique across restarts so the extension can tell phrases apart.
-            id: `${session}:${i}`,
+            // Unique across sessions so the extension can tell phrases apart.
+            id: `${id}:${i}`,
             alternatives: Array.from(result, (alt) => alt.transcript.trim()),
             isFinal: result.isFinal,
           });
@@ -77,24 +92,50 @@ export function SpeechListener() {
       };
       r.onerror = (event) => {
         if (event.error === "no-speech" || event.error === "aborted") return;
-        post({ kind: "error", error: event.error });
-        if (
-          ["not-allowed", "service-not-allowed", "audio-capture"].includes(
-            event.error,
-          )
-        )
-          wanted = false;
+        const fatal =
+          FATAL.includes(event.error) ||
+          (event.error === "network" && ++failures > 3);
+        if (fatal) wanted = false;
+        post({ kind: "error", error: event.error, fatal });
       };
-      // Browsers end sessions after silence; keep listening until told to stop.
+      // Session boundaries, for diagnosing gaps in which speech is lost.
+      let heardAudio = false;
+      r.onaudiostart = () => {
+        heardAudio = true;
+        stalls = 0;
+        post({ kind: "session", event: "audiostart", id });
+      };
       r.onend = () => {
-        if (wanted) {
-          session++;
-          r.start();
-        } else post({ kind: "state", listening: false });
+        post({ kind: "session", event: "end", id });
+        if (recognition !== r) return;
+        if (!wanted) return post({ kind: "state", listening: false });
+        // A session that ends before any audio means the microphone or the
+        // speech service is unavailable (e.g. another recognizer holds it).
+        // Restarting at once would spin hundreds of times a second, so back
+        // off, and give up after a few tries.
+        if (!heardAudio && ++stalls > MAX_STALLS) {
+          wanted = false;
+          post({ kind: "error", error: "busy", fatal: true });
+          return post({ kind: "state", listening: false });
+        }
+        const delay = heardAudio
+          ? failures * 500 // restart at once so the next phrase isn't clipped
+          : 250 * 2 ** stalls;
+        setTimeout(() => wanted && recognition === r && open(), delay);
       };
       recognition = r;
-      wanted = true;
       r.start();
+    };
+
+    const start = (language: string) => {
+      lang = language;
+      wanted = true;
+      failures = 0;
+      stalls = 0;
+      const previous = recognition;
+      recognition = undefined;
+      previous?.abort();
+      open();
       post({ kind: "state", listening: true });
     };
 
