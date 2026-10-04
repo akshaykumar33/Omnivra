@@ -17,27 +17,26 @@
  * mid-page.
  */
 :root {
-  --bg-base: #06070a;
-  --bg-surface: #0d0f17;
-  --bg-raised: #141724;
-  --border-subtle: rgba(255, 255, 255, 0.08);
-  --border-focus: #38bdf8;
-  --text-primary: #ffffff;
-  --text-muted: #94a3b8;
-  --accent-primary: #38bdf8;
-  --status-active: #10b981;
-  --status-warning: #fbbf24;
+  --bg-base: #141210;
+  --bg-surface: #1e1a16;
+  --bg-raised: #29241f;
+  --border-subtle: rgba(245, 230, 215, 0.08);
+  --border-focus: #da7756;
+  --text-primary: #faf4ed;
+  --text-muted: #a89b8c;
+  --accent-primary: #da7756;
+  --status-active: #34d399;
+  --status-warning: #f59e0b;
   --status-danger: #f43f5e;
 
   /*
-   * Modality hues.
-   * Vibrant, distinct phosphor channels for each input family.
+   * Modality hues: Claude Terracotta, Warm Violet, Mint Jade, Caramel Honey, Periwinkle.
    */
-  --hue-voice: #38bdf8;
+  --hue-voice: #da7756;
   --hue-gesture: #c084fc;
   --hue-gaze: #34d399;
-  --hue-face: #fbbf24;
-  --hue-input: #818cf8;
+  --hue-face: #f59e0b;
+  --hue-input: #93c5fd;
 
   /*
    * Fluid type. Balanced and ergonomic, avoiding blown-out sizes.
@@ -60,68 +59,68 @@
 }
 
 /*
- * Crisp modern alabaster light mode.
+ * Warm parchment Claude light mode.
  */
 @media (prefers-color-scheme: light) {
   :root {
-    --bg-base: #f8fafc;
+    --bg-base: #fbf8f4;
     --bg-surface: #ffffff;
-    --bg-raised: #f1f5f9;
-    --border-subtle: #e2e8f0;
-    --border-focus: #0284c7;
-    --text-primary: #0f172a;
-    --text-muted: #64748b;
-    --accent-primary: #0284c7;
+    --bg-raised: #f3eee6;
+    --border-subtle: #e6ded4;
+    --border-focus: #c8653b;
+    --text-primary: #261f1a;
+    --text-muted: #786b5f;
+    --accent-primary: #c8653b;
     --status-active: #059669;
     --status-warning: #d97706;
     --status-danger: #dc2626;
 
-    --hue-voice: #0284c7;
+    --hue-voice: #c8653b;
     --hue-gesture: #7c3aed;
     --hue-gaze: #059669;
     --hue-face: #d97706;
-    --hue-input: #4f46e5;
+    --hue-input: #2563eb;
   }
 }
 
 :root[data-theme="light"] {
-  --bg-base: #f8fafc;
+  --bg-base: #fbf8f4;
   --bg-surface: #ffffff;
-  --bg-raised: #f1f5f9;
-  --border-subtle: #e2e8f0;
-  --border-focus: #0284c7;
-  --text-primary: #0f172a;
-  --text-muted: #64748b;
-  --accent-primary: #0284c7;
+  --bg-raised: #f3eee6;
+  --border-subtle: #e6ded4;
+  --border-focus: #c8653b;
+  --text-primary: #261f1a;
+  --text-muted: #786b5f;
+  --accent-primary: #c8653b;
   --status-active: #059669;
   --status-warning: #d97706;
   --status-danger: #dc2626;
 
-  --hue-voice: #0284c7;
+  --hue-voice: #c8653b;
   --hue-gesture: #7c3aed;
   --hue-gaze: #059669;
   --hue-face: #d97706;
-  --hue-input: #4f46e5;
+  --hue-input: #2563eb;
 }
 
 :root[data-theme="dark"] {
-  --bg-base: #06070a;
-  --bg-surface: #0d0f17;
-  --bg-raised: #141724;
-  --border-subtle: rgba(255, 255, 255, 0.08);
-  --border-focus: #38bdf8;
-  --text-primary: #ffffff;
-  --text-muted: #94a3b8;
-  --accent-primary: #38bdf8;
-  --status-active: #10b981;
-  --status-warning: #fbbf24;
+  --bg-base: #141210;
+  --bg-surface: #1e1a16;
+  --bg-raised: #29241f;
+  --border-subtle: rgba(245, 230, 215, 0.08);
+  --border-focus: #da7756;
+  --text-primary: #faf4ed;
+  --text-muted: #a89b8c;
+  --accent-primary: #da7756;
+  --status-active: #34d399;
+  --status-warning: #f59e0b;
   --status-danger: #f43f5e;
 
-  --hue-voice: #38bdf8;
+  --hue-voice: #da7756;
   --hue-gesture: #c084fc;
   --hue-gaze: #34d399;
-  --hue-face: #fbbf24;
-  --hue-input: #818cf8;
+  --hue-face: #f59e0b;
+  --hue-input: #93c5fd;
 }
 
 /* High contrast strengthens edges and muted text. */
