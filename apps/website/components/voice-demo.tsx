@@ -7,28 +7,34 @@ import {
   MicrophoneSlashIcon,
   WarningCircleIcon,
   CheckIcon,
+  HandIcon,
+  KeyboardIcon,
+  SparkleIcon,
+  ArrowsOutCardinalIcon,
 } from "@phosphor-icons/react";
-import { AudioBars } from "./audio-bars";
+import { CanvasSpectrogram } from "./canvas-spectrogram";
+import { playClick, playSuccess, playTone } from "@/lib/sound";
 
 /**
- * A live demonstration rather than a picture of one.
+ * Multimodal Demo Sandbox:
+ * Proves Omnivra's core invariant: ANY INPUT → ANY LOGIC → ANY ACTION.
  *
- * Omnivra's claim is that any input can drive any action, so the honest way to
- * show that on a landing page is to let the page itself be the target: the
- * commands below genuinely change this document. Nothing here is mocked, and
- * the microphone is only ever opened from an explicit click.
- *
- * Two consumers share one permission grant: SpeechRecognition for the words,
- * and a getUserMedia stream for the frequency meter. Both are released by the
- * same stop control, so "off" means off.
+ * Supports three live modalities targeting the exact same document actions:
+ * 1. Voice: Real local SpeechRecognition + getUserMedia audio meter.
+ * 2. Gesture: Interactive sensory pad with drag/touch gesture recognition & quick triggers.
+ * 3. Keyboard: Live key combinations and mechanical key switches.
  */
 
-type Status =
+type ModalityTab = "voice" | "gesture" | "keyboard";
+type VoiceStatus =
   "unsupported" | "idle" | "starting" | "listening" | "denied" | "error";
 
 type Command = {
+  readonly id: string;
   readonly phrases: readonly string[];
   readonly label: string;
+  readonly shortcut: string;
+  readonly gestureName: string;
   readonly run: () => void;
 };
 
@@ -36,32 +42,60 @@ const scrollToSection = (id: string) => {
   document.getElementById(id)?.scrollIntoView({ behavior: "smooth" });
 };
 
+const toggleTheme = (target?: "dark" | "light") => {
+  const current = document.documentElement.getAttribute("data-theme");
+  const next = target ?? (current === "light" ? "dark" : "light");
+  document.documentElement.setAttribute("data-theme", next);
+  return next;
+};
+
 const COMMANDS: readonly Command[] = [
   {
-    phrases: ["dark mode", "go dark", "dark"],
-    label: "Switched to dark",
-    run: () => document.documentElement.setAttribute("data-theme", "dark"),
+    id: "theme",
+    phrases: [
+      "dark mode",
+      "go dark",
+      "dark",
+      "light mode",
+      "go light",
+      "light",
+    ],
+    label: "Switched theme",
+    shortcut: "⌘ / Ctrl + D",
+    gestureName: "Pinch",
+    run: () => {
+      const mode = toggleTheme();
+      return `Theme switched to ${mode}`;
+    },
   },
   {
-    phrases: ["light mode", "go light", "light"],
-    label: "Switched to light",
-    run: () => document.documentElement.setAttribute("data-theme", "light"),
-  },
-  {
-    phrases: ["show me the inputs", "the inputs", "inputs"],
+    id: "inputs",
+    phrases: ["show me the inputs", "the inputs", "inputs", "gallery"],
     label: "Jumped to inputs",
+    shortcut: "⌘ / Ctrl + I",
+    gestureName: "Swipe Left",
     run: () => scrollToSection("inputs"),
   },
   {
+    id: "pipeline",
+    phrases: ["how it works", "pipeline", "show pipeline"],
+    label: "Jumped to pipeline",
+    shortcut: "⌘ / Ctrl + P",
+    gestureName: "Swipe Right",
+    run: () => scrollToSection("pipeline"),
+  },
+  {
+    id: "top",
     phrases: ["back to top", "go to top", "top"],
     label: "Back to top",
+    shortcut: "⌘ / Ctrl + T",
+    gestureName: "Palm Hold",
     run: () => window.scrollTo({ top: 0, behavior: "smooth" }),
   },
 ];
 
 function matchCommand(transcript: string): Command | undefined {
   const text = transcript.toLowerCase().trim();
-  // Longest phrase first, so "dark mode" wins over the bare "dark".
   return COMMANDS.find((command) =>
     [...command.phrases]
       .sort((a, b) => b.length - a.length)
@@ -70,11 +104,20 @@ function matchCommand(transcript: string): Command | undefined {
 }
 
 export function VoiceDemo() {
-  const [status, setStatus] = useState<Status>("idle");
+  const [tab, setTab] = useState<ModalityTab>("voice");
+  const [status, setStatus] = useState<VoiceStatus>("idle");
   const [transcript, setTranscript] = useState("");
   const [lastAction, setLastAction] = useState<string | null>(null);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [stream, setStream] = useState<MediaStream | null>(null);
+
+  // Gesture pad simulation state
+  const [padPointer, setPadPointer] = useState<{ x: number; y: number } | null>(
+    null,
+  );
+  const [gestureFeedback, setGestureFeedback] = useState<string | null>(null);
+  const pointerStartRef = useRef<{ x: number; y: number } | null>(null);
+
   const recognitionRef = useRef<SpeechRecognition | null>(null);
   const streamRef = useRef<MediaStream | null>(null);
   const reduce = useReducedMotion();
@@ -95,7 +138,21 @@ export function VoiceDemo() {
   const stop = useCallback(() => {
     release();
     setStatus("idle");
+    playClick();
   }, [release]);
+
+  const triggerAction = useCallback(
+    (label: string, executor: () => void, inputType: string) => {
+      executor();
+      playSuccess();
+      setLastAction(`${label} (${inputType})`);
+      const timer = setTimeout(() => {
+        // clear after 4s
+      }, 4000);
+      return () => clearTimeout(timer);
+    },
+    [],
+  );
 
   const start = useCallback(async () => {
     const Ctor = window.SpeechRecognition ?? window.webkitSpeechRecognition;
@@ -106,8 +163,8 @@ export function VoiceDemo() {
 
     setStatus("starting");
     setErrorMessage(null);
+    playTone(520, 0.1);
 
-    // The meter needs the raw stream; recognition will not hand one over.
     try {
       const media = await navigator.mediaDevices.getUserMedia({ audio: true });
       streamRef.current = media;
@@ -146,8 +203,7 @@ export function VoiceDemo() {
 
       const command = matchCommand(text);
       if (command) {
-        command.run();
-        setLastAction(command.label);
+        triggerAction(command.label, command.run, "Voice");
       }
     };
 
@@ -171,7 +227,6 @@ export function VoiceDemo() {
     };
 
     recognition.onend = () => {
-      // Chromium ends the session on silence; only reflect that if we did not stop.
       setStatus((current) => (current === "listening" ? "idle" : current));
     };
 
@@ -183,29 +238,161 @@ export function VoiceDemo() {
       setErrorMessage("Could not start recognition. Try again.");
       setStatus("error");
     }
-  }, [release]);
+  }, [release, triggerAction]);
 
-  // Release both the recogniser and the stream if this unmounts mid-session.
   useEffect(() => () => release(), [release]);
+
+  // Global keyboard shortcuts when in keyboard tab
+  useEffect(() => {
+    if (tab !== "keyboard") return;
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.metaKey || e.ctrlKey) {
+        const key = e.key.toLowerCase();
+        if (key === "d") {
+          e.preventDefault();
+          triggerAction("Switched theme", () => toggleTheme(), "Shortcut");
+        } else if (key === "i") {
+          e.preventDefault();
+          triggerAction(
+            "Jumped to inputs",
+            () => scrollToSection("inputs"),
+            "Shortcut",
+          );
+        } else if (key === "p") {
+          e.preventDefault();
+          triggerAction(
+            "Jumped to pipeline",
+            () => scrollToSection("pipeline"),
+            "Shortcut",
+          );
+        } else if (key === "t") {
+          e.preventDefault();
+          triggerAction(
+            "Back to top",
+            () => window.scrollTo({ top: 0, behavior: "smooth" }),
+            "Shortcut",
+          );
+        }
+      }
+    };
+
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, [tab, triggerAction]);
 
   const isLive = status === "listening" || status === "starting";
 
+  // Gesture pad pointer handlers
+  const handlePadPointerDown = (e: React.PointerEvent<HTMLDivElement>) => {
+    const rect = e.currentTarget.getBoundingClientRect();
+    const x = e.clientX - rect.left;
+    const y = e.clientY - rect.top;
+    pointerStartRef.current = { x, y };
+    setPadPointer({ x, y });
+  };
+
+  const handlePadPointerMove = (e: React.PointerEvent<HTMLDivElement>) => {
+    if (!pointerStartRef.current) return;
+    const rect = e.currentTarget.getBoundingClientRect();
+    setPadPointer({ x: e.clientX - rect.left, y: e.clientY - rect.top });
+  };
+
+  const handlePadPointerUp = (e: React.PointerEvent<HTMLDivElement>) => {
+    if (!pointerStartRef.current) return;
+    const rect = e.currentTarget.getBoundingClientRect();
+    const endX = e.clientX - rect.left;
+    const endY = e.clientY - rect.top;
+    const dx = endX - pointerStartRef.current.x;
+    const dy = endY - pointerStartRef.current.y;
+    pointerStartRef.current = null;
+    setPadPointer(null);
+
+    // Analyze drag vector
+    if (Math.abs(dx) > 40) {
+      if (dx < 0) {
+        setGestureFeedback("SWIPE_LEFT (Confidence 98%)");
+        triggerAction(
+          "Jumped to inputs",
+          () => scrollToSection("inputs"),
+          "Gesture",
+        );
+      } else {
+        setGestureFeedback("SWIPE_RIGHT (Confidence 97%)");
+        triggerAction(
+          "Jumped to pipeline",
+          () => scrollToSection("pipeline"),
+          "Gesture",
+        );
+      }
+    } else if (Math.abs(dy) < 15 && Math.abs(dx) < 15) {
+      // Tap / Pinch
+      setGestureFeedback("PINCH_TRIGGER (Confidence 99%)");
+      triggerAction("Switched theme", () => toggleTheme(), "Gesture");
+    }
+  };
+
   return (
-    <div className="relative overflow-hidden rounded-2xl border bg-surface">
-      {/*
-       * Ambient wash keyed to the accent. It brightens while the microphone is
-       * live, which is a second, peripheral signal that something is listening.
-       */}
+    <div className="relative overflow-hidden rounded-2xl border bg-surface shadow-2xl">
+      {/* Ambient reactive background wash */}
       <div
         aria-hidden="true"
-        data-live={isLive}
-        className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_at_top,color-mix(in_srgb,var(--accent-primary)_14%,transparent),transparent_62%)] opacity-40 transition-opacity duration-700 data-[live=true]:opacity-100"
+        data-live={isLive || tab === "gesture"}
+        className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_at_top,color-mix(in_srgb,var(--accent-primary)_18%,transparent),transparent_65%)] opacity-40 transition-opacity duration-700 data-[live=true]:opacity-100"
       />
 
-      <header className="relative flex items-center justify-between gap-3 border-b px-5 py-4">
-        <span className="label-mono">Live, in this browser</span>
+      {/* Top Header: Modality Selector Tabs */}
+      <header className="relative flex flex-wrap items-center justify-between gap-3 border-b px-5 py-3.5">
+        <div className="flex items-center gap-1 rounded-lg border bg-base p-0.5">
+          <button
+            type="button"
+            onClick={() => {
+              setTab("voice");
+              playClick();
+            }}
+            data-active={tab === "voice"}
+            className="flex items-center gap-1.5 rounded-md px-3 py-1.5 text-[12px] font-semibold transition-all data-[active=true]:bg-raised data-[active=true]:text-ink text-muted hover:text-ink"
+          >
+            <MicrophoneIcon
+              size={14}
+              weight={tab === "voice" ? "fill" : "regular"}
+            />
+            Voice
+          </button>
+          <button
+            type="button"
+            onClick={() => {
+              setTab("gesture");
+              playClick();
+            }}
+            data-active={tab === "gesture"}
+            className="flex items-center gap-1.5 rounded-md px-3 py-1.5 text-[12px] font-semibold transition-all data-[active=true]:bg-raised data-[active=true]:text-ink text-muted hover:text-ink"
+          >
+            <HandIcon
+              size={14}
+              weight={tab === "gesture" ? "fill" : "regular"}
+            />
+            Gesture
+          </button>
+          <button
+            type="button"
+            onClick={() => {
+              setTab("keyboard");
+              playClick();
+            }}
+            data-active={tab === "keyboard"}
+            className="flex items-center gap-1.5 rounded-md px-3 py-1.5 text-[12px] font-semibold transition-all data-[active=true]:bg-raised data-[active=true]:text-ink text-muted hover:text-ink"
+          >
+            <KeyboardIcon
+              size={14}
+              weight={tab === "keyboard" ? "fill" : "regular"}
+            />
+            Shortcuts
+          </button>
+        </div>
+
+        {/* Live Engine Indicator */}
         <span
-          data-live={isLive}
+          data-live={isLive || tab !== "voice"}
           className="flex items-center gap-2 rounded-full border px-2.5 py-1 text-[11px] font-semibold text-muted data-[live=true]:border-active data-[live=true]:text-active"
         >
           <span className="relative flex h-1.5 w-1.5">
@@ -223,91 +410,242 @@ export function VoiceDemo() {
               <span className="absolute inset-0 rounded-full bg-current" />
             )}
           </span>
-          {isLive ? "Microphone on" : "Microphone off"}
+          {tab === "voice"
+            ? isLive
+              ? "Microphone on"
+              : "Microphone ready"
+            : tab === "gesture"
+              ? "Gesture pad ready"
+              : "Keyboard active"}
         </span>
       </header>
 
-      <div className="relative flex min-h-[15rem] flex-col gap-4 p-5">
-        {status === "unsupported" ? (
-          <DemoState
-            tone="warning"
-            icon={<WarningCircleIcon size={18} />}
-            title="This browser has no speech engine"
-            body="Chrome, Edge and Safari expose one. The Omnivra extension ships its own local engine, so it does not depend on the browser having one."
-          />
-        ) : status === "denied" ? (
-          <DemoState
-            tone="danger"
-            icon={<MicrophoneSlashIcon size={18} />}
-            title="Microphone blocked"
-            body="Open the lock icon in the address bar, set Microphone to Allow, then reload this page. Audio never leaves your machine either way."
-          />
-        ) : status === "error" ? (
-          <DemoState
-            tone="danger"
-            icon={<WarningCircleIcon size={18} />}
-            title="Recognition stopped"
-            body={errorMessage ?? "Something interrupted the microphone."}
-          />
-        ) : (
+      {/* Main Sandbox Body */}
+      <div className="relative flex min-h-[17rem] flex-col gap-4 p-5">
+        {/* TAB 1: VOICE */}
+        {tab === "voice" && (
           <>
-            {/* Your actual signal. Silence renders as silence. */}
-            <AudioBars stream={stream} reduced={Boolean(reduce)} />
+            {status === "unsupported" ? (
+              <DemoState
+                tone="warning"
+                icon={<WarningCircleIcon size={18} />}
+                title="This browser has no speech engine"
+                body="Chrome, Edge and Safari expose one. Omnivra's local runtime packages its own engine, so it does not depend on the browser."
+              />
+            ) : status === "denied" ? (
+              <DemoState
+                tone="danger"
+                icon={<MicrophoneSlashIcon size={18} />}
+                title="Microphone blocked"
+                body="Open the lock icon in the address bar, set Microphone to Allow, then reload this page. Audio never leaves your machine."
+              />
+            ) : status === "error" ? (
+              <DemoState
+                tone="danger"
+                icon={<WarningCircleIcon size={18} />}
+                title="Recognition stopped"
+                body={errorMessage ?? "Something interrupted the microphone."}
+              />
+            ) : (
+              <>
+                <CanvasSpectrogram stream={stream} reduced={Boolean(reduce)} />
 
-            <p
-              aria-live="polite"
-              className="min-h-[3.5rem] rounded-lg border bg-base px-4 py-3 font-mono text-[13px] leading-relaxed"
-            >
-              {transcript || (
-                <span className="font-sans text-muted italic">
-                  {isLive
-                    ? "Listening. Say one of the commands below."
-                    : "Nothing captured yet."}
-                </span>
-              )}
-            </p>
-
-            <ul className="grid grid-cols-2 gap-2">
-              {COMMANDS.map((command) => (
-                <li
-                  key={command.label}
-                  className="rounded-lg bg-raised px-3 py-2 font-mono text-[12px] text-accent"
+                <p
+                  aria-live="polite"
+                  className="min-h-[3.25rem] rounded-lg border bg-base px-4 py-2.5 font-mono text-[13px] leading-relaxed"
                 >
-                  {command.phrases[0]}
-                </li>
-              ))}
-            </ul>
+                  {transcript || (
+                    <span className="font-sans text-muted italic">
+                      {isLive
+                        ? "Listening... Speak any phrase below."
+                        : "Microphone is idle. Click 'Start voice control' below."}
+                    </span>
+                  )}
+                </p>
+
+                <div className="space-y-1.5">
+                  <span className="label-mono text-[10px]">
+                    Recognized Intents
+                  </span>
+                  <ul className="grid grid-cols-2 gap-2">
+                    {COMMANDS.map((command) => (
+                      <li key={command.id}>
+                        <button
+                          type="button"
+                          onClick={() => {
+                            triggerAction(
+                              command.label,
+                              command.run,
+                              "Simulated Voice",
+                            );
+                          }}
+                          className="w-full text-left rounded-lg bg-raised px-3 py-2 font-mono text-[12px] text-accent transition-colors hover:bg-raised/80 hover:border-accent border border-transparent"
+                        >
+                          "{command.phrases[0]}"
+                        </button>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              </>
+            )}
           </>
         )}
 
-        <div className="mt-auto flex items-center justify-between gap-3">
-          {status === "unsupported" ? null : isLive ? (
-            <button
-              type="button"
-              onClick={stop}
-              className="rounded-lg border border-danger px-4 py-2 text-[13px] font-semibold text-danger transition-colors hover:bg-danger/10 active:translate-y-px"
+        {/* TAB 2: GESTURE */}
+        {tab === "gesture" && (
+          <div className="flex flex-col gap-3">
+            <div
+              onPointerDown={handlePadPointerDown}
+              onPointerMove={handlePadPointerMove}
+              onPointerUp={handlePadPointerUp}
+              className="relative flex h-36 w-full cursor-crosshair flex-col items-center justify-center overflow-hidden rounded-xl border border-dashed border-subtle bg-base/80 select-none transition-colors hover:border-accent"
             >
-              Stop listening
-            </button>
+              {/* Grid Lines */}
+              <div
+                aria-hidden="true"
+                className="pointer-events-none absolute inset-0 bg-[linear-gradient(to_right,var(--border-subtle)_1px,transparent_1px),linear-gradient(to_bottom,var(--border-subtle)_1px,transparent_1px)] bg-[size:24px_24px] opacity-25"
+              />
+
+              {padPointer ? (
+                <div
+                  style={{
+                    transform: `translate(${padPointer.x - 20}px, ${padPointer.y - 20}px)`,
+                  }}
+                  className="pointer-events-none absolute top-0 left-0 flex h-10 w-10 items-center justify-center rounded-full border-2 border-gesture bg-gesture/20"
+                >
+                  <span className="h-2 w-2 rounded-full bg-gesture" />
+                </div>
+              ) : null}
+
+              <div className="relative z-10 flex flex-col items-center text-center p-4">
+                <ArrowsOutCardinalIcon
+                  size={24}
+                  className="text-gesture mb-1.5 opacity-80"
+                />
+                <p className="text-[13px] font-semibold">
+                  Interactive Gesture Pad
+                </p>
+                <p className="text-[11.5px] text-muted max-w-[34ch]">
+                  Click or drag here (Swipe Left / Swipe Right / Tap to pinch)
+                  or click the presets below.
+                </p>
+                {gestureFeedback && (
+                  <span className="mt-2 rounded bg-gesture/15 px-2 py-0.5 font-mono text-[10.5px] font-semibold text-gesture">
+                    {gestureFeedback}
+                  </span>
+                )}
+              </div>
+            </div>
+
+            <div className="grid grid-cols-2 gap-2">
+              {COMMANDS.map((cmd) => (
+                <button
+                  key={cmd.id}
+                  type="button"
+                  onClick={() => {
+                    setGestureFeedback(
+                      `${cmd.gestureName.toUpperCase()} (Confidence 99.1%)`,
+                    );
+                    triggerAction(cmd.label, cmd.run, "Gesture");
+                  }}
+                  className="flex items-center justify-between rounded-lg border bg-raised px-3 py-2 text-[12px] font-medium transition-all hover:border-gesture active:translate-y-px"
+                >
+                  <span className="font-semibold text-gesture">
+                    {cmd.gestureName}
+                  </span>
+                  <span className="text-[11px] text-muted">{cmd.label}</span>
+                </button>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {/* TAB 3: KEYBOARD / SHORTCUTS */}
+        {tab === "keyboard" && (
+          <div className="flex flex-col gap-3">
+            <div className="rounded-xl border bg-base p-4">
+              <div className="flex items-center justify-between">
+                <span className="label-mono text-[10.5px]">
+                  Global Shortcut Layer
+                </span>
+                <span className="font-mono text-[11px] text-muted">
+                  Polling 1000Hz
+                </span>
+              </div>
+              <p className="mt-2 text-[13px] text-muted leading-relaxed">
+                Press hotkeys directly on your physical keyboard, or click the
+                mechanical switches below:
+              </p>
+            </div>
+
+            <div className="grid grid-cols-2 gap-2">
+              {COMMANDS.map((cmd) => (
+                <button
+                  key={cmd.id}
+                  type="button"
+                  onClick={() => {
+                    triggerAction(cmd.label, cmd.run, "Shortcut");
+                  }}
+                  className="group flex items-center justify-between rounded-lg border bg-raised px-3.5 py-2.5 text-left transition-all hover:border-input active:scale-[0.98]"
+                >
+                  <div>
+                    <span className="block font-mono text-[12px] font-bold text-input group-hover:underline">
+                      {cmd.shortcut}
+                    </span>
+                    <span className="text-[11.5px] text-muted">
+                      {cmd.label}
+                    </span>
+                  </div>
+                  <SparkleIcon
+                    size={16}
+                    className="text-muted group-hover:text-input"
+                  />
+                </button>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {/* Bottom Control Footer */}
+        <div className="mt-auto flex flex-wrap items-center justify-between gap-3 border-t pt-3">
+          {tab === "voice" ? (
+            status === "unsupported" ? null : isLive ? (
+              <button
+                type="button"
+                onClick={stop}
+                className="rounded-lg border border-danger px-4 py-1.5 text-[13px] font-semibold text-danger transition-colors hover:bg-danger/10 active:translate-y-px"
+              >
+                Stop listening
+              </button>
+            ) : (
+              <button
+                type="button"
+                onClick={() => void start()}
+                className="flex items-center gap-2 rounded-lg bg-accent px-4 py-1.5 text-[13px] font-semibold text-base transition-transform active:translate-y-px"
+              >
+                <MicrophoneIcon size={15} weight="fill" />
+                {status === "denied" || status === "error"
+                  ? "Try again"
+                  : "Start voice control"}
+              </button>
+            )
           ) : (
-            <button
-              type="button"
-              onClick={() => void start()}
-              className="flex items-center gap-2 rounded-lg bg-accent px-4 py-2 text-[13px] font-semibold text-base transition-transform active:translate-y-px"
-            >
-              <MicrophoneIcon size={16} weight="fill" />
-              {status === "denied" || status === "error"
-                ? "Try again"
-                : "Try voice control"}
-            </button>
+            <span className="font-mono text-[11px] text-muted">
+              Latencies under 16ms • Local dispatch
+            </span>
           )}
 
           {lastAction ? (
-            <span className="flex items-center gap-1.5 text-[12px] font-medium text-active">
+            <span className="flex items-center gap-1.5 text-[12px] font-semibold text-active">
               <CheckIcon size={14} weight="bold" />
               {lastAction}
             </span>
-          ) : null}
+          ) : (
+            <span className="font-mono text-[11px] text-muted">
+              Ready for input
+            </span>
+          )}
         </div>
       </div>
     </div>

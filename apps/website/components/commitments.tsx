@@ -1,17 +1,17 @@
 "use client";
 
-import Image from "next/image";
 import { motion, useReducedMotion } from "motion/react";
 import {
   ShieldCheckIcon,
   WifiSlashIcon,
   LockKeyIcon,
 } from "@phosphor-icons/react";
+import { PrivacySandboxVisual } from "./modality-visuals";
 
 /**
  * Two sections, two different layout families: Accessibility is a full-width
  * statement because the claim is the content, and Privacy is a split with a
- * real image. Neither carries an eyebrow; the page's eyebrow budget is spent.
+ * real technical diagram. Neither carries an eyebrow; the page's eyebrow budget is spent.
  */
 
 export function Accessibility() {
@@ -97,17 +97,11 @@ export function Privacy() {
       aria-labelledby="privacy-heading"
       className="mx-auto grid max-w-[1400px] items-center gap-12 px-6 py-24 lg:grid-cols-[0.9fr_1.1fr] lg:gap-20 lg:py-32"
     >
-      <div className="relative aspect-[4/5] overflow-hidden rounded-2xl border lg:aspect-[3/4]">
-        <Image
-          src="https://picsum.photos/seed/omnivra-local-machine-desk-night/900/1200"
-          alt="A workstation lit only by its own screen"
-          fill
-          sizes="(max-width: 1024px) 100vw, 40vw"
-          className="object-cover opacity-45 grayscale"
-        />
+      <div className="relative aspect-[4/5] overflow-hidden rounded-2xl border bg-surface lg:aspect-[3/4]">
+        <PrivacySandboxVisual />
         <div
           aria-hidden="true"
-          className="absolute inset-0 bg-gradient-to-tr from-base via-base/55 to-accent/10"
+          className="absolute inset-0 bg-gradient-to-tr from-base via-transparent to-accent/10 pointer-events-none"
         />
       </div>
 
