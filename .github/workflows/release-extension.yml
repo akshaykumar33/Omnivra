@@ -75,7 +75,9 @@ jobs:
         run: |
           version="${GITHUB_REF_NAME#extension-v}"
           cp omnivra-extension.zip "omnivra-extension-$version.zip"
-          gh release create "$GITHUB_REF_NAME" "omnivra-extension-$version.zip" \
+          # The unversioned copy keeps one permanent link working:
+          # /releases/latest/download/omnivra-extension.zip
+          gh release create "$GITHUB_REF_NAME" "omnivra-extension-$version.zip" omnivra-extension.zip \
             --title "Omnivra extension $version" \
             --notes "Install: download the zip, unzip it, open chrome://extensions (or edge://extensions), turn on Developer mode, click Load unpacked and pick the unzipped folder. See apps/browser-extension/README.md."
 
