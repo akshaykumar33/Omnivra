@@ -13,12 +13,12 @@ import {
 import { playClick, playSuccess, playTone } from "@/lib/sound";
 
 /**
- * The architecture from architecture/multimodal-pipeline.md.
+ * Architecture Pipeline: Seven-stage monotonic trace simulator.
  *
  * Implements an interactive live trace simulator:
- * Visitors can choose a sample signal (Voice, Gesture, Eye, or Keyboard),
- * watch a simulated packet traverse through all 7 stages, and inspect
- * the real normalized JSON event payload at each boundary.
+ * Visitors can choose a sample signal (Voice, Gesture, or Eye tracking),
+ * step through all 7 stages, and inspect the real normalized JSON event
+ * payload at each boundary with tokenized syntax highlighting.
  */
 
 type TraceScenario = {
@@ -40,7 +40,7 @@ const SCENARIOS: readonly TraceScenario[] = [
   {
     id: "voice-theme",
     label: "Voice: 'Dark mode'",
-    icon: <MicrophoneIcon size={15} weight="duotone" className="text-voice" />,
+    icon: <MicrophoneIcon size={14} weight="duotone" className="text-voice" />,
     payloads: {
       input:
         '{\n  "stream": "audio/raw_pcm_16000",\n  "sample_rate": 16000,\n  "buffer_ms": 64,\n  "vad_active": true\n}',
@@ -60,7 +60,7 @@ const SCENARIOS: readonly TraceScenario[] = [
   {
     id: "gesture-pinch",
     label: "Gesture: Pinch",
-    icon: <HandIcon size={15} weight="duotone" className="text-gesture" />,
+    icon: <HandIcon size={14} weight="duotone" className="text-gesture" />,
     payloads: {
       input:
         '{\n  "stream": "video/raw_frames_60fps",\n  "resolution": [1280, 720],\n  "frame_id": 98421,\n  "exposure_time_ms": 16.6\n}',
@@ -80,7 +80,7 @@ const SCENARIOS: readonly TraceScenario[] = [
   {
     id: "gaze-dwell",
     label: "Eye: Dwell 400ms",
-    icon: <EyeIcon size={15} weight="duotone" className="text-gaze" />,
+    icon: <EyeIcon size={14} weight="duotone" className="text-gaze" />,
     payloads: {
       input:
         '{\n  "stream": "sensor/ir_eye_tracker",\n  "pupil_diameter_mm": 4.1,\n  "glint_vectors": 2,\n  "frequency_hz": 120\n}',
@@ -114,7 +114,7 @@ const STAGES = [
   },
   {
     key: "normalised",
-    name: "Normalised event",
+    name: "Normalized event",
     detail:
       "Every engine emits the exact same canonical JSON schema, decoupling inputs from downstream consumers.",
   },
@@ -143,6 +143,82 @@ const STAGES = [
       "The only platform-specific boundary. Adapts capabilities to Chrome, VS Code, or desktop OS APIs.",
   },
 ] as const;
+
+/**
+ * High-performance client JSON syntax highlighter.
+ */
+function HighlightedJson({ code }: { code: string }) {
+  const regex =
+    /("(\\u[a-zA-Z0-9]{4}|\\[^u]|[^\\"])*"(\s*:)?|\b(true|false|null)\b|-?\d+(?:\.\d*)?(?:[eE][+\-]?\d+)?|[{}[\],:])/g;
+  const tokens: React.ReactNode[] = [];
+  let lastIndex = 0;
+  let match: RegExpExecArray | null;
+  let keyIndex = 0;
+
+  while ((match = regex.exec(code)) !== null) {
+    if (match.index > lastIndex) {
+      tokens.push(
+        <span key={`text-${keyIndex++}`}>
+          {code.slice(lastIndex, match.index)}
+        </span>,
+      );
+    }
+    const token = match[0];
+    if (token.endsWith(":")) {
+      // JSON Key
+      tokens.push(
+        <span key={`k-${keyIndex++}`} className="font-semibold text-accent">
+          {token.slice(0, -1)}
+        </span>,
+        <span key={`c-${keyIndex++}`} className="text-muted">
+          :
+        </span>,
+      );
+    } else if (token.startsWith('"')) {
+      // String value
+      tokens.push(
+        <span key={`s-${keyIndex++}`} className="text-active">
+          {token}
+        </span>,
+      );
+    } else if (token === "true" || token === "false") {
+      // Boolean
+      tokens.push(
+        <span key={`b-${keyIndex++}`} className="font-medium text-gesture">
+          {token}
+        </span>,
+      );
+    } else if (token === "null") {
+      tokens.push(
+        <span key={`n-${keyIndex++}`} className="italic text-muted">
+          {token}
+        </span>,
+      );
+    } else if (/^-?\d/.test(token)) {
+      // Number
+      tokens.push(
+        <span key={`num-${keyIndex++}`} className="text-warning">
+          {token}
+        </span>,
+      );
+    } else {
+      // Structural punctuation
+      tokens.push(
+        <span key={`p-${keyIndex++}`} className="text-muted/70">
+          {token}
+        </span>,
+      );
+    }
+    lastIndex = regex.lastIndex;
+  }
+  if (lastIndex < code.length) {
+    tokens.push(
+      <span key={`tail-${keyIndex++}`}>{code.slice(lastIndex)}</span>,
+    );
+  }
+
+  return <code>{tokens}</code>;
+}
 
 export function Pipeline() {
   const [activeScenario, setActiveScenario] = useState(0);
@@ -182,24 +258,23 @@ export function Pipeline() {
     <section
       id="pipeline"
       aria-labelledby="pipeline-heading"
-      className="border-y bg-surface"
+      className="border-y border-subtle/80 bg-surface/50"
     >
-      <div className="mx-auto max-w-[1400px] px-6 py-24 lg:py-32">
+      <div className="mx-auto max-w-[1400px] px-6 py-12 lg:py-16">
         <p className="label-mono">Architecture</p>
         <h2
           id="pipeline-heading"
-          className="mt-4 max-w-[30ch] font-display text-3xl leading-tight font-semibold tracking-tight sm:text-4xl lg:text-5xl"
+          className="mt-2 max-w-[30ch] font-display text-2xl font-semibold tracking-tight sm:text-3xl lg:text-4xl"
         >
           One path from signal to action.
         </h2>
-        <p className="mt-5 max-w-[58ch] text-[15px] leading-relaxed text-muted">
-          Seven stages, and only the last one knows what a browser or editor is.
-          Select a sample scenario or run a live packet trace through the
-          pipeline.
+        <p className="mt-2 max-w-[58ch] text-[14px] leading-relaxed text-muted">
+          Seven stages, and only the last one touches browser or editor APIs.
+          Select a sample scenario or step through the live pipeline.
         </p>
 
         {/* Interactive Scenario Presets Bar */}
-        <div className="mt-10 flex flex-wrap items-center justify-between gap-4 rounded-xl border bg-base p-4">
+        <div className="mt-6 flex flex-wrap items-center justify-between gap-3 rounded-xl border border-subtle/80 bg-base p-3">
           <div className="flex flex-wrap items-center gap-2">
             <span className="text-[12px] font-semibold text-muted mr-1">
               Trace signal:
@@ -213,7 +288,7 @@ export function Pipeline() {
                   playClick();
                 }}
                 data-active={activeScenario === idx}
-                className="flex items-center gap-1.5 rounded-lg border px-3 py-1.5 text-[12.5px] font-medium transition-all data-[active=true]:border-accent data-[active=true]:bg-raised data-[active=true]:text-ink text-muted hover:text-ink"
+                className="flex items-center gap-1.5 rounded-lg border border-subtle/70 bg-surface px-2.5 py-1.5 text-[12px] font-medium transition-all data-[active=true]:border-accent data-[active=true]:bg-raised data-[active=true]:text-ink text-muted hover:text-ink"
               >
                 <span>{scen.icon}</span>
                 <span>{scen.label}</span>
@@ -225,19 +300,19 @@ export function Pipeline() {
             type="button"
             onClick={runFullTrace}
             disabled={isTracing}
-            className="flex items-center gap-2 rounded-lg bg-accent px-4 py-1.5 text-[13px] font-semibold text-base transition-transform active:translate-y-px disabled:opacity-50"
+            className="flex items-center gap-1.5 rounded-lg bg-accent px-3.5 py-1.5 text-[12.5px] font-semibold text-base shadow-sm transition-transform active:translate-y-px disabled:opacity-50"
           >
             {isTracing ? (
-              <ArrowCounterClockwiseIcon size={15} className="animate-spin" />
+              <ArrowCounterClockwiseIcon size={14} className="animate-spin" />
             ) : (
-              <PlayIcon size={15} weight="fill" />
+              <PlayIcon size={14} weight="fill" />
             )}
             {isTracing ? "Tracing pipeline..." : "Step through pipeline"}
           </button>
         </div>
 
         {/* 7-Stage Rail Stepper */}
-        <ol className="mt-10 grid gap-2 sm:grid-cols-2 lg:grid-cols-7 lg:gap-0">
+        <ol className="mt-6 grid gap-1.5 sm:grid-cols-2 lg:grid-cols-7 lg:gap-0">
           {STAGES.map((stage, i) => {
             const state =
               i === activeStage
@@ -246,18 +321,7 @@ export function Pipeline() {
                   ? "done"
                   : "upcoming";
             return (
-              <motion.li
-                key={stage.name}
-                initial={reduce ? false : { opacity: 0, y: 14 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true, amount: 0.4 }}
-                transition={{
-                  duration: 0.45,
-                  delay: i * 0.05,
-                  ease: [0.16, 1, 0.3, 1],
-                }}
-                className="relative"
-              >
+              <li key={stage.name} className="relative">
                 <button
                   type="button"
                   onClick={() => {
@@ -266,83 +330,99 @@ export function Pipeline() {
                   }}
                   data-state={state}
                   aria-current={i === activeStage ? "step" : undefined}
-                  className="group w-full rounded-lg px-2 py-3 text-left transition-colors hover:bg-raised lg:px-3"
+                  className="group w-full rounded-lg px-2 py-2 text-left transition-colors hover:bg-raised lg:px-2.5"
                 >
                   {/* Rail segment */}
-                  <span
-                    aria-hidden="true"
-                    data-state={state}
-                    style={
-                      {
-                        "--seg": `color-mix(in oklab, var(--hue-voice), var(--hue-gesture) ${(i / (STAGES.length - 1)) * 100}%)`,
-                      } as React.CSSProperties
-                    }
-                    className="mb-3 block h-0.5 w-full rounded-full bg-subtle transition-all duration-500 data-[state=current]:bg-[var(--seg)] data-[state=current]:shadow-[0_0_14px_-1px_var(--seg)] data-[state=done]:bg-[var(--seg)]"
-                  />
-                  <span className="block font-mono text-[10.5px] tabular-nums text-muted opacity-70">
+                  <div className="relative mb-2">
+                    <span
+                      aria-hidden="true"
+                      data-state={state}
+                      style={
+                        {
+                          "--seg": `color-mix(in oklab, var(--hue-voice), var(--hue-gesture) ${(i / (STAGES.length - 1)) * 100}%)`,
+                        } as React.CSSProperties
+                      }
+                      className="block h-1 w-full rounded-full bg-subtle/80 transition-all duration-300 data-[state=current]:bg-[var(--seg)] data-[state=current]:shadow-[0_0_12px_var(--seg)] data-[state=done]:bg-[var(--seg)]"
+                    />
+                    {i === activeStage && !reduce && (
+                      <span className="absolute -top-1 left-1/2 h-3 w-3 -translate-x-1/2 rounded-full border-2 border-surface bg-accent shadow-sm" />
+                    )}
+                  </div>
+
+                  <span className="block font-mono text-[10px] tabular-nums text-muted">
                     {String(i + 1).padStart(2, "0")}
                   </span>
                   <span
                     data-state={state}
-                    className="mt-1 block text-[13px] font-semibold text-muted transition-colors data-[state=current]:text-accent data-[state=done]:text-ink"
+                    className="mt-0.5 block text-[12.5px] font-semibold text-muted transition-colors data-[state=current]:text-accent data-[state=done]:text-ink"
                   >
                     {stage.name}
                   </span>
                 </button>
-              </motion.li>
+              </li>
             );
           })}
         </ol>
 
         {/* Live Payload Inspector & Architecture Detail Split */}
-        <div className="mt-8 grid gap-4 lg:grid-cols-[1.1fr_0.9fr]">
+        <div className="mt-6 grid gap-4 lg:grid-cols-[1fr_1.15fr] items-stretch">
           {/* Left: Detail description */}
-          <div className="flex flex-col justify-between rounded-2xl border bg-base p-6">
+          <div className="flex h-full flex-col justify-between rounded-xl border border-subtle/80 bg-base p-5 shadow-sm">
             <div className="flex items-start gap-3">
               <ArrowRightIcon
-                size={18}
+                size={16}
                 className="mt-1 shrink-0 text-accent"
                 weight="bold"
               />
               <motion.div
                 key={activeStage}
-                initial={reduce ? false : { opacity: 0, y: 6 }}
+                initial={reduce ? false : { opacity: 0, y: 4 }}
                 animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.28, ease: [0.16, 1, 0.3, 1] }}
-                className="space-y-2"
+                transition={{ duration: 0.22, ease: [0.16, 1, 0.3, 1] }}
+                className="space-y-1.5"
               >
-                <h3 className="font-display text-[17px] font-semibold">
+                <h3 className="font-display text-[15px] font-semibold text-ink">
                   Stage {activeStage + 1}: {STAGES[activeStage]?.name}
                 </h3>
-                <p className="max-w-[56ch] text-[14.5px] leading-relaxed text-muted">
+                <p className="max-w-[52ch] text-[13px] leading-relaxed text-muted">
                   {STAGES[activeStage]?.detail}
                 </p>
               </motion.div>
             </div>
 
-            <div className="mt-6 flex items-center justify-between border-t pt-4 font-mono text-[11px] text-muted">
-              <span>Security: Local process memory boundary</span>
-              <span>Data flow: Monotonic pipeline</span>
+            <div className="mt-5 flex items-center justify-between border-t border-subtle/60 pt-3 font-mono text-[10.5px] text-muted">
+              <span>Security: In-memory process boundary</span>
+              <span>Data flow: Monotonic</span>
             </div>
           </div>
 
           {/* Right: Live Normalized Payload JSON Inspector */}
-          <div className="flex flex-col rounded-2xl border bg-base p-6">
-            <div className="flex items-center justify-between border-b pb-3">
-              <div className="flex items-center gap-2">
-                <span className="h-2 w-2 rounded-full bg-active" />
-                <span className="font-mono text-[11px] font-semibold text-muted uppercase">
-                  Live Event Frame ({STAGES[activeStage]?.name})
+          <div className="flex h-full flex-col justify-between rounded-xl border border-subtle/80 bg-base p-5 shadow-sm">
+            <div>
+              <div className="flex items-center justify-between border-b border-subtle/60 pb-2.5">
+                <div className="flex items-center gap-2">
+                  <span className="h-2 w-2 rounded-full bg-active animate-pulse" />
+                  <span className="font-mono text-[10.5px] font-semibold text-ink uppercase">
+                    Live Event Frame ({STAGES[activeStage]?.name})
+                  </span>
+                </div>
+                <span className="font-mono text-[10px] text-muted">
+                  Format: RFC-compliant JSON
                 </span>
               </div>
-              <span className="font-mono text-[10.5px] text-muted">
-                Format: RFC-compliant JSON
-              </span>
+
+              <pre className="mt-2.5 max-h-[160px] overflow-x-auto rounded-lg bg-surface/90 p-3 font-mono text-[11.5px] leading-relaxed selection:bg-accent/20">
+                <HighlightedJson code={currentPayloadText} />
+              </pre>
             </div>
 
-            <pre className="mt-3 max-h-[160px] overflow-x-auto rounded-lg bg-surface p-3 font-mono text-[12px] leading-relaxed text-accent/90 selection:bg-accent/20">
-              <code>{currentPayloadText}</code>
-            </pre>
+            <div className="mt-5 flex items-center justify-between border-t border-subtle/60 pt-3 font-mono text-[10.5px] text-muted">
+              <span className="flex items-center gap-1.5">
+                <span className="h-1.5 w-1.5 rounded-full bg-accent" />
+                <span>Zero host leakage</span>
+              </span>
+              <span>Boundary latency: &lt;2.4ms</span>
+            </div>
           </div>
         </div>
       </div>

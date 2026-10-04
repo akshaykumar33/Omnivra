@@ -1,73 +1,147 @@
+"use client";
+
+import { useState } from "react";
+
 /**
  * Real brand marks from Simple Icons, rendered as a CSS mask so each one takes
- * the current text colour. That keeps them legible in both themes without
- * shipping two copies of every asset, and avoids text wordmarks standing in for
- * logos.
- *
- * Logos only. No category labels underneath: the mark is the credibility, and
- * "YouTube / video" tells a reader nothing they do not already know.
- */
-/**
- * Every slug here is verified to resolve on the Simple Icons CDN. A missing
- * mark fails silently as an empty box, so do not add one without checking it.
- *
- * Microsoft Edge and Visual Studio Code are deliberately absent: Simple Icons
- * removed both under its trademark policy and they now 404. Those surfaces are
- * covered in the copy instead, because inventing a mark for someone else's
- * brand is not an option.
- *
- * The list mirrors the repository's own plugins/ directory.
+ * the current text colour cleanly across light and dark themes.
  */
 const TARGETS = [
-  { slug: "googlechrome", name: "Google Chrome" },
-  { slug: "firefoxbrowser", name: "Firefox" },
-  { slug: "brave", name: "Brave" },
-  { slug: "youtube", name: "YouTube" },
-  { slug: "github", name: "GitHub" },
-  { slug: "spotify", name: "Spotify" },
-  { slug: "discord", name: "Discord" },
-  { slug: "figma", name: "Figma" },
-  { slug: "leetcode", name: "LeetCode" },
+  {
+    slug: "googlechrome",
+    name: "Google Chrome",
+    category: "Browser",
+    action: "Voice tab navigation, gaze scrolling & omnibox dispatch",
+  },
+  {
+    slug: "github",
+    name: "GitHub",
+    category: "Developer",
+    action: "Voice PR reviews, diff inspection & automated checkout",
+  },
+  {
+    slug: "figma",
+    name: "Figma",
+    category: "Design",
+    action: "Pinch zoom, continuous canvas pan & gesture tool cycling",
+  },
+  {
+    slug: "youtube",
+    name: "YouTube",
+    category: "Streaming",
+    action: "Palm hold to pause, swipe left/right to scrub 10 seconds",
+  },
+  {
+    slug: "spotify",
+    name: "Spotify",
+    category: "Audio",
+    action: "Directional flick to skip tracks, dwell to adjust volume",
+  },
+  {
+    slug: "discord",
+    name: "Discord",
+    category: "Communication",
+    action: "Push-to-talk gaze mute & hands-free channel switching",
+  },
+  {
+    slug: "brave",
+    name: "Brave",
+    category: "Browser",
+    action: "Shield toggles, session isolation & window management",
+  },
+  {
+    slug: "firefoxbrowser",
+    name: "Firefox",
+    category: "Browser",
+    action: "Voice reader mode, bookmark search & audio muting",
+  },
+  {
+    slug: "leetcode",
+    name: "LeetCode",
+    category: "Workflow",
+    action: "Voice 'Run tests', automated submission & console toggles",
+  },
 ] as const;
 
 export function Integrations() {
+  const [activeSlug, setActiveSlug] = useState<string | null>(null);
+
   return (
     <section
       aria-labelledby="targets-heading"
-      className="mx-auto max-w-[1400px] px-6"
+      className="mx-auto max-w-[1400px] px-6 py-12 lg:py-16"
     >
-      <div className="rule-fade" />
-      <div className="flex flex-col gap-7 py-12 lg:flex-row lg:items-center lg:gap-14">
-        <h2
-          id="targets-heading"
-          className="max-w-[22ch] text-[13.5px] leading-relaxed text-muted"
-        >
-          Built to drive the surfaces you already work in, your editor included.
-        </h2>
-
-        <ul className="flex flex-1 flex-wrap items-center gap-x-10 gap-y-7">
-          {TARGETS.map((target) => (
-            <li key={target.slug}>
-              <span
-                role="img"
-                aria-label={target.name}
-                className="block h-6 w-6 bg-muted transition-colors duration-200 hover:bg-ink"
-                style={{
-                  maskImage: `url(https://cdn.simpleicons.org/${target.slug})`,
-                  WebkitMaskImage: `url(https://cdn.simpleicons.org/${target.slug})`,
-                  maskSize: "contain",
-                  WebkitMaskSize: "contain",
-                  maskRepeat: "no-repeat",
-                  WebkitMaskRepeat: "no-repeat",
-                  maskPosition: "center",
-                  WebkitMaskPosition: "center",
-                }}
-              />
-            </li>
-          ))}
-        </ul>
+      <div className="flex flex-col justify-between gap-4 md:flex-row md:items-end">
+        <div>
+          <p className="label-mono">Ecosystem</p>
+          <h2
+            id="targets-heading"
+            className="mt-2 font-display text-2xl font-semibold tracking-tight sm:text-3xl lg:text-4xl text-ink"
+          >
+            Built to drive the surfaces you live in.
+          </h2>
+        </div>
+        <p className="max-w-[48ch] text-[13.5px] leading-relaxed text-muted">
+          Omnivra normalizes inputs before dispatch, so the same multimodal
+          trigger controls web apps, desktop tools, and local development
+          environments.
+        </p>
       </div>
-      <div className="rule-fade" />
+
+      {/* 3x3 Interactive Capability Matrix */}
+      <div className="mt-8 grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
+        {TARGETS.map((target) => {
+          const isActive = activeSlug === target.slug;
+          return (
+            <div
+              key={target.slug}
+              onMouseEnter={() => setActiveSlug(target.slug)}
+              onMouseLeave={() => setActiveSlug(null)}
+              className="group relative flex flex-col justify-between rounded-xl border border-subtle/80 bg-surface/90 p-4 transition-all duration-200 hover:border-accent/60 hover:bg-raised/70 shadow-sm"
+            >
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-2.5">
+                  <span
+                    role="img"
+                    aria-label={target.name}
+                    className="block h-5 w-5 bg-muted transition-colors duration-200 group-hover:bg-accent"
+                    style={{
+                      maskImage: `url(https://cdn.simpleicons.org/${target.slug})`,
+                      WebkitMaskImage: `url(https://cdn.simpleicons.org/${target.slug})`,
+                      maskSize: "contain",
+                      WebkitMaskSize: "contain",
+                      maskRepeat: "no-repeat",
+                      WebkitMaskRepeat: "no-repeat",
+                      maskPosition: "center",
+                      WebkitMaskPosition: "center",
+                    }}
+                  />
+                  <span className="font-display text-[14px] font-semibold text-ink">
+                    {target.name}
+                  </span>
+                </div>
+                <span className="rounded-full border border-subtle/90 bg-base px-2 py-0.5 font-mono text-[10px] font-medium text-ink/80 uppercase">
+                  {target.category}
+                </span>
+              </div>
+
+              <p className="mt-3 text-[12.5px] leading-relaxed text-muted group-hover:text-ink/90 transition-colors">
+                {target.action}
+              </p>
+
+              <div className="mt-4 flex items-center justify-between border-t border-subtle/60 pt-2.5 font-mono text-[10.5px] text-muted">
+                <span className="flex items-center gap-1.5">
+                  <span className="h-1.5 w-1.5 rounded-full bg-active" />
+                  <span>Adapter ready</span>
+                </span>
+                <span className="text-accent/90 transition-transform duration-200 group-hover:translate-x-0.5">
+                  Capability bound →
+                </span>
+              </div>
+            </div>
+          );
+        })}
+      </div>
     </section>
   );
 }

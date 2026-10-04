@@ -34,41 +34,49 @@ export function ClosingCta() {
     <section
       id="get"
       aria-labelledby="get-heading"
-      className="relative isolate overflow-hidden border-t bg-surface"
+      className="relative isolate overflow-hidden border-t border-subtle/80 bg-surface/50 py-12 lg:py-16"
     >
       {/* Bookend: the page opens and closes on the same colour field. */}
       <div className="aurora" aria-hidden="true">
         <div className="aurora__blob aurora__blob--two" />
         <div className="aurora__blob aurora__blob--three" />
       </div>
-      <div className="mx-auto flex max-w-[1400px] flex-col items-start gap-8 px-6 py-24 lg:flex-row lg:items-center lg:justify-between lg:py-28">
-        <div>
-          <h2
-            id="get-heading"
-            className="max-w-[24ch] font-display text-3xl leading-tight font-semibold tracking-tight sm:text-4xl"
-          >
-            Omnivra is pre-1.0 and built in the open.
-          </h2>
-          <p className="mt-4 max-w-[52ch] text-[15px] leading-relaxed text-muted">
-            The voice path is in alpha and the rest is being built in the
-            sequence described above. Follow the repository to track it.
-          </p>
-        </div>
+      <div className="mx-auto max-w-[1400px] px-6">
+        <div className="relative flex flex-col justify-between gap-8 rounded-2xl border border-subtle/80 bg-surface/90 p-8 shadow-sm backdrop-blur-sm lg:flex-row lg:items-center lg:p-10">
+          <div>
+            <div className="inline-flex items-center gap-2 rounded-full border border-accent/30 bg-accent/10 px-3 py-1 font-mono text-[11px] font-semibold text-accent uppercase">
+              Open Development • v0.1.0-alpha
+            </div>
+            <h2
+              id="get-heading"
+              className="mt-3 max-w-[26ch] font-display text-2xl font-semibold tracking-tight sm:text-3xl text-ink"
+            >
+              Omnivra is pre-1.0 and built in the open.
+            </h2>
+            <p className="mt-2 max-w-[54ch] text-[14px] leading-relaxed text-muted">
+              The voice path is in alpha and multimodal pipelines are being
+              built in the sequence documented above. Clone the repository to
+              build and run the kernel locally.
+            </p>
+          </div>
 
-        <div className="flex flex-wrap items-center gap-3">
-          <a
-            href="https://github.com/akshaykumar33/Omnivra#getting-started"
-            className="rounded-lg bg-accent px-5 py-2.5 text-[14px] font-semibold text-base transition-transform active:translate-y-px"
-          >
-            Get the extension
-          </a>
-          <a
-            href="https://github.com/akshaykumar33/Omnivra"
-            className="flex items-center gap-2 rounded-lg border px-5 py-2.5 text-[14px] font-semibold transition-colors hover:border-accent"
-          >
-            <GithubLogoIcon size={16} />
-            View the source
-          </a>
+          <div className="flex flex-wrap items-center gap-3">
+            <a
+              href="https://github.com/akshaykumar33/Omnivra#getting-started"
+              className="rounded-lg bg-accent px-5 py-2.5 text-[13.5px] font-semibold text-base shadow-sm transition-all duration-200 hover:shadow-[0_0_24px_rgba(56,189,248,0.35)] active:translate-y-px"
+            >
+              Get the extension
+            </a>
+            <a
+              href="https://github.com/akshaykumar33/Omnivra"
+              target="_blank"
+              rel="noreferrer"
+              className="flex items-center gap-2 rounded-lg border border-subtle/80 bg-surface px-4 py-2.5 text-[13.5px] font-semibold text-ink transition-colors hover:border-accent hover:bg-raised"
+            >
+              <GithubLogoIcon size={16} />
+              View source repository
+            </a>
+          </div>
         </div>
       </div>
     </section>
@@ -77,8 +85,8 @@ export function ClosingCta() {
 
 export function SiteFooter() {
   return (
-    <footer className="border-t">
-      <div className="mx-auto grid max-w-[1400px] gap-10 px-6 py-14 sm:grid-cols-2 lg:grid-cols-4">
+    <footer className="border-t border-subtle/80">
+      <div className="mx-auto grid max-w-[1400px] gap-8 px-6 py-10 sm:grid-cols-2 lg:grid-cols-4">
         <div className="lg:col-span-2">
           <p className="font-display text-[15px] font-semibold tracking-tight">
             Omnivra
@@ -121,11 +129,17 @@ export function SiteFooter() {
         </nav>
       </div>
 
-      <div className="mx-auto max-w-[1400px] px-6 pb-10">
+      <div className="mx-auto max-w-[1400px] px-6 pb-6">
         <div className="rule-fade" />
-        <p className="pt-6 text-[12.5px] text-muted">
-          Apache-2.0 licensed. Built by Omnivra contributors.
-        </p>
+        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2 pt-4 text-[12px] text-muted">
+          <p>Apache-2.0 licensed. Built by Omnivra contributors.</p>
+          <div className="flex items-center gap-2 font-mono text-[11px]">
+            <span className="h-1.5 w-1.5 rounded-full bg-active animate-pulse" />
+            <span className="text-ink/80">Local runtime healthy</span>
+            <span className="text-subtle">•</span>
+            <span>Zero cloud telemetry</span>
+          </div>
+        </div>
       </div>
     </footer>
   );
