@@ -58,6 +58,17 @@ async function switchTab(offset) {
   await chrome.tabs.update(next.id, { active: true });
 }
 
+async function closeTab() {
+  const tab = await activeTab();
+  try {
+    await chrome.tabs.remove(tab.id);
+  } catch {
+    // Edge refuses to remove its own New Tab page; navigate away from it first.
+    await chrome.tabs.update(tab.id, { url: "about:blank" });
+    await chrome.tabs.remove(tab.id);
+  }
+}
+
 async function run(intent) {
   switch (intent.type) {
     case "scroll":
@@ -72,7 +83,7 @@ async function run(intent) {
     case "newTab":
       return chrome.tabs.create({});
     case "closeTab":
-      return chrome.tabs.remove((await activeTab()).id);
+      return closeTab();
     case "switchTab":
       return switchTab(intent.offset);
     case "gotoTab": {
