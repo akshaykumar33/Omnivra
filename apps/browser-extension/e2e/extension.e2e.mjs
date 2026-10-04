@@ -38,7 +38,7 @@ const FAKE_LISTENER = `<!doctype html><title>listener</title><script>
     post({ kind: "state", listening: e.data.action === "start" });
   });
   window.__emit = (id, alternatives, isFinal) => post({ kind: "result", id, alternatives, isFinal });
-  window.__error = (error) => post({ kind: "error", error });
+  window.__error = (error, fatal = true) => post({ kind: "error", error, fatal });
   post({ kind: "ready" });
 </script>`;
 
@@ -297,4 +297,24 @@ test("voice: a blocked microphone opens the listener page to grant access", asyn
     /Allow the microphone/,
   );
   await page.bringToFront();
+});
+
+test("voice: a transient error keeps listening and shows reconnecting", async () => {
+  await panel.click("#toggle");
+  await panel.waitForFunction(
+    () =>
+      document.getElementById("toggle").getAttribute("aria-pressed") === "true",
+  );
+  await panel
+    .frames()
+    .find((f) => f.url().includes("/listen"))
+    .evaluate(() => window.__error("network", false));
+  await panel.waitForFunction(() =>
+    document.getElementById("status").textContent.includes("Reconnecting"),
+  );
+  assert.equal(
+    await panel.locator("#toggle").getAttribute("aria-pressed"),
+    "true",
+  );
+  await panel.click("#toggle");
 });
