@@ -16,6 +16,7 @@ import {
   playClick,
 } from "@/lib/sound";
 import { CommandPalette } from "./command-palette";
+import { OmnivraLogo } from "./omnivra-logo";
 
 const LINKS = [
   { href: "#inputs", label: "Inputs" },
@@ -109,8 +110,11 @@ export function SiteNav() {
           className="mx-auto flex h-full max-w-[1400px] items-center justify-between gap-6 px-6"
         >
           <div className="flex items-center gap-3">
-            <a href="#main" className="flex items-center gap-2.5">
-              <Mark />
+            <a href="#main" className="group flex items-center gap-2.5">
+              <OmnivraLogo
+                size={22}
+                className="transition-transform group-hover:scale-105"
+              />
               <span className="font-display text-[15px] font-semibold tracking-tight">
                 Omnivra
               </span>
@@ -211,24 +215,5 @@ export function SiteNav() {
         onClose={() => setPaletteOpen(false)}
       />
     </>
-  );
-}
-
-/**
- * Three converging dots: many inputs resolving to one action.
- */
-function Mark() {
-  return (
-    <svg width="20" height="20" viewBox="0 0 20 20" aria-hidden="true">
-      <circle cx="4" cy="4" r="2.2" fill="var(--text-muted)" />
-      <circle cx="4" cy="16" r="2.2" fill="var(--text-muted)" />
-      <circle cx="16" cy="10" r="3" fill="var(--accent-primary)" />
-      <path
-        d="M6 5.2 L13.4 9 M6 14.8 L13.4 11"
-        stroke="var(--border-subtle)"
-        strokeWidth="1.4"
-        strokeLinecap="round"
-      />
-    </svg>
   );
 }

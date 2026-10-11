@@ -100,7 +100,7 @@ export function HeroIntro() {
                   (word.tone === "muted"
                     ? "text-muted"
                     : word.tone === "spectrum"
-                      ? "bg-gradient-to-r from-[#da7756] via-[#f59e0b] to-[#e07a5f] bg-clip-text text-transparent font-medium"
+                      ? "bg-gradient-to-r from-[#6366f1] via-[#8b5cf6] to-[#06b6d4] bg-clip-text text-transparent font-medium"
                       : "text-ink")
                 }
               >
@@ -127,7 +127,7 @@ export function HeroIntro() {
               style={
                 { "--glow": "var(--accent-primary)" } as React.CSSProperties
               }
-              className="inline-flex items-center gap-2 rounded-lg bg-accent px-5 py-2.5 text-[13.5px] font-semibold text-base shadow-sm transition-all duration-200 hover:shadow-[0_0_24px_rgba(218,119,86,0.4)] active:translate-y-px"
+              className="inline-flex items-center gap-2 rounded-lg bg-accent px-5 py-2.5 text-[13.5px] font-semibold text-white shadow-sm transition-all duration-200 hover:shadow-[0_0_24px_rgba(99,102,241,0.45)] active:translate-y-px"
             >
               Get the extension
             </a>

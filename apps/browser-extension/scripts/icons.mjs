@@ -22,5 +22,19 @@ for (const size of [16, 32, 48, 128]) {
   await page.close();
 }
 
+// Web Store 300x300 icon
+const storeDir = new URL("../store/", import.meta.url);
+const storePage = await browser.newPage({
+  viewport: { width: 300, height: 300 },
+});
+await storePage.setContent(
+  `<style>html,body{margin:0;background:transparent}svg{width:300px;height:300px;display:block}</style>${svg}`,
+);
+await storePage.screenshot({
+  path: fileURLToPath(new URL("logo-300.png", storeDir)),
+  omitBackground: true,
+});
+await storePage.close();
+
 await browser.close();
-console.log("Icons written to", dir.pathname);
+console.log("Icons written to", dir.pathname, "and store/logo-300.png");
