@@ -478,7 +478,7 @@ export function Bench() {
                       device: "switch_matrix",
                     });
                   }}
-                  className="rounded-lg border border-cyan-500/30 bg-gradient-to-b from-[#161a29] to-[#0a0c14] px-3.5 py-2 font-mono text-[12px] font-bold text-cyan-300 shadow-[0_4px_10px_rgba(0,0,0,0.5),inset_0_1px_0_rgba(255,255,255,0.1)] transition-all hover:border-cyan-400 hover:shadow-[0_0_16px_rgba(6,182,212,0.35)] active:translate-y-0.5"
+                  className="rounded-lg border border-orange-500/30 bg-gradient-to-b from-[#2a2622] to-[#181613] px-3.5 py-2 font-mono text-[12px] font-bold text-orange-300 shadow-[0_4px_10px_rgba(10,8,6,0.6),inset_0_1px_0_rgba(255,250,240,0.08)] transition-all hover:border-orange-400 hover:shadow-[0_0_16px_rgba(217,107,67,0.3)] active:translate-y-0.5"
                 >
                   [SPACE]
                 </button>
@@ -491,7 +491,7 @@ export function Bench() {
                       device: "keyboard",
                     });
                   }}
-                  className="rounded-lg border border-purple-500/30 bg-gradient-to-b from-[#161a29] to-[#0a0c14] px-3.5 py-2 font-mono text-[12px] font-bold text-purple-300 shadow-[0_4px_10px_rgba(0,0,0,0.5),inset_0_1px_0_rgba(255,255,255,0.1)] transition-all hover:border-purple-400 hover:shadow-[0_0_16px_rgba(168,85,247,0.35)] active:translate-y-0.5"
+                  className="rounded-lg border border-amber-500/30 bg-gradient-to-b from-[#2a2622] to-[#181613] px-3.5 py-2 font-mono text-[12px] font-bold text-amber-300 shadow-[0_4px_10px_rgba(10,8,6,0.6),inset_0_1px_0_rgba(255,250,240,0.08)] transition-all hover:border-amber-400 hover:shadow-[0_0_16px_rgba(217,119,6,0.3)] active:translate-y-0.5"
                 >
                   [CMD + K]
                 </button>
@@ -504,7 +504,7 @@ export function Bench() {
                       distance: 64,
                     });
                   }}
-                  className="rounded-lg border border-emerald-500/30 bg-gradient-to-b from-[#161a29] to-[#0a0c14] px-3.5 py-2 font-mono text-[12px] font-bold text-emerald-300 shadow-[0_4px_10px_rgba(0,0,0,0.5),inset_0_1px_0_rgba(255,255,255,0.1)] transition-all hover:border-emerald-400 hover:shadow-[0_0_16px_rgba(16,185,129,0.35)] active:translate-y-0.5"
+                  className="rounded-lg border border-lime-600/30 bg-gradient-to-b from-[#2a2622] to-[#181613] px-3.5 py-2 font-mono text-[12px] font-bold text-lime-300 shadow-[0_4px_10px_rgba(10,8,6,0.6),inset_0_1px_0_rgba(255,250,240,0.08)] transition-all hover:border-lime-500 hover:shadow-[0_0_16px_rgba(101,163,13,0.3)] active:translate-y-0.5"
                 >
                   [FLICK →]
                 </button>
@@ -517,7 +517,7 @@ export function Bench() {
                       distance: 64,
                     });
                   }}
-                  className="rounded-lg border border-indigo-500/30 bg-gradient-to-b from-[#161a29] to-[#0a0c14] px-3.5 py-2 font-mono text-[12px] font-bold text-indigo-300 shadow-[0_4px_10px_rgba(0,0,0,0.5),inset_0_1px_0_rgba(255,255,255,0.1)] transition-all hover:border-indigo-400 hover:shadow-[0_0_16px_rgba(99,102,241,0.35)] active:translate-y-0.5"
+                  className="rounded-lg border border-stone-500/30 bg-gradient-to-b from-[#2a2622] to-[#181613] px-3.5 py-2 font-mono text-[12px] font-bold text-stone-200 shadow-[0_4px_10px_rgba(10,8,6,0.6),inset_0_1px_0_rgba(255,250,240,0.08)] transition-all hover:border-stone-400 hover:shadow-[0_0_16px_rgba(168,162,158,0.25)] active:translate-y-0.5"
                 >
                   [← FLICK]
                 </button>
@@ -533,29 +533,29 @@ export function Bench() {
             onPointerDown={onPointerDown}
             onPointerUp={onPointerUp}
             data-armed={armed}
-            className="cyber-grid relative mt-6 flex min-h-[6rem] w-full touch-none flex-col items-center justify-center gap-2 overflow-hidden rounded-xl border border-indigo-500/30 bg-[#070811] p-4 text-center shadow-[inset_0_0_24px_rgba(99,102,241,0.12)] transition-all data-[armed=true]:border-cyan-400 data-[armed=true]:shadow-[0_0_20px_rgba(6,182,212,0.3)] focus-visible:border-cyan-400"
+            className="cyber-grid relative mt-6 flex min-h-[6rem] w-full touch-none flex-col items-center justify-center gap-2 overflow-hidden rounded-xl border border-orange-600/30 bg-[#141210] p-4 text-center shadow-[inset_0_0_24px_rgba(200,90,50,0.1)] transition-all data-[armed=true]:border-orange-400 data-[armed=true]:shadow-[0_0_20px_rgba(217,107,67,0.3)] focus-visible:border-orange-400"
           >
             {/* Corner reticles */}
             <span
-              className="pointer-events-none absolute top-2 left-2 font-mono text-[11px] text-indigo-400/50"
+              className="pointer-events-none absolute top-2 left-2 font-mono text-[11px] text-orange-400/50"
               aria-hidden="true"
             >
               ┌
             </span>
             <span
-              className="pointer-events-none absolute top-2 right-2 font-mono text-[11px] text-indigo-400/50"
+              className="pointer-events-none absolute top-2 right-2 font-mono text-[11px] text-orange-400/50"
               aria-hidden="true"
             >
               ┐
             </span>
             <span
-              className="pointer-events-none absolute bottom-2 left-2 font-mono text-[11px] text-indigo-400/50"
+              className="pointer-events-none absolute bottom-2 left-2 font-mono text-[11px] text-orange-400/50"
               aria-hidden="true"
             >
               └
             </span>
             <span
-              className="pointer-events-none absolute bottom-2 right-2 font-mono text-[11px] text-indigo-400/50"
+              className="pointer-events-none absolute bottom-2 right-2 font-mono text-[11px] text-orange-400/50"
               aria-hidden="true"
             >
               ┘
@@ -573,18 +573,18 @@ export function Bench() {
               </span>
             </div>
             <div className="relative z-10 flex flex-wrap items-center justify-center gap-x-2.5 text-[11.5px] text-muted">
-              <span className="flex items-center gap-1 text-slate-300">
-                <Keyboard className="h-3.5 w-3.5 text-cyan-400" /> Keyboard
+              <span className="flex items-center gap-1 text-stone-300">
+                <Keyboard className="h-3.5 w-3.5 text-orange-400" /> Keyboard
                 chords
               </span>
               <span>•</span>
-              <span className="flex items-center gap-1 text-slate-300">
-                <MousePointer className="h-3.5 w-3.5 text-purple-400" /> Mouse
+              <span className="flex items-center gap-1 text-stone-300">
+                <MousePointer className="h-3.5 w-3.5 text-amber-400" /> Mouse
                 flick
               </span>
               <span>•</span>
-              <span className="flex items-center gap-1 text-slate-300">
-                <Gamepad2 className="h-3.5 w-3.5 text-emerald-400" /> Controller
+              <span className="flex items-center gap-1 text-stone-300">
+                <Gamepad2 className="h-3.5 w-3.5 text-lime-400" /> Controller
                 ready
               </span>
             </div>
@@ -592,7 +592,7 @@ export function Bench() {
         </div>
 
         {/* Right: Live Event Bus Stream */}
-        <div className="flex h-full flex-col justify-between rounded-2xl border border-white/[0.1] bg-[#0c0e17]/85 p-6 shadow-2xl backdrop-blur-xl">
+        <div className="flex h-full flex-col justify-between rounded-2xl border border-white/[0.08] bg-[#1c1a17]/90 p-6 shadow-2xl backdrop-blur-xl">
           <div>
             <div className="flex items-center justify-between border-b border-subtle/70 pb-3">
               <div className="flex items-center gap-2">

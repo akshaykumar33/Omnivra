@@ -31,7 +31,7 @@ export function OmnivraLogo({
       aria-hidden="true"
     >
       <defs>
-        {/* Core dynamic multi-spectrum gradient */}
+        {/* Claude Warm Aesthetic Gradients: Terracotta, Amber & Sage */}
         <linearGradient
           id={`${idPrefix}-strand-voice`}
           x1="4"
@@ -40,9 +40,9 @@ export function OmnivraLogo({
           y2="16"
           gradientUnits="userSpaceOnUse"
         >
-          <stop offset="0%" stopColor="#06b6d4" />
-          <stop offset="50%" stopColor="#3b82f6" />
-          <stop offset="100%" stopColor="#6366f1" />
+          <stop offset="0%" stopColor="#c85a32" />
+          <stop offset="50%" stopColor="#d96b43" />
+          <stop offset="100%" stopColor="#e09f52" />
         </linearGradient>
 
         <linearGradient
@@ -53,9 +53,9 @@ export function OmnivraLogo({
           y2="28"
           gradientUnits="userSpaceOnUse"
         >
-          <stop offset="0%" stopColor="#6366f1" />
-          <stop offset="60%" stopColor="#8b5cf6" />
-          <stop offset="100%" stopColor="#ec4899" />
+          <stop offset="0%" stopColor="#d97706" />
+          <stop offset="60%" stopColor="#e5a93b" />
+          <stop offset="100%" stopColor="#f59e0b" />
         </linearGradient>
 
         <linearGradient
@@ -66,9 +66,9 @@ export function OmnivraLogo({
           y2="4"
           gradientUnits="userSpaceOnUse"
         >
-          <stop offset="0%" stopColor="#10b981" />
-          <stop offset="50%" stopColor="#06b6d4" />
-          <stop offset="100%" stopColor="#6366f1" />
+          <stop offset="0%" stopColor="#65a30d" />
+          <stop offset="50%" stopColor="#84cc16" />
+          <stop offset="100%" stopColor="#e09f52" />
         </linearGradient>
 
         <radialGradient
@@ -78,10 +78,10 @@ export function OmnivraLogo({
           r="8"
           gradientUnits="userSpaceOnUse"
         >
-          <stop offset="0%" stopColor="#f8fafc" stopOpacity="0.95" />
-          <stop offset="45%" stopColor="#38bdf8" stopOpacity="0.7" />
-          <stop offset="85%" stopColor="#6366f1" stopOpacity="0.15" />
-          <stop offset="100%" stopColor="#6366f1" stopOpacity="0" />
+          <stop offset="0%" stopColor="#fffcf7" stopOpacity="0.95" />
+          <stop offset="45%" stopColor="#d96b43" stopOpacity="0.65" />
+          <stop offset="85%" stopColor="#c85a32" stopOpacity="0.15" />
+          <stop offset="100%" stopColor="#c85a32" stopOpacity="0" />
         </radialGradient>
 
         {glow && (

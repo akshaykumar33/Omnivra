@@ -1,40 +1,42 @@
 @import "tailwindcss";
 
 /*
- * Palette: Cosmic Obsidian & Electric Spectrum.
+ * Palette: Claude Warm Aesthetic — Charcoal, Terracotta & Cloudy Cream.
  *
- * The page is an ultra-deep cosmic obsidian canvas (#08090e) with crisp luminescent
- * surfaces, titanium white typography, and a radiant Electric Indigo / Cyber Cyan
- * multimodal accent spectrum. High contrast, sleek optical clarity, zero muddiness.
+ * Dark Mode: Velvety warm espresso-charcoal canvas (#141311) with warm stone surfaces (#1c1a17),
+ * soft bone typography (#f5f2eb), and Claude's iconic warm terracotta/copper accent (#c85a32).
  *
- * Modality spectrum:
- *  - Voice: Cyber Cyan (#06b6d4)
- *  - Gesture: Electric Violet (#8b5cf6)
- *  - Gaze: Emerald Jade (#10b981)
- *  - Face: Warm Amber (#f59e0b)
- *  - Input / Action Nexus: Radiant Indigo (#6366f1)
+ * Light Mode: Warm cloudy parchment (#faf8f5) with ivory card surfaces (#ffffff),
+ * warm oatmeal hairline borders (#e8e2d5), and deep espresso ink (#1f1d1a).
+ *
+ * Organic modality spectrum:
+ *  - Voice: Warm Terracotta / Coral Clay (#d96b43)
+ *  - Gesture: Warm Honey Amber / Golden Ochre (#d97706)
+ *  - Gaze: Warm Sage / Moss Olive (#65a30d)
+ *  - Face: Warm Sandstone / Hazelnut (#e09f52)
+ *  - Input / Action Nexus: Claude Terracotta Copper (#c85a32)
  */
 :root {
-  --bg-base: #06070c;
-  --bg-surface: #0c0e17;
-  --bg-raised: #141724;
-  --border-subtle: rgba(255, 255, 255, 0.09);
-  --border-focus: #6366f1;
-  --text-primary: #f8fafc;
-  --text-muted: #94a3b8;
-  --accent-primary: #6366f1;
-  --status-active: #00ffa3;
-  --status-warning: #ffb703;
-  --status-danger: #f43f5e;
+  --bg-base: #141311;
+  --bg-surface: #1c1a17;
+  --bg-raised: #26231f;
+  --border-subtle: rgba(230, 220, 205, 0.08);
+  --border-focus: #c85a32;
+  --text-primary: #f5f2eb;
+  --text-muted: #a39e93;
+  --accent-primary: #c85a32;
+  --status-active: #5ea168;
+  --status-warning: #d97706;
+  --status-danger: #c94a38;
 
   /*
-   * Hyper-Vivid Modality Hues: Electric Cyan, Ultraviolet, Cyber Emerald, Solar Amber, Quantum Indigo.
+   * Organic Claude Warm Modality Hues: Terracotta, Honey Amber, Sage, Sandstone, Copper.
    */
-  --hue-voice: #00f0ff;
-  --hue-gesture: #a855f7;
-  --hue-gaze: #00ffa3;
-  --hue-face: #ffb703;
-  --hue-input: #6366f1;
+  --hue-voice: #d96b43;
+  --hue-gesture: #d97706;
+  --hue-gaze: #65a30d;
+  --hue-face: #e09f52;
+  --hue-input: #c85a32;
 
   /*
    * Fluid type. Balanced and ergonomic, avoiding blown-out sizes.
@@ -57,68 +59,68 @@
 }
 
 /*
- * Crisp architectural porcelain/slate light mode.
+ * Warm cloudy parchment light mode.
  */
 @media (prefers-color-scheme: light) {
   :root {
-    --bg-base: #f8fafc;
+    --bg-base: #faf8f5;
     --bg-surface: #ffffff;
-    --bg-raised: #f1f5f9;
-    --border-subtle: #e2e8f0;
-    --border-focus: #4f46e5;
-    --text-primary: #0f172a;
-    --text-muted: #64748b;
-    --accent-primary: #4f46e5;
-    --status-active: #059669;
-    --status-warning: #d97706;
-    --status-danger: #dc2626;
+    --bg-raised: #f3efe6;
+    --border-subtle: #e8e2d5;
+    --border-focus: #c85a32;
+    --text-primary: #1f1d1a;
+    --text-muted: #6e675d;
+    --accent-primary: #c85a32;
+    --status-active: #2e7d32;
+    --status-warning: #b45309;
+    --status-danger: #b91c1c;
 
-    --hue-voice: #0284c7;
-    --hue-gesture: #7c3aed;
-    --hue-gaze: #059669;
-    --hue-face: #d97706;
-    --hue-input: #4f46e5;
+    --hue-voice: #b84f29;
+    --hue-gesture: #b45309;
+    --hue-gaze: #4d7c0f;
+    --hue-face: #b45309;
+    --hue-input: #b84f29;
   }
 }
 
 :root[data-theme="light"] {
-  --bg-base: #f8fafc;
+  --bg-base: #faf8f5;
   --bg-surface: #ffffff;
-  --bg-raised: #f1f5f9;
-  --border-subtle: #e2e8f0;
-  --border-focus: #4f46e5;
-  --text-primary: #0f172a;
-  --text-muted: #64748b;
-  --accent-primary: #4f46e5;
-  --status-active: #059669;
-  --status-warning: #d97706;
-  --status-danger: #dc2626;
+  --bg-raised: #f3efe6;
+  --border-subtle: #e8e2d5;
+  --border-focus: #c85a32;
+  --text-primary: #1f1d1a;
+  --text-muted: #6e675d;
+  --accent-primary: #c85a32;
+  --status-active: #2e7d32;
+  --status-warning: #b45309;
+  --status-danger: #b91c1c;
 
-  --hue-voice: #0284c7;
-  --hue-gesture: #7c3aed;
-  --hue-gaze: #059669;
-  --hue-face: #d97706;
-  --hue-input: #4f46e5;
+  --hue-voice: #b84f29;
+  --hue-gesture: #b45309;
+  --hue-gaze: #4d7c0f;
+  --hue-face: #b45309;
+  --hue-input: #b84f29;
 }
 
 :root[data-theme="dark"] {
-  --bg-base: #06070c;
-  --bg-surface: #0c0e17;
-  --bg-raised: #141724;
-  --border-subtle: rgba(255, 255, 255, 0.09);
-  --border-focus: #6366f1;
-  --text-primary: #f8fafc;
-  --text-muted: #94a3b8;
-  --accent-primary: #6366f1;
-  --status-active: #00ffa3;
-  --status-warning: #ffb703;
-  --status-danger: #f43f5e;
+  --bg-base: #141311;
+  --bg-surface: #1c1a17;
+  --bg-raised: #26231f;
+  --border-subtle: rgba(230, 220, 205, 0.08);
+  --border-focus: #c85a32;
+  --text-primary: #f5f2eb;
+  --text-muted: #a39e93;
+  --accent-primary: #c85a32;
+  --status-active: #5ea168;
+  --status-warning: #d97706;
+  --status-danger: #c94a38;
 
-  --hue-voice: #00f0ff;
-  --hue-gesture: #a855f7;
-  --hue-gaze: #00ffa3;
-  --hue-face: #ffb703;
-  --hue-input: #6366f1;
+  --hue-voice: #d96b43;
+  --hue-gesture: #d97706;
+  --hue-gaze: #65a30d;
+  --hue-face: #e09f52;
+  --hue-input: #c85a32;
 }
 
 /* High contrast strengthens edges and muted text. */
@@ -468,25 +470,25 @@
 
 @utility cyber-grid {
   background-image:
-    linear-gradient(to right, rgba(255, 255, 255, 0.035) 1px, transparent 1px),
-    linear-gradient(to bottom, rgba(255, 255, 255, 0.035) 1px, transparent 1px);
+    linear-gradient(to right, rgba(230, 220, 205, 0.035) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(230, 220, 205, 0.035) 1px, transparent 1px);
   background-size: 32px 32px;
 }
 
 @utility card-luminous {
-  background: color-mix(in srgb, var(--bg-surface) 85%, transparent);
+  background: color-mix(in srgb, var(--bg-surface) 90%, transparent);
   backdrop-filter: blur(16px);
-  border: 1px solid rgba(255, 255, 255, 0.09);
+  border: 1px solid rgba(230, 220, 205, 0.08);
   box-shadow:
-    inset 0 1px 0 rgba(255, 255, 255, 0.12),
-    0 16px 40px -12px rgba(0, 0, 0, 0.6);
+    inset 0 1px 0 rgba(255, 250, 240, 0.07),
+    0 16px 40px -12px rgba(10, 8, 6, 0.75);
 }
 
 @utility glow-neon {
   box-shadow:
-    inset 0 1px 0 rgba(255, 255, 255, 0.25),
-    0 0 24px -2px var(--glow, var(--accent-primary)),
-    0 18px 56px -12px var(--glow, var(--accent-primary));
+    inset 0 1px 0 rgba(255, 250, 240, 0.15),
+    0 0 20px -2px var(--glow, var(--accent-primary)),
+    0 16px 48px -12px color-mix(in srgb, var(--glow, var(--accent-primary)) 45%, transparent);
 }
 
 /*
