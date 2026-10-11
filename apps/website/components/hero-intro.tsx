@@ -3,7 +3,7 @@
 import { useRef } from "react";
 import gsap from "gsap";
 import { useGSAP } from "@gsap/react";
-import { ArrowDownIcon } from "@phosphor-icons/react";
+import { ArrowDown } from "lucide-react";
 import { Magnetic } from "./magnetic";
 
 /**
@@ -140,7 +140,7 @@ export function HeroIntro() {
             className="flex items-center gap-2 rounded-lg border border-subtle/80 bg-surface/60 px-4 py-2.5 text-[13.5px] font-semibold transition-colors hover:border-accent hover:bg-surface"
           >
             See how it works
-            <ArrowDownIcon size={14} weight="bold" />
+            <ArrowDown size={14} />
           </a>
         </span>
       </div>

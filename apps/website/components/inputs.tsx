@@ -2,13 +2,7 @@
 
 import Image from "next/image";
 import { motion, useReducedMotion } from "motion/react";
-import {
-  MicrophoneIcon,
-  HandIcon,
-  EyeIcon,
-  SmileyIcon,
-  KeyboardIcon,
-} from "@phosphor-icons/react";
+import { Mic, Hand, Eye, Smile, Keyboard } from "lucide-react";
 
 /**
  * Status labels are load-bearing, not decoration.
@@ -57,7 +51,7 @@ const MODALITIES: readonly Modality[] = [
       "Wake words, continuous dictation and intent phrases. Recognition runs locally; nothing is streamed to a server.",
     status: "alpha",
     tint: "voice",
-    icon: <MicrophoneIcon size={22} weight="duotone" />,
+    icon: <Mic size={22} />,
     image: {
       seed: "omnivra-voice-studio-microphone",
       alt: "A microphone on a desk in low light",
@@ -70,7 +64,7 @@ const MODALITIES: readonly Modality[] = [
     blurb: "Pinch, palm, swipe and finger counts from the webcam.",
     status: "planned",
     tint: "gesture",
-    icon: <HandIcon size={22} weight="duotone" />,
+    icon: <Hand size={22} />,
     image: {
       seed: "omnivra-hand-gesture-motion",
       alt: "A hand caught mid-gesture against a dark background",
@@ -83,7 +77,7 @@ const MODALITIES: readonly Modality[] = [
     blurb: "Dwell targets, blink patterns and gaze regions.",
     status: "planned",
     tint: "gaze",
-    icon: <EyeIcon size={22} weight="duotone" />,
+    icon: <Eye size={22} />,
     image: {
       seed: "omnivra-eye-closeup-detail",
       alt: "A close detail of an eye",
@@ -96,7 +90,7 @@ const MODALITIES: readonly Modality[] = [
     blurb: "Brow raises, head tilt and mouth shapes as modifiers.",
     status: "planned",
     tint: "face",
-    icon: <SmileyIcon size={22} weight="duotone" />,
+    icon: <Smile size={22} />,
     span: "",
   },
   {
@@ -106,7 +100,7 @@ const MODALITIES: readonly Modality[] = [
       "The inputs you already have, combinable with every modality above. A gesture plus a held key is one trigger.",
     status: "planned",
     tint: "input",
-    icon: <KeyboardIcon size={22} weight="duotone" />,
+    icon: <Keyboard size={22} />,
     span: "sm:col-span-2",
   },
 ];

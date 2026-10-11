@@ -1,13 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import {
-  MicrophoneIcon,
-  HandIcon,
-  EyeIcon,
-  SmileyIcon,
-  KeyboardIcon,
-} from "@phosphor-icons/react";
+import { Mic, Hand, Eye, Smile, Keyboard } from "lucide-react";
 import {
   VoiceVisual,
   GestureVisual,
@@ -44,7 +38,7 @@ const PANELS: readonly Panel[] = [
     body: "Wake words, dictation and intent phrases. Runs locally on your machine with zero server streaming.",
     status: "Alpha",
     hue: "var(--hue-voice)",
-    icon: <MicrophoneIcon size={24} weight="duotone" />,
+    icon: <Mic size={24} />,
     visual: <VoiceVisual />,
   },
   {
@@ -55,7 +49,7 @@ const PANELS: readonly Panel[] = [
     body: "Pinch, palm, swipe and finger tracking from your webcam, normalized into standard pipeline events.",
     status: "Planned",
     hue: "var(--hue-gesture)",
-    icon: <HandIcon size={24} weight="duotone" />,
+    icon: <Hand size={24} />,
     visual: <GestureVisual />,
   },
   {
@@ -66,7 +60,7 @@ const PANELS: readonly Panel[] = [
     body: "Dwell targets, blink patterns and gaze regions for hands-free cursor navigation.",
     status: "Planned",
     hue: "var(--hue-gaze)",
-    icon: <EyeIcon size={24} weight="duotone" />,
+    icon: <Eye size={24} />,
     visual: <GazeVisual />,
   },
   {
@@ -77,7 +71,7 @@ const PANELS: readonly Panel[] = [
     body: "Brow raises, head tilt and mouth shapes acting as compound modifiers on primary gestures.",
     status: "Planned",
     hue: "var(--hue-face)",
-    icon: <SmileyIcon size={24} weight="duotone" />,
+    icon: <Smile size={24} />,
     visual: <FaceVisual />,
   },
   {
@@ -88,7 +82,7 @@ const PANELS: readonly Panel[] = [
     body: "Mechanical switches, hotkeys and gamepads combinable with every modality into compound rules.",
     status: "Planned",
     hue: "var(--hue-input)",
-    icon: <KeyboardIcon size={24} weight="duotone" />,
+    icon: <Keyboard size={24} />,
     visual: <ClassicVisual />,
   },
 ];

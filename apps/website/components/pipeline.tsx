@@ -2,14 +2,7 @@
 
 import { useState } from "react";
 import { motion, useReducedMotion } from "motion/react";
-import {
-  ArrowRightIcon,
-  PlayIcon,
-  ArrowCounterClockwiseIcon,
-  MicrophoneIcon,
-  HandIcon,
-  EyeIcon,
-} from "@phosphor-icons/react";
+import { ArrowRight, Play, RotateCcw, Mic, Hand, Eye } from "lucide-react";
 import { playClick, playSuccess, playTone } from "@/lib/sound";
 
 /**
@@ -40,7 +33,7 @@ const SCENARIOS: readonly TraceScenario[] = [
   {
     id: "voice-theme",
     label: "Voice: 'Dark mode'",
-    icon: <MicrophoneIcon size={14} weight="duotone" className="text-voice" />,
+    icon: <Mic className="h-3.5 w-3.5 text-voice" />,
     payloads: {
       input:
         '{\n  "stream": "audio/raw_pcm_16000",\n  "sample_rate": 16000,\n  "buffer_ms": 64,\n  "vad_active": true\n}',
@@ -60,7 +53,7 @@ const SCENARIOS: readonly TraceScenario[] = [
   {
     id: "gesture-pinch",
     label: "Gesture: Pinch",
-    icon: <HandIcon size={14} weight="duotone" className="text-gesture" />,
+    icon: <Hand className="h-3.5 w-3.5 text-gesture" />,
     payloads: {
       input:
         '{\n  "stream": "video/raw_frames_60fps",\n  "resolution": [1280, 720],\n  "frame_id": 98421,\n  "exposure_time_ms": 16.6\n}',
@@ -80,7 +73,7 @@ const SCENARIOS: readonly TraceScenario[] = [
   {
     id: "gaze-dwell",
     label: "Eye: Dwell 400ms",
-    icon: <EyeIcon size={14} weight="duotone" className="text-gaze" />,
+    icon: <Eye className="h-3.5 w-3.5 text-gaze" />,
     payloads: {
       input:
         '{\n  "stream": "sensor/ir_eye_tracker",\n  "pupil_diameter_mm": 4.1,\n  "glint_vectors": 2,\n  "frequency_hz": 120\n}',
@@ -303,9 +296,9 @@ export function Pipeline() {
             className="flex items-center gap-1.5 rounded-lg bg-accent px-3.5 py-1.5 text-[12.5px] font-semibold text-base shadow-sm transition-transform active:translate-y-px disabled:opacity-50"
           >
             {isTracing ? (
-              <ArrowCounterClockwiseIcon size={14} className="animate-spin" />
+              <RotateCcw className="h-3.5 w-3.5 animate-spin" />
             ) : (
-              <PlayIcon size={14} weight="fill" />
+              <Play className="h-3.5 w-3.5 fill-current" />
             )}
             {isTracing ? "Tracing pipeline..." : "Step through pipeline"}
           </button>
@@ -369,10 +362,9 @@ export function Pipeline() {
           {/* Left: Detail description */}
           <div className="flex h-full flex-col justify-between rounded-xl border border-subtle/80 bg-base p-5 shadow-sm">
             <div className="flex items-start gap-3">
-              <ArrowRightIcon
-                size={16}
-                className="mt-1 shrink-0 text-accent"
-                weight="bold"
+              <ArrowRight
+                className="mt-1 h-4 w-4 shrink-0 text-accent"
+                strokeWidth={2.5}
               />
               <motion.div
                 key={activeStage}
