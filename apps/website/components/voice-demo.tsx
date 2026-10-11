@@ -3,15 +3,15 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { motion, useReducedMotion } from "motion/react";
 import {
-  MicrophoneIcon,
-  MicrophoneSlashIcon,
-  WarningCircleIcon,
-  CheckIcon,
-  HandIcon,
-  KeyboardIcon,
-  SparkleIcon,
-  ArrowsOutCardinalIcon,
-} from "@phosphor-icons/react";
+  Mic,
+  MicOff,
+  AlertCircle,
+  Check,
+  Hand,
+  Keyboard,
+  Sparkles,
+  Move,
+} from "lucide-react";
 import { CanvasSpectrogram } from "./canvas-spectrogram";
 import { playClick, playSuccess, playTone } from "@/lib/sound";
 
@@ -332,10 +332,7 @@ export function VoiceDemo() {
             data-active={tab === "voice"}
             className="flex items-center gap-1.5 rounded-md px-3 py-1.5 text-[12px] font-semibold transition-all data-[active=true]:bg-raised data-[active=true]:text-ink text-muted hover:text-ink"
           >
-            <MicrophoneIcon
-              size={14}
-              weight={tab === "voice" ? "fill" : "regular"}
-            />
+            <Mic className="h-3.5 w-3.5" />
             Voice
           </button>
           <button
@@ -347,10 +344,7 @@ export function VoiceDemo() {
             data-active={tab === "gesture"}
             className="flex items-center gap-1.5 rounded-md px-3 py-1.5 text-[12px] font-semibold transition-all data-[active=true]:bg-raised data-[active=true]:text-ink text-muted hover:text-ink"
           >
-            <HandIcon
-              size={14}
-              weight={tab === "gesture" ? "fill" : "regular"}
-            />
+            <Hand className="h-3.5 w-3.5" />
             Gesture
           </button>
           <button
@@ -362,10 +356,7 @@ export function VoiceDemo() {
             data-active={tab === "keyboard"}
             className="flex items-center gap-1.5 rounded-md px-3 py-1.5 text-[12px] font-semibold transition-all data-[active=true]:bg-raised data-[active=true]:text-ink text-muted hover:text-ink"
           >
-            <KeyboardIcon
-              size={14}
-              weight={tab === "keyboard" ? "fill" : "regular"}
-            />
+            <Keyboard className="h-3.5 w-3.5" />
             Shortcuts
           </button>
         </div>
@@ -408,21 +399,21 @@ export function VoiceDemo() {
             {status === "unsupported" ? (
               <DemoState
                 tone="warning"
-                icon={<WarningCircleIcon size={18} />}
+                icon={<AlertCircle className="h-4.5 w-4.5" />}
                 title="This browser has no speech engine"
                 body="Chrome, Edge and Safari expose one. Omnivra's local runtime packages its own engine, so it does not depend on the browser."
               />
             ) : status === "denied" ? (
               <DemoState
                 tone="danger"
-                icon={<MicrophoneSlashIcon size={18} />}
+                icon={<MicOff className="h-4.5 w-4.5" />}
                 title="Microphone blocked"
                 body="Open the lock icon in the address bar, set Microphone to Allow, then reload this page. Audio never leaves your machine."
               />
             ) : status === "error" ? (
               <DemoState
                 tone="danger"
-                icon={<WarningCircleIcon size={18} />}
+                icon={<AlertCircle className="h-4.5 w-4.5" />}
                 title="Recognition stopped"
                 body={errorMessage ?? "Something interrupted the microphone."}
               />
@@ -499,10 +490,7 @@ export function VoiceDemo() {
               ) : null}
 
               <div className="relative z-10 flex flex-col items-center text-center p-4">
-                <ArrowsOutCardinalIcon
-                  size={24}
-                  className="text-gesture mb-1.5 opacity-80"
-                />
+                <Move className="mb-1.5 h-6 w-6 text-gesture opacity-80" />
                 <p className="text-[13px] font-semibold">
                   Interactive Gesture Pad
                 </p>
@@ -577,10 +565,7 @@ export function VoiceDemo() {
                       {cmd.label}
                     </span>
                   </div>
-                  <SparkleIcon
-                    size={16}
-                    className="text-muted group-hover:text-input"
-                  />
+                  <Sparkles className="h-4 w-4 text-muted group-hover:text-input" />
                 </button>
               ))}
             </div>
@@ -604,7 +589,7 @@ export function VoiceDemo() {
                 onClick={() => void start()}
                 className="flex items-center gap-2 rounded-lg bg-accent px-4 py-1.5 text-[13px] font-semibold text-base transition-transform active:translate-y-px"
               >
-                <MicrophoneIcon size={15} weight="fill" />
+                <Mic className="h-4 w-4 fill-current" />
                 {status === "denied" || status === "error"
                   ? "Try again"
                   : "Start voice control"}
@@ -618,7 +603,7 @@ export function VoiceDemo() {
 
           {lastAction ? (
             <span className="flex items-center gap-1.5 text-[12px] font-semibold text-active">
-              <CheckIcon size={14} weight="bold" />
+              <Check className="h-3.5 w-3.5 stroke-[2.5]" />
               {lastAction}
             </span>
           ) : (

@@ -6,6 +6,8 @@ import {
 } from "next/font/google";
 import "./globals.css";
 import { SmoothScroll } from "@/components/smooth-scroll";
+import { Toaster } from "sonner";
+import { TooltipProvider } from "@/components/ui/tooltip";
 
 /*
  * Display face: Bricolage Grotesque.
@@ -73,8 +75,17 @@ export default function RootLayout({
         >
           Skip to content
         </a>
-        <SmoothScroll />
-        {children}
+        <TooltipProvider delayDuration={150}>
+          <SmoothScroll />
+          {children}
+          <Toaster
+            position="bottom-right"
+            toastOptions={{
+              className:
+                "font-sans text-[13px] border border-subtle bg-surface/95 text-ink backdrop-blur-md",
+            }}
+          />
+        </TooltipProvider>
       </body>
     </html>
   );

@@ -10,14 +10,14 @@ import type {
   OmnivraRule,
 } from "@omnivra/types";
 import {
-  KeyboardIcon,
-  GameControllerIcon,
-  CursorIcon,
-  LightningIcon,
-  CheckCircleIcon,
-  ProhibitIcon,
-  SparkleIcon,
-} from "@phosphor-icons/react";
+  Keyboard,
+  Gamepad2,
+  MousePointer,
+  Zap,
+  CheckCircle2,
+  Ban,
+  Sparkles,
+} from "lucide-react";
 import { playClick, playSuccess, playTone } from "@/lib/sound";
 
 /**
@@ -535,24 +535,25 @@ export function Bench() {
             className="mt-5 flex min-h-[5.5rem] w-full touch-none flex-col items-center justify-center gap-1.5 rounded-lg border border-dashed border-subtle bg-base/70 p-4 text-center transition-colors data-[armed=true]:border-accent focus-visible:border-accent"
           >
             <div className="flex items-center gap-2">
-              <LightningIcon size={16} className="text-accent" />
+              <Zap className="h-4 w-4 text-accent" />
               <span className="text-[13px] font-semibold text-ink">
                 Or focus here & press any physical key / drag pointer
               </span>
             </div>
             <div className="flex flex-wrap items-center justify-center gap-x-2 text-[11px] text-muted">
               <span className="flex items-center gap-1">
-                <KeyboardIcon size={13} className="text-accent/80" /> Keyboard
+                <Keyboard className="h-3.5 w-3.5 text-accent/80" /> Keyboard
                 chords
               </span>
               <span>•</span>
               <span className="flex items-center gap-1">
-                <CursorIcon size={13} className="text-accent/80" /> Mouse flick
+                <MousePointer className="h-3.5 w-3.5 text-accent/80" /> Mouse
+                flick
               </span>
               <span>•</span>
               <span className="flex items-center gap-1">
-                <GameControllerIcon size={13} className="text-accent/80" />{" "}
-                Controller ready
+                <Gamepad2 className="h-3.5 w-3.5 text-accent/80" /> Controller
+                ready
               </span>
             </div>
           </button>
@@ -592,9 +593,9 @@ export function Bench() {
                       className="flex items-center gap-1 rounded-full border border-subtle/80 bg-surface px-2 py-0.5 font-mono text-[10px] font-semibold text-muted data-[matched=true]:border-active/60 data-[matched=true]:text-active"
                     >
                       {entry.matched ? (
-                        <CheckCircleIcon size={12} weight="bold" />
+                        <CheckCircle2 className="h-3 w-3 stroke-[2.5]" />
                       ) : (
-                        <ProhibitIcon size={12} weight="bold" />
+                        <Ban className="h-3 w-3 stroke-[2.5]" />
                       )}
                       {entry.matched ? "rule matched" : "no match"}
                     </span>
@@ -613,7 +614,7 @@ export function Bench() {
               <span>In-memory kernel</span>
             </span>
             <span className="flex items-center gap-1 text-accent">
-              <SparkleIcon size={13} />
+              <Sparkles className="h-3.5 w-3.5" />
               Latency: &lt; 2ms
             </span>
           </div>

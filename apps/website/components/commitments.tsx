@@ -2,12 +2,12 @@
 
 import { motion, useReducedMotion } from "motion/react";
 import {
-  ShieldCheckIcon,
-  WifiSlashIcon,
-  LockKeyIcon,
-  CheckCircleIcon,
-  ArrowCounterClockwiseIcon,
-} from "@phosphor-icons/react";
+  ShieldCheck,
+  WifiOff,
+  Lock,
+  CheckCircle2,
+  RotateCcw,
+} from "lucide-react";
 import { PrivacySandboxVisual } from "./modality-visuals";
 
 /**
@@ -70,7 +70,7 @@ export function Accessibility() {
             <div className="flex flex-col justify-between rounded-xl border border-subtle/80 bg-surface/90 p-5 shadow-sm">
               <div className="flex items-start gap-3">
                 <span className="mt-0.5 rounded-lg border border-active/30 bg-active/10 p-2 text-active">
-                  <CheckCircleIcon size={18} weight="bold" />
+                  <CheckCircle2 size={18} />
                 </span>
                 <div>
                   <h3 className="font-display text-[15px] font-semibold text-ink">
@@ -92,7 +92,7 @@ export function Accessibility() {
             <div className="flex flex-col justify-between rounded-xl border border-subtle/80 bg-surface/90 p-5 shadow-sm">
               <div className="flex items-start gap-3">
                 <span className="mt-0.5 rounded-lg border border-accent/30 bg-accent/10 p-2 text-accent">
-                  <ArrowCounterClockwiseIcon size={18} weight="bold" />
+                  <RotateCcw size={18} />
                 </span>
                 <div>
                   <h3 className="font-display text-[15px] font-semibold text-ink">
@@ -119,17 +119,17 @@ export function Accessibility() {
 
 const GUARANTEES = [
   {
-    icon: <WifiSlashIcon size={18} />,
+    icon: <WifiOff size={18} />,
     title: "Recognition stays on your machine",
     body: "Camera frames and raw audio streams are processed locally in memory. Zero external egress.",
   },
   {
-    icon: <LockKeyIcon size={18} />,
+    icon: <Lock size={18} />,
     title: "Capabilities are enforced boundaries",
     body: "Every action declares capability scopes and verifies explicit user permissions before dispatch.",
   },
   {
-    icon: <ShieldCheckIcon size={18} />,
+    icon: <ShieldCheck size={18} />,
     title: "Cloud integrations are strictly opt-in",
     body: "No telemetry or background cloud sync is ever enabled without deliberate manual configuration.",
   },

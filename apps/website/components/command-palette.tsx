@@ -3,18 +3,18 @@
 import { useEffect } from "react";
 import { Command } from "cmdk";
 import {
-  SunIcon,
-  MicrophoneIcon,
-  HandIcon,
-  PlayIcon,
-  ArrowRightIcon,
-  CodeIcon,
-  ShieldCheckIcon,
-  SpeakerHighIcon,
-  CornersOutIcon,
-  EyeIcon,
-  KeyboardIcon,
-} from "@phosphor-icons/react";
+  Sun,
+  Mic,
+  Hand,
+  Play,
+  ArrowRight,
+  Code2,
+  ShieldCheck,
+  Volume2,
+  Maximize2,
+  Eye,
+  Keyboard,
+} from "lucide-react";
 import { playClick, playSuccess } from "@/lib/sound";
 
 /**
@@ -85,14 +85,14 @@ export function CommandPalette({
           title: "Switch between dark and light",
           keywords: ["theme", "appearance", "mode", "contrast"],
           shortcut: "Ctrl D",
-          icon: <SunIcon size={16} />,
+          icon: <Sun className="h-4 w-4" />,
           run: toggleTheme,
         },
         {
           id: "run-pipeline-trace",
           title: "Run a pipeline trace",
           keywords: ["architecture", "stages", "animate", "event"],
-          icon: <PlayIcon size={16} />,
+          icon: <Play className="h-4 w-4" />,
           run: () => {
             onSelectAction?.("run-pipeline-trace");
             go("pipeline");
@@ -102,7 +102,7 @@ export function CommandPalette({
           id: "toggle-sound",
           title: "Turn interface sound on or off",
           keywords: ["audio", "mute", "haptics"],
-          icon: <SpeakerHighIcon size={16} />,
+          icon: <Volume2 className="h-4 w-4" />,
           run: () => {
             const button = document.querySelector<HTMLButtonElement>(
               'button[aria-label*="interactive audio"]',
@@ -120,7 +120,7 @@ export function CommandPalette({
           id: "nav-hero",
           title: "Top of the page",
           keywords: ["hero", "start", "home"],
-          icon: <CornersOutIcon size={16} />,
+          icon: <Maximize2 className="h-4 w-4" />,
           run: () => {
             window.scrollTo({ top: 0, behavior: "smooth" });
             onClose();
@@ -130,28 +130,28 @@ export function CommandPalette({
           id: "nav-inputs",
           title: "The five input families",
           keywords: ["gallery", "modalities", "voice", "gesture"],
-          icon: <ArrowRightIcon size={16} />,
+          icon: <ArrowRight className="h-4 w-4" />,
           run: () => go("inputs"),
         },
         {
           id: "nav-pipeline",
           title: "How it works",
           keywords: ["architecture", "pipeline", "stages"],
-          icon: <CodeIcon size={16} />,
+          icon: <Code2 className="h-4 w-4" />,
           run: () => go("pipeline"),
         },
         {
           id: "nav-accessibility",
           title: "Accessibility",
           keywords: ["wcag", "a11y", "keyboard", "screen reader"],
-          icon: <ShieldCheckIcon size={16} />,
+          icon: <ShieldCheck className="h-4 w-4" />,
           run: () => go("access"),
         },
         {
           id: "nav-privacy",
           title: "Privacy and the local boundary",
           keywords: ["local", "egress", "camera", "microphone"],
-          icon: <ShieldCheckIcon size={16} />,
+          icon: <ShieldCheck className="h-4 w-4" />,
           run: () => go("privacy"),
         },
       ],
@@ -163,28 +163,28 @@ export function CommandPalette({
           id: "mod-voice",
           title: "Voice",
           keywords: ["speech", "dictation", "wake word", "alpha"],
-          icon: <MicrophoneIcon size={16} className="text-voice" />,
+          icon: <Mic className="h-4 w-4 text-voice" />,
           run: () => go("inputs"),
         },
         {
           id: "mod-gesture",
           title: "Hand gestures",
           keywords: ["pinch", "palm", "swipe", "webcam"],
-          icon: <HandIcon size={16} className="text-gesture" />,
+          icon: <Hand className="h-4 w-4 text-gesture" />,
           run: () => go("inputs"),
         },
         {
           id: "mod-gaze",
           title: "Eye tracking",
           keywords: ["gaze", "dwell", "blink", "fixation"],
-          icon: <EyeIcon size={16} className="text-gaze" />,
+          icon: <Eye className="h-4 w-4 text-gaze" />,
           run: () => go("inputs"),
         },
         {
           id: "mod-keyboard",
           title: "Keyboard and controllers",
           keywords: ["shortcut", "hotkey", "gamepad"],
-          icon: <KeyboardIcon size={16} className="text-input" />,
+          icon: <Keyboard className="h-4 w-4 text-input" />,
           run: () => go("inputs"),
         },
       ],

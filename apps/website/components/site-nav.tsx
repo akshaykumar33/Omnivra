@@ -2,13 +2,19 @@
 
 import { useEffect, useState } from "react";
 import {
-  ArrowUpRightIcon,
-  SunIcon,
-  MoonIcon,
-  SpeakerHighIcon,
-  SpeakerSlashIcon,
-  MagnifyingGlassIcon,
-} from "@phosphor-icons/react";
+  ArrowUpRight,
+  Sun,
+  Moon,
+  Volume2,
+  VolumeX,
+  Search,
+} from "lucide-react";
+import { toast } from "sonner";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 import {
   isSoundEnabled,
   setSoundEnabled,
@@ -85,13 +91,28 @@ export function SiteNav() {
     const next = theme === "dark" ? "light" : "dark";
     setTheme(next);
     document.documentElement.setAttribute("data-theme", next);
+    toast.success(`Switched to ${next} theme`, {
+      description:
+        next === "dark"
+          ? "Cosmic Obsidian mode active"
+          : "Architectural Slate mode active",
+      duration: 2000,
+    });
   };
 
   const toggleSound = () => {
     const next = !soundOn;
     setSoundOn(next);
     setSoundEnabled(next);
-    if (next) playClick();
+    if (next) {
+      playClick();
+      toast.success("Interactive sound enabled", {
+        description: "Haptic acoustic feedback active",
+        duration: 2000,
+      });
+    } else {
+      toast.info("Interactive sound muted", { duration: 2000 });
+    }
   };
 
   return (
@@ -141,70 +162,75 @@ export function SiteNav() {
 
           <div className="flex items-center gap-2.5">
             {/* Command Palette Trigger */}
-            <button
-              type="button"
-              onClick={() => setPaletteOpen(true)}
-              className="flex items-center gap-2 rounded-lg border bg-base px-2.5 py-1.5 text-[12px] font-medium text-muted transition-colors hover:border-accent hover:text-ink"
-              aria-label="Open Command Palette (Cmd+K)"
-            >
-              <MagnifyingGlassIcon size={14} />
-              <span className="hidden md:inline">Commands</span>
-              <kbd className="rounded border bg-raised px-1 py-0.5 font-mono text-[10px] text-muted">
-                ⌘K
-              </kbd>
-            </button>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <button
+                  type="button"
+                  onClick={() => setPaletteOpen(true)}
+                  className="flex items-center gap-2 rounded-lg border bg-base px-2.5 py-1.5 text-[12px] font-medium text-muted transition-colors hover:border-accent hover:text-ink"
+                  aria-label="Open Command Palette (Cmd+K)"
+                >
+                  <Search size={14} />
+                  <span className="hidden md:inline">Commands</span>
+                  <kbd className="rounded border bg-raised px-1 py-0.5 font-mono text-[10px] text-muted">
+                    ⌘K
+                  </kbd>
+                </button>
+              </TooltipTrigger>
+              <TooltipContent>Open Command Palette (⌘K)</TooltipContent>
+            </Tooltip>
 
             {/* Audio Micro-feedback Toggle */}
-            <button
-              type="button"
-              onClick={toggleSound}
-              aria-label={
-                soundOn
-                  ? "Mute interactive audio"
-                  : "Enable interactive audio feedback"
-              }
-              title={soundOn ? "Sound enabled" : "Sound disabled"}
-              className="flex h-9 w-9 items-center justify-center rounded-lg border text-muted transition-colors hover:border-accent hover:text-ink"
-            >
-              {soundOn ? (
-                <SpeakerHighIcon
-                  size={16}
-                  weight="bold"
-                  className="text-accent"
-                />
-              ) : (
-                <SpeakerSlashIcon size={16} />
-              )}
-            </button>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <button
+                  type="button"
+                  onClick={toggleSound}
+                  aria-label={
+                    soundOn
+                      ? "Mute interactive audio"
+                      : "Enable interactive audio feedback"
+                  }
+                  className="flex h-9 w-9 items-center justify-center rounded-lg border text-muted transition-colors hover:border-accent hover:text-ink"
+                >
+                  {soundOn ? (
+                    <Volume2 size={16} className="text-accent" />
+                  ) : (
+                    <VolumeX size={16} />
+                  )}
+                </button>
+              </TooltipTrigger>
+              <TooltipContent>
+                {soundOn ? "Mute interactive audio" : "Enable audio feedback"}
+              </TooltipContent>
+            </Tooltip>
 
             {/* Dark / Light Theme Toggle */}
-            <button
-              type="button"
-              onClick={toggleTheme}
-              aria-label={`Switch to ${theme === "dark" ? "light" : "dark"} theme`}
-              title={`Switch to ${theme === "dark" ? "light" : "dark"} theme`}
-              className="flex h-9 w-9 items-center justify-center rounded-lg border text-muted transition-colors hover:border-accent hover:text-ink"
-            >
-              {theme === "dark" ? (
-                <SunIcon size={16} />
-              ) : (
-                <MoonIcon size={16} />
-              )}
-            </button>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <button
+                  type="button"
+                  onClick={toggleTheme}
+                  aria-label={`Switch to ${theme === "dark" ? "light" : "dark"} theme`}
+                  className="flex h-9 w-9 items-center justify-center rounded-lg border text-muted transition-colors hover:border-accent hover:text-ink"
+                >
+                  {theme === "dark" ? <Sun size={16} /> : <Moon size={16} />}
+                </button>
+              </TooltipTrigger>
+              <TooltipContent>
+                {theme === "dark"
+                  ? "Switch to Light Theme"
+                  : "Switch to Dark Theme"}
+              </TooltipContent>
+            </Tooltip>
 
             <a
               href="#get"
               className="flex shrink-0 items-center gap-1.5 rounded-[var(--radius-control)] border px-3.5 py-2 text-[13px] font-semibold whitespace-nowrap transition-colors hover:border-accent active:translate-y-px"
             >
-              {/*
-               * The full label plus the logo, the search button and two icon
-               * buttons stop fitting on one line somewhere under 480px, and
-               * `whitespace-nowrap` turns that from a wrap into an overflow.
-               * Below that width the label shortens instead.
-               */}
               <span className="max-[479px]:hidden">Get the extension</span>
               <span className="min-[480px]:hidden">Get it</span>
-              <ArrowUpRightIcon size={13} weight="bold" />
+              <ArrowUpRight size={14} />
             </a>
           </div>
         </nav>
