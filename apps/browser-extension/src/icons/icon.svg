@@ -1,7 +1,45 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128">
-  <rect width="128" height="128" rx="28" fill="#2a1a14"/>
-  <circle cx="64" cy="64" r="40" fill="none" stroke="#d97757" stroke-width="10"/>
-  <rect x="44" y="52" width="8" height="24" rx="4" fill="#f4e4d7"/>
-  <rect x="60" y="40" width="8" height="48" rx="4" fill="#f4e4d7"/>
-  <rect x="76" y="52" width="8" height="24" rx="4" fill="#f4e4d7"/>
+  <defs>
+    <linearGradient id="ext-strand-voice" x1="16" y1="32" x2="112" y2="64" gradientUnits="userSpaceOnUse">
+      <stop offset="0%" stopColor="#06b6d4"/>
+      <stop offset="50%" stopColor="#3b82f6"/>
+      <stop offset="100%" stopColor="#6366f1"/>
+    </linearGradient>
+    <linearGradient id="ext-strand-gesture" x1="104" y1="56" x2="32" y2="112" gradientUnits="userSpaceOnUse">
+      <stop offset="0%" stopColor="#6366f1"/>
+      <stop offset="60%" stopColor="#8b5cf6"/>
+      <stop offset="100%" stopColor="#ec4899"/>
+    </linearGradient>
+    <linearGradient id="ext-strand-gaze" x1="24" y1="104" x2="64" y2="16" gradientUnits="userSpaceOnUse">
+      <stop offset="0%" stopColor="#10b981"/>
+      <stop offset="50%" stopColor="#06b6d4"/>
+      <stop offset="100%" stopColor="#6366f1"/>
+    </linearGradient>
+    <radialGradient id="ext-nexus" cx="64" cy="64" r="32" gradientUnits="userSpaceOnUse">
+      <stop offset="0%" stopColor="#ffffff" stopOpacity="0.95"/>
+      <stop offset="40%" stopColor="#38bdf8" stopOpacity="0.7"/>
+      <stop offset="85%" stopColor="#6366f1" stopOpacity="0.15"/>
+      <stop offset="100%" stopColor="#6366f1" stopOpacity="0"/>
+    </radialGradient>
+  </defs>
+
+  <!-- Container -->
+  <rect width="128" height="128" rx="28" fill="#08090e"/>
+  <rect x="1" y="1" width="126" height="126" rx="27" fill="none" stroke="rgba(255,255,255,0.08)" stroke-width="2"/>
+
+  <!-- Voice Strand (Top & Upper Right) -->
+  <path d="M 64 14 C 92.8 14 114 35.2 114 64 C 114 79.2 106.4 92.4 94 100.8 C 88.8 91.2 88 78 91.2 68 C 93.6 60 91.2 51.2 84.8 44.8 C 78 38 68 36 59.2 38.4 C 54 28.8 56.8 18.4 64 14 Z"
+        fill="url(#ext-strand-voice)" fill-rule="evenodd"/>
+
+  <!-- Gesture Strand (Lower & Right-to-Left Return) -->
+  <path d="M 114 64 C 114 91.6 91.6 114 64 114 C 43.2 114 25.6 101.2 18 83.2 C 28.8 82 40.8 86 48 92.8 C 56.8 99.2 68.8 98 78 91.2 C 86 84.8 88.8 74 86 64.8 C 96 66 107.2 62 114 64 Z"
+        fill="url(#ext-strand-gesture)" fill-rule="evenodd" opacity="0.92"/>
+
+  <!-- Gaze Strand (Left & Ascending Return) -->
+  <path d="M 64 114 C 36.4 114 14 91.6 14 64 C 14 42 28.4 23.2 48.8 16.8 C 44.8 27.2 47.2 40 54 48 C 60.8 56 62 68 56.8 78 C 51.2 87.2 40.8 91.2 31.2 90 C 39.2 104.8 51.2 112.8 64 114 Z"
+        fill="url(#ext-strand-gaze)" fill-rule="evenodd" opacity="0.88"/>
+
+  <!-- Intent Nexus -->
+  <circle cx="64" cy="64" r="12" fill="url(#ext-nexus)"/>
+  <circle cx="64" cy="64" r="5" fill="#ffffff"/>
 </svg>

@@ -1,4 +1,5 @@
 import { GithubLogoIcon } from "@phosphor-icons/react/dist/ssr";
+import { OmnivraLogo } from "./omnivra-logo";
 
 /**
  * Closing CTA and footer.
@@ -63,7 +64,7 @@ export function ClosingCta() {
           <div className="flex flex-wrap items-center gap-3">
             <a
               href="https://github.com/akshaykumar33/Omnivra/releases/latest/download/omnivra-extension.zip"
-              className="rounded-lg bg-accent px-5 py-2.5 text-[13.5px] font-semibold text-base shadow-sm transition-all duration-200 hover:shadow-[0_0_24px_rgba(218,119,86,0.4)] active:translate-y-px"
+              className="rounded-lg bg-accent px-5 py-2.5 text-[13.5px] font-semibold text-white shadow-sm transition-all duration-200 hover:shadow-[0_0_24px_rgba(99,102,241,0.45)] active:translate-y-px"
             >
               Get the extension
             </a>
@@ -88,9 +89,12 @@ export function SiteFooter() {
     <footer className="border-t border-subtle/80">
       <div className="mx-auto grid max-w-[1400px] gap-8 px-6 py-10 sm:grid-cols-2 lg:grid-cols-4">
         <div className="lg:col-span-2">
-          <p className="font-display text-[15px] font-semibold tracking-tight">
-            Omnivra
-          </p>
+          <div className="flex items-center gap-2.5">
+            <OmnivraLogo size={22} />
+            <p className="font-display text-[15px] font-semibold tracking-tight">
+              Omnivra
+            </p>
+          </div>
           <p className="mt-2 max-w-[34ch] text-[13.5px] leading-relaxed text-muted">
             A programmable control layer for voice, gesture and gaze.
           </p>
