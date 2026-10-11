@@ -119,15 +119,78 @@ export function HeroIntro() {
         can do. Local-first, zero cloud egress, and accessible by design.
       </p>
 
-      <div className="mt-7 flex flex-wrap items-center gap-3">
+      {/* Live Modality Signal Telemetry Grid */}
+      <div
+        data-reveal="sub"
+        className="mt-6 grid grid-cols-2 gap-2 sm:grid-cols-4 max-w-[560px]"
+      >
+        <div className="flex items-center gap-2 rounded-lg border border-cyan-500/25 bg-cyan-950/20 px-2.5 py-1.5 backdrop-blur-sm shadow-[0_0_12px_rgba(6,182,212,0.15)] transition-all hover:border-cyan-400 hover:shadow-[0_0_16px_rgba(6,182,212,0.3)]">
+          <span className="relative flex h-2 w-2">
+            <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-cyan-400 opacity-75" />
+            <span className="relative inline-flex h-2 w-2 rounded-full bg-cyan-400" />
+          </span>
+          <div className="min-w-0">
+            <span className="block font-mono text-[10px] font-semibold text-cyan-300 uppercase">
+              Voice
+            </span>
+            <span className="block truncate font-mono text-[9.5px] text-muted">
+              16kHz PCM
+            </span>
+          </div>
+        </div>
+
+        <div className="flex items-center gap-2 rounded-lg border border-purple-500/25 bg-purple-950/20 px-2.5 py-1.5 backdrop-blur-sm shadow-[0_0_12px_rgba(168,85,247,0.15)] transition-all hover:border-purple-400 hover:shadow-[0_0_16px_rgba(168,85,247,0.3)]">
+          <span className="relative flex h-2 w-2">
+            <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-purple-400 opacity-75" />
+            <span className="relative inline-flex h-2 w-2 rounded-full bg-purple-400" />
+          </span>
+          <div className="min-w-0">
+            <span className="block font-mono text-[10px] font-semibold text-purple-300 uppercase">
+              Gesture
+            </span>
+            <span className="block truncate font-mono text-[9.5px] text-muted">
+              21 Landmarks
+            </span>
+          </div>
+        </div>
+
+        <div className="flex items-center gap-2 rounded-lg border border-emerald-500/25 bg-emerald-950/20 px-2.5 py-1.5 backdrop-blur-sm shadow-[0_0_12px_rgba(16,185,129,0.15)] transition-all hover:border-emerald-400 hover:shadow-[0_0_16px_rgba(16,185,129,0.3)]">
+          <span className="relative flex h-2 w-2">
+            <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-emerald-400 opacity-75" />
+            <span className="relative inline-flex h-2 w-2 rounded-full bg-emerald-400" />
+          </span>
+          <div className="min-w-0">
+            <span className="block font-mono text-[10px] font-semibold text-emerald-300 uppercase">
+              Gaze
+            </span>
+            <span className="block truncate font-mono text-[9.5px] text-muted">
+              120Hz Glint
+            </span>
+          </div>
+        </div>
+
+        <div className="flex items-center gap-2 rounded-lg border border-indigo-500/25 bg-indigo-950/20 px-2.5 py-1.5 backdrop-blur-sm shadow-[0_0_12px_rgba(99,102,241,0.15)] transition-all hover:border-indigo-400 hover:shadow-[0_0_16px_rgba(99,102,241,0.3)]">
+          <span className="relative flex h-2 w-2">
+            <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-indigo-400 opacity-75" />
+            <span className="relative inline-flex h-2 w-2 rounded-full bg-indigo-400" />
+          </span>
+          <div className="min-w-0">
+            <span className="block font-mono text-[10px] font-semibold text-indigo-300 uppercase">
+              Keys
+            </span>
+            <span className="block truncate font-mono text-[9.5px] text-muted">
+              Direct Switch
+            </span>
+          </div>
+        </div>
+      </div>
+
+      <div className="mt-8 flex flex-wrap items-center gap-3">
         <span data-reveal="cta">
           <Magnetic>
             <a
               href="#get"
-              style={
-                { "--glow": "var(--accent-primary)" } as React.CSSProperties
-              }
-              className="inline-flex items-center gap-2 rounded-lg bg-accent px-5 py-2.5 text-[13.5px] font-semibold text-white shadow-sm transition-all duration-200 hover:shadow-[0_0_24px_rgba(99,102,241,0.45)] active:translate-y-px"
+              className="inline-flex items-center gap-2 rounded-xl bg-gradient-to-r from-indigo-500 via-purple-500 to-cyan-500 px-6 py-3 text-[14px] font-semibold text-white shadow-[0_0_24px_rgba(99,102,241,0.4)] transition-all duration-300 hover:scale-[1.02] hover:shadow-[0_0_36px_rgba(99,102,241,0.65)] active:scale-[0.98]"
             >
               Get the extension
             </a>
@@ -137,10 +200,10 @@ export function HeroIntro() {
         <span data-reveal="cta">
           <a
             href="#pipeline"
-            className="flex items-center gap-2 rounded-lg border border-subtle/80 bg-surface/60 px-4 py-2.5 text-[13.5px] font-semibold transition-colors hover:border-accent hover:bg-surface"
+            className="flex items-center gap-2 rounded-xl border border-white/10 bg-surface/80 px-5 py-3 text-[14px] font-semibold backdrop-blur-md transition-all hover:border-cyan-400/50 hover:bg-surface hover:shadow-[0_0_20px_rgba(6,182,212,0.2)]"
           >
             See how it works
-            <ArrowDown size={14} />
+            <ArrowDown size={14} className="text-cyan-400" />
           </a>
         </span>
       </div>

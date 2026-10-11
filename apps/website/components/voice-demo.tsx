@@ -14,6 +14,7 @@ import {
 } from "lucide-react";
 import { CanvasSpectrogram } from "./canvas-spectrogram";
 import { playClick, playSuccess, playTone } from "@/lib/sound";
+import { IconBadge, AudioVisualizerPill } from "./ui/icon-badge";
 
 /**
  * Multimodal Demo Sandbox:
@@ -312,53 +313,83 @@ export function VoiceDemo() {
   };
 
   return (
-    <div className="relative overflow-hidden rounded-2xl border bg-surface shadow-2xl">
+    <div className="relative overflow-hidden rounded-2xl border border-white/[0.12] bg-[#0c0e17]/85 backdrop-blur-2xl shadow-[0_20px_60px_-15px_rgba(0,0,0,0.85)]">
+      {/* Specular top-edge shine */}
+      <div className="pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-cyan-400/40 to-transparent" />
+
       {/* Ambient reactive background wash */}
       <div
         aria-hidden="true"
         data-live={isLive || tab === "gesture"}
-        className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_at_top,color-mix(in_srgb,var(--accent-primary)_18%,transparent),transparent_65%)] opacity-40 transition-opacity duration-700 data-[live=true]:opacity-100"
+        className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_at_top,color-mix(in_srgb,var(--accent-primary)_22%,transparent),transparent_65%)] opacity-40 transition-opacity duration-700 data-[live=true]:opacity-100"
       />
 
-      {/* Top Header: Modality Selector Tabs */}
-      <header className="relative flex flex-wrap items-center justify-between gap-3 border-b px-5 py-3.5">
-        <div className="flex items-center gap-1 rounded-lg border bg-base p-0.5">
-          <button
-            type="button"
-            onClick={() => {
-              setTab("voice");
-              playClick();
-            }}
-            data-active={tab === "voice"}
-            className="flex items-center gap-1.5 rounded-md px-3 py-1.5 text-[12px] font-semibold transition-all data-[active=true]:bg-raised data-[active=true]:text-ink text-muted hover:text-ink"
+      {/* Top Header: Cyberdeck Terminal Controls */}
+      <header className="relative flex flex-wrap items-center justify-between gap-3 border-b border-white/[0.08] bg-black/30 px-5 py-3">
+        <div className="flex items-center gap-3">
+          {/* Terminal status LEDs */}
+          <div
+            className="hidden sm:flex items-center gap-1.5"
+            aria-hidden="true"
           >
-            <Mic className="h-3.5 w-3.5" />
-            Voice
-          </button>
-          <button
-            type="button"
-            onClick={() => {
-              setTab("gesture");
-              playClick();
-            }}
-            data-active={tab === "gesture"}
-            className="flex items-center gap-1.5 rounded-md px-3 py-1.5 text-[12px] font-semibold transition-all data-[active=true]:bg-raised data-[active=true]:text-ink text-muted hover:text-ink"
-          >
-            <Hand className="h-3.5 w-3.5" />
-            Gesture
-          </button>
-          <button
-            type="button"
-            onClick={() => {
-              setTab("keyboard");
-              playClick();
-            }}
-            data-active={tab === "keyboard"}
-            className="flex items-center gap-1.5 rounded-md px-3 py-1.5 text-[12px] font-semibold transition-all data-[active=true]:bg-raised data-[active=true]:text-ink text-muted hover:text-ink"
-          >
-            <Keyboard className="h-3.5 w-3.5" />
-            Shortcuts
-          </button>
+            <span className="h-2.5 w-2.5 rounded-full bg-rose-500/80 shadow-[0_0_8px_rgba(244,63,94,0.6)]" />
+            <span className="h-2.5 w-2.5 rounded-full bg-amber-500/80 shadow-[0_0_8px_rgba(245,158,11,0.6)]" />
+            <span className="h-2.5 w-2.5 rounded-full bg-cyan-400/80 shadow-[0_0_8px_rgba(6,182,212,0.6)]" />
+          </div>
+
+          <div className="flex items-center gap-1 rounded-xl border border-white/[0.08] bg-[#07090f] p-1 shadow-inner">
+            <button
+              type="button"
+              onClick={() => {
+                setTab("voice");
+                playClick();
+              }}
+              data-active={tab === "voice"}
+              className="flex items-center gap-2 rounded-lg px-3 py-1.5 text-[12px] font-semibold transition-all data-[active=true]:border data-[active=true]:border-cyan-500/30 data-[active=true]:bg-cyan-950/40 data-[active=true]:text-cyan-300 data-[active=true]:shadow-[0_0_12px_rgba(6,182,212,0.25)] text-muted hover:text-ink"
+            >
+              <IconBadge
+                modality="voice"
+                size="sm"
+                icon={<Mic className="h-3.5 w-3.5" />}
+                glow={tab === "voice"}
+              />
+              Voice
+            </button>
+            <button
+              type="button"
+              onClick={() => {
+                setTab("gesture");
+                playClick();
+              }}
+              data-active={tab === "gesture"}
+              className="flex items-center gap-2 rounded-lg px-3 py-1.5 text-[12px] font-semibold transition-all data-[active=true]:border data-[active=true]:border-purple-500/30 data-[active=true]:bg-purple-950/40 data-[active=true]:text-purple-300 data-[active=true]:shadow-[0_0_12px_rgba(168,85,247,0.25)] text-muted hover:text-ink"
+            >
+              <IconBadge
+                modality="gesture"
+                size="sm"
+                icon={<Hand className="h-3.5 w-3.5" />}
+                glow={tab === "gesture"}
+              />
+              Gesture
+            </button>
+            <button
+              type="button"
+              onClick={() => {
+                setTab("keyboard");
+                playClick();
+              }}
+              data-active={tab === "keyboard"}
+              className="flex items-center gap-2 rounded-lg px-3 py-1.5 text-[12px] font-semibold transition-all data-[active=true]:border data-[active=true]:border-indigo-500/30 data-[active=true]:bg-indigo-950/40 data-[active=true]:text-indigo-300 data-[active=true]:shadow-[0_0_12px_rgba(99,102,241,0.25)] text-muted hover:text-ink"
+            >
+              <IconBadge
+                modality="input"
+                size="sm"
+                icon={<Keyboard className="h-3.5 w-3.5" />}
+                glow={tab === "keyboard"}
+              />
+              Shortcuts
+            </button>
+          </div>
         </div>
 
         {/* Live Engine Indicator */}
@@ -470,36 +501,68 @@ export function VoiceDemo() {
               onPointerDown={handlePadPointerDown}
               onPointerMove={handlePadPointerMove}
               onPointerUp={handlePadPointerUp}
-              className="relative flex h-36 w-full cursor-crosshair flex-col items-center justify-center overflow-hidden rounded-xl border border-dashed border-subtle bg-base/80 select-none transition-colors hover:border-accent"
+              className="relative flex h-40 w-full cursor-crosshair flex-col items-center justify-center overflow-hidden rounded-xl border border-purple-500/30 bg-[#070811] shadow-[inset_0_0_30px_rgba(168,85,247,0.12)] select-none transition-colors hover:border-purple-400"
             >
-              {/* Grid Lines */}
+              {/* High-tech Cyber Grid */}
               <div
                 aria-hidden="true"
-                className="pointer-events-none absolute inset-0 bg-[linear-gradient(to_right,var(--border-subtle)_1px,transparent_1px),linear-gradient(to_bottom,var(--border-subtle)_1px,transparent_1px)] bg-[size:24px_24px] opacity-25"
+                className="cyber-grid pointer-events-none absolute inset-0 opacity-40"
               />
+
+              {/* Sci-Fi Corner Reticles */}
+              <span
+                className="pointer-events-none absolute top-2 left-2 font-mono text-[11px] text-purple-400/60"
+                aria-hidden="true"
+              >
+                ┌
+              </span>
+              <span
+                className="pointer-events-none absolute top-2 right-2 font-mono text-[11px] text-purple-400/60"
+                aria-hidden="true"
+              >
+                ┐
+              </span>
+              <span
+                className="pointer-events-none absolute bottom-2 left-2 font-mono text-[11px] text-purple-400/60"
+                aria-hidden="true"
+              >
+                └
+              </span>
+              <span
+                className="pointer-events-none absolute bottom-2 right-2 font-mono text-[11px] text-purple-400/60"
+                aria-hidden="true"
+              >
+                ┘
+              </span>
 
               {padPointer ? (
                 <div
                   style={{
-                    transform: `translate(${padPointer.x - 20}px, ${padPointer.y - 20}px)`,
+                    transform: `translate(${padPointer.x - 24}px, ${padPointer.y - 24}px)`,
                   }}
-                  className="pointer-events-none absolute top-0 left-0 flex h-10 w-10 items-center justify-center rounded-full border-2 border-gesture bg-gesture/20"
+                  className="pointer-events-none absolute top-0 left-0 flex h-12 w-12 items-center justify-center rounded-full border-2 border-purple-400 bg-purple-500/30 shadow-[0_0_20px_#a855f7]"
                 >
-                  <span className="h-2 w-2 rounded-full bg-gesture" />
+                  <span className="h-2.5 w-2.5 rounded-full bg-white shadow-[0_0_8px_#fff]" />
                 </div>
               ) : null}
 
               <div className="relative z-10 flex flex-col items-center text-center p-4">
-                <Move className="mb-1.5 h-6 w-6 text-gesture opacity-80" />
-                <p className="text-[13px] font-semibold">
-                  Interactive Gesture Pad
+                <IconBadge
+                  modality="gesture"
+                  size="md"
+                  icon={<Move className="h-5 w-5" />}
+                  className="mb-2"
+                />
+                <p className="text-[13.5px] font-semibold text-ink">
+                  Tactile Spatial Sensor Pad
                 </p>
-                <p className="text-[11.5px] text-muted max-w-[34ch]">
-                  Click or drag here (Swipe Left / Swipe Right / Tap to pinch)
-                  or click the presets below.
+                <p className="mt-1 text-[11.5px] text-muted max-w-[34ch] leading-relaxed">
+                  Drag / swipe cursor here or click presets below to dispatch
+                  recognized gestures.
                 </p>
                 {gestureFeedback && (
-                  <span className="mt-2 rounded bg-gesture/15 px-2 py-0.5 font-mono text-[10.5px] font-semibold text-gesture">
+                  <span className="mt-2.5 inline-flex items-center gap-1.5 rounded-full border border-purple-400/40 bg-purple-950/40 px-3 py-0.5 font-mono text-[11px] font-semibold text-purple-300 shadow-[0_0_12px_rgba(168,85,247,0.3)]">
+                    <span className="h-1.5 w-1.5 rounded-full bg-purple-400 animate-pulse" />
                     {gestureFeedback}
                   </span>
                 )}
@@ -517,12 +580,14 @@ export function VoiceDemo() {
                     );
                     triggerAction(cmd.label, cmd.run, "Gesture");
                   }}
-                  className="flex items-center justify-between rounded-lg border bg-raised px-3 py-2 text-[12px] font-medium transition-all hover:border-gesture active:translate-y-px"
+                  className="group flex items-center justify-between rounded-xl border border-white/[0.08] bg-[#10121d] px-3.5 py-2.5 text-[12px] font-medium shadow-sm transition-all hover:border-purple-400/60 hover:bg-[#151827] hover:shadow-[0_0_16px_rgba(168,85,247,0.25)] active:translate-y-px"
                 >
-                  <span className="font-semibold text-gesture">
+                  <span className="font-semibold text-purple-300 group-hover:text-purple-200">
                     {cmd.gestureName}
                   </span>
-                  <span className="text-[11px] text-muted">{cmd.label}</span>
+                  <span className="text-[11px] text-muted group-hover:text-slate-300">
+                    {cmd.label}
+                  </span>
                 </button>
               ))}
             </div>
@@ -532,22 +597,22 @@ export function VoiceDemo() {
         {/* TAB 3: KEYBOARD / SHORTCUTS */}
         {tab === "keyboard" && (
           <div className="flex flex-col gap-3">
-            <div className="rounded-xl border bg-base p-4">
+            <div className="rounded-xl border border-white/[0.08] bg-[#0c0e17] p-4 shadow-inner">
               <div className="flex items-center justify-between">
-                <span className="label-mono text-[10.5px]">
-                  Global Shortcut Layer
+                <span className="label-mono text-[10.5px] text-indigo-400">
+                  Global Physical Switches
                 </span>
                 <span className="font-mono text-[11px] text-muted">
-                  Direct keyboard chord
+                  Zero-latency kernel chord
                 </span>
               </div>
               <p className="mt-2 text-[13px] text-muted leading-relaxed">
-                Press hotkeys directly on your physical keyboard, or click the
-                mechanical switches below:
+                Press hotkeys on your keyboard or depress the tactile switches
+                below:
               </p>
             </div>
 
-            <div className="grid grid-cols-2 gap-2">
+            <div className="grid grid-cols-2 gap-2.5">
               {COMMANDS.map((cmd) => (
                 <button
                   key={cmd.id}
@@ -555,17 +620,17 @@ export function VoiceDemo() {
                   onClick={() => {
                     triggerAction(cmd.label, cmd.run, "Shortcut");
                   }}
-                  className="group flex items-center justify-between rounded-lg border bg-raised px-3.5 py-2.5 text-left transition-all hover:border-input active:scale-[0.98]"
+                  className="group relative flex items-center justify-between rounded-xl border border-indigo-500/25 bg-gradient-to-b from-[#161828] to-[#0c0e18] p-3 text-left shadow-[0_4px_12px_rgba(0,0,0,0.5),inset_0_1px_0_rgba(255,255,255,0.12)] transition-all hover:border-indigo-400/70 hover:shadow-[0_0_20px_rgba(99,102,241,0.3)] active:translate-y-0.5 active:shadow-inner"
                 >
                   <div>
-                    <span className="block font-mono text-[12px] font-bold text-input group-hover:underline">
+                    <span className="block font-mono text-[12.5px] font-bold text-indigo-300 group-hover:text-indigo-200">
                       {cmd.shortcut}
                     </span>
-                    <span className="text-[11.5px] text-muted">
+                    <span className="text-[11.5px] text-muted group-hover:text-slate-300">
                       {cmd.label}
                     </span>
                   </div>
-                  <Sparkles className="h-4 w-4 text-muted group-hover:text-input" />
+                  <Sparkles className="h-4 w-4 text-indigo-400/70 transition-transform group-hover:scale-125 group-hover:text-indigo-300" />
                 </button>
               ))}
             </div>

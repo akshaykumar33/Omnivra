@@ -191,10 +191,14 @@ export function SiteNav() {
                       ? "Mute interactive audio"
                       : "Enable interactive audio feedback"
                   }
-                  className="flex h-9 w-9 items-center justify-center rounded-lg border text-muted transition-colors hover:border-accent hover:text-ink"
+                  className={`flex h-9 w-9 items-center justify-center rounded-xl border transition-all ${
+                    soundOn
+                      ? "border-cyan-400/40 bg-cyan-950/30 text-cyan-300 shadow-[0_0_12px_rgba(6,182,212,0.25)]"
+                      : "border-white/[0.08] text-muted hover:border-white/20 hover:text-ink"
+                  }`}
                 >
                   {soundOn ? (
-                    <Volume2 size={16} className="text-accent" />
+                    <Volume2 size={16} className="text-cyan-400" />
                   ) : (
                     <VolumeX size={16} />
                   )}
@@ -212,9 +216,13 @@ export function SiteNav() {
                   type="button"
                   onClick={toggleTheme}
                   aria-label={`Switch to ${theme === "dark" ? "light" : "dark"} theme`}
-                  className="flex h-9 w-9 items-center justify-center rounded-lg border text-muted transition-colors hover:border-accent hover:text-ink"
+                  className="flex h-9 w-9 items-center justify-center rounded-xl border border-white/[0.08] text-muted transition-all hover:border-indigo-400/50 hover:bg-indigo-950/20 hover:text-indigo-300 hover:shadow-[0_0_12px_rgba(99,102,241,0.25)]"
                 >
-                  {theme === "dark" ? <Sun size={16} /> : <Moon size={16} />}
+                  {theme === "dark" ? (
+                    <Sun size={16} className="text-amber-400" />
+                  ) : (
+                    <Moon size={16} className="text-indigo-400" />
+                  )}
                 </button>
               </TooltipTrigger>
               <TooltipContent>
@@ -226,11 +234,11 @@ export function SiteNav() {
 
             <a
               href="#get"
-              className="flex shrink-0 items-center gap-1.5 rounded-[var(--radius-control)] border px-3.5 py-2 text-[13px] font-semibold whitespace-nowrap transition-colors hover:border-accent active:translate-y-px"
+              className="flex shrink-0 items-center gap-1.5 rounded-xl border border-cyan-400/40 bg-gradient-to-r from-cyan-500/15 via-indigo-500/15 to-purple-500/15 px-3.5 py-2 text-[13px] font-semibold text-cyan-300 whitespace-nowrap shadow-[0_0_14px_rgba(6,182,212,0.2)] transition-all hover:border-cyan-300 hover:shadow-[0_0_20px_rgba(6,182,212,0.4)] active:translate-y-px"
             >
               <span className="max-[479px]:hidden">Get the extension</span>
               <span className="min-[480px]:hidden">Get it</span>
-              <ArrowUpRight size={14} />
+              <ArrowUpRight size={14} className="text-cyan-400" />
             </a>
           </div>
         </nav>

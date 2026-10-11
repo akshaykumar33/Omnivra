@@ -15,25 +15,25 @@
  *  - Input / Action Nexus: Radiant Indigo (#6366f1)
  */
 :root {
-  --bg-base: #08090e;
-  --bg-surface: #0f111a;
-  --bg-raised: #181b28;
-  --border-subtle: rgba(255, 255, 255, 0.08);
+  --bg-base: #06070c;
+  --bg-surface: #0c0e17;
+  --bg-raised: #141724;
+  --border-subtle: rgba(255, 255, 255, 0.09);
   --border-focus: #6366f1;
   --text-primary: #f8fafc;
   --text-muted: #94a3b8;
   --accent-primary: #6366f1;
-  --status-active: #10b981;
-  --status-warning: #f59e0b;
+  --status-active: #00ffa3;
+  --status-warning: #ffb703;
   --status-danger: #f43f5e;
 
   /*
-   * Modality hues: Cyber Cyan, Electric Violet, Emerald Jade, Warm Amber, Radiant Indigo.
+   * Hyper-Vivid Modality Hues: Electric Cyan, Ultraviolet, Cyber Emerald, Solar Amber, Quantum Indigo.
    */
-  --hue-voice: #06b6d4;
-  --hue-gesture: #8b5cf6;
-  --hue-gaze: #10b981;
-  --hue-face: #f59e0b;
+  --hue-voice: #00f0ff;
+  --hue-gesture: #a855f7;
+  --hue-gaze: #00ffa3;
+  --hue-face: #ffb703;
   --hue-input: #6366f1;
 
   /*
@@ -102,22 +102,22 @@
 }
 
 :root[data-theme="dark"] {
-  --bg-base: #08090e;
-  --bg-surface: #0f111a;
-  --bg-raised: #181b28;
-  --border-subtle: rgba(255, 255, 255, 0.08);
+  --bg-base: #06070c;
+  --bg-surface: #0c0e17;
+  --bg-raised: #141724;
+  --border-subtle: rgba(255, 255, 255, 0.09);
   --border-focus: #6366f1;
   --text-primary: #f8fafc;
   --text-muted: #94a3b8;
   --accent-primary: #6366f1;
-  --status-active: #10b981;
-  --status-warning: #f59e0b;
+  --status-active: #00ffa3;
+  --status-warning: #ffb703;
   --status-danger: #f43f5e;
 
-  --hue-voice: #06b6d4;
-  --hue-gesture: #8b5cf6;
-  --hue-gaze: #10b981;
-  --hue-face: #f59e0b;
+  --hue-voice: #00f0ff;
+  --hue-gesture: #a855f7;
+  --hue-gaze: #00ffa3;
+  --hue-face: #ffb703;
   --hue-input: #6366f1;
 }
 
@@ -464,6 +464,29 @@
       color-mix(in srgb, var(--glow, var(--accent-primary)) 38%, transparent),
     0 34px 90px -40px
       color-mix(in srgb, var(--glow, var(--accent-primary)) 75%, transparent);
+}
+
+@utility cyber-grid {
+  background-image:
+    linear-gradient(to right, rgba(255, 255, 255, 0.035) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(255, 255, 255, 0.035) 1px, transparent 1px);
+  background-size: 32px 32px;
+}
+
+@utility card-luminous {
+  background: color-mix(in srgb, var(--bg-surface) 85%, transparent);
+  backdrop-filter: blur(16px);
+  border: 1px solid rgba(255, 255, 255, 0.09);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.12),
+    0 16px 40px -12px rgba(0, 0, 0, 0.6);
+}
+
+@utility glow-neon {
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.25),
+    0 0 24px -2px var(--glow, var(--accent-primary)),
+    0 18px 56px -12px var(--glow, var(--accent-primary));
 }
 
 /*
