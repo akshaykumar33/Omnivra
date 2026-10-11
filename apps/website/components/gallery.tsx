@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { Mic, Hand, Eye, Smile, Keyboard } from "lucide-react";
+import { IconBadge } from "./ui/icon-badge";
 import {
   VoiceVisual,
   GestureVisual,
@@ -150,18 +151,26 @@ function GalleryCard({
         </span>
       </div>
 
-      {/* Card Footer: Icon, Headlines, Copy */}
+      {/* Card Footer: Icon Badge, Headlines, Copy */}
       <div className="relative z-10 mt-auto">
-        <span
-          className="mb-2.5 block transition-transform duration-300 group-hover:scale-105"
-          style={{ color: panel.hue }}
-        >
-          {panel.icon}
-        </span>
-        <h3 className="font-display text-xl font-semibold tracking-tight text-ink">
+        <div className="mb-3">
+          <IconBadge
+            modality={
+              panel.id === "classic"
+                ? "input"
+                : (panel.id as "voice" | "gesture" | "gaze" | "face" | "input")
+            }
+            size="md"
+            icon={panel.icon}
+            pulse={panel.status === "Alpha"}
+          />
+        </div>
+        <h3 className="font-display text-xl font-semibold tracking-tight text-ink group-hover:text-white">
           {panel.line}
         </h3>
-        <p className="mt-1 text-[13px] font-medium text-ink/90">{panel.name}</p>
+        <p className="mt-1 text-[13px] font-medium text-slate-300">
+          {panel.name}
+        </p>
         <p className="mt-1.5 text-[12.5px] leading-relaxed text-muted line-clamp-3">
           {panel.body}
         </p>

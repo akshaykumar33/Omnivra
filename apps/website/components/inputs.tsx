@@ -3,6 +3,7 @@
 import Image from "next/image";
 import { motion, useReducedMotion } from "motion/react";
 import { Mic, Hand, Eye, Smile, Keyboard } from "lucide-react";
+import { IconBadge } from "./ui/icon-badge";
 
 /**
  * Status labels are load-bearing, not decoration.
@@ -159,8 +160,11 @@ export function Inputs() {
               }}
               onPointerMove={trackPointer}
               style={{ "--glow": tint.cssVar } as React.CSSProperties}
-              className={`group relative flex min-h-[13rem] flex-col justify-end overflow-hidden rounded-2xl border bg-surface p-5 transition-shadow duration-500 hover:glow-strong ${modality.span}`}
+              className={`group relative flex min-h-[14rem] flex-col justify-end overflow-hidden rounded-2xl border border-white/[0.09] bg-[#0c0e17]/80 p-6 backdrop-blur-xl transition-all duration-500 hover:border-[var(--glow)] hover:shadow-[0_16px_48px_-12px_rgba(0,0,0,0.8),0_0_28px_-6px_var(--glow)] ${modality.span}`}
             >
+              {/* Top specular reflection */}
+              <div className="pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-white/20 to-transparent" />
+
               {modality.image ? (
                 <>
                   <Image
@@ -168,7 +172,7 @@ export function Inputs() {
                     alt={modality.image.alt}
                     fill
                     sizes="(max-width: 640px) 100vw, 33vw"
-                    className="object-cover opacity-45 grayscale transition-opacity duration-500 group-hover:opacity-60"
+                    className="object-cover opacity-40 grayscale transition-all duration-500 group-hover:scale-105 group-hover:opacity-55"
                   />
                   {/*
                    * Scrim, not a veil: dark enough at the bottom for the text to
@@ -177,7 +181,7 @@ export function Inputs() {
                    */}
                   <div
                     aria-hidden="true"
-                    className="absolute inset-0 bg-gradient-to-t from-surface via-surface/75 to-transparent"
+                    className="absolute inset-0 bg-gradient-to-t from-[#0c0e17] via-[#0c0e17]/80 to-transparent"
                   />
                 </>
               ) : null}
@@ -202,17 +206,22 @@ export function Inputs() {
                 }}
               />
 
-              <div className="relative">
+              <div className="relative z-10">
                 <div className="flex items-center justify-between gap-3">
-                  <span className={tint.text}>{modality.icon}</span>
+                  <IconBadge
+                    modality={modality.tint}
+                    size="md"
+                    icon={modality.icon}
+                    pulse={modality.status === "alpha"}
+                  />
                   <span
                     data-status={modality.status}
-                    className="rounded-full border px-2 py-0.5 text-[10.5px] font-semibold tracking-wide text-muted uppercase data-[status=alpha]:border-active data-[status=alpha]:text-active"
+                    className="rounded-full border border-white/[0.1] bg-black/50 px-2.5 py-1 font-mono text-[10.5px] font-semibold tracking-wide text-muted backdrop-blur-md data-[status=alpha]:border-cyan-400/50 data-[status=alpha]:bg-cyan-950/50 data-[status=alpha]:text-cyan-300 data-[status=alpha]:shadow-[0_0_14px_rgba(6,182,212,0.35)]"
                   >
                     {STATUS_COPY[modality.status]}
                   </span>
                 </div>
-                <h3 className="mt-4 font-display text-[17px] font-semibold tracking-tight">
+                <h3 className="mt-4 font-display text-[18px] font-semibold tracking-tight text-ink group-hover:text-white">
                   {modality.name}
                 </h3>
                 <p className="mt-2 max-w-[42ch] text-[13.5px] leading-relaxed text-muted">
