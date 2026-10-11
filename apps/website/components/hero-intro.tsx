@@ -100,7 +100,7 @@ export function HeroIntro() {
                   (word.tone === "muted"
                     ? "text-muted"
                     : word.tone === "spectrum"
-                      ? "bg-gradient-to-r from-[#6366f1] via-[#8b5cf6] to-[#06b6d4] bg-clip-text text-transparent font-medium"
+                      ? "bg-gradient-to-r from-[#d96b43] via-[#d97706] to-[#e09f52] bg-clip-text text-transparent font-medium"
                       : "text-ink")
                 }
               >
@@ -119,18 +119,18 @@ export function HeroIntro() {
         can do. Local-first, zero cloud egress, and accessible by design.
       </p>
 
-      {/* Live Modality Signal Telemetry Grid */}
+      {/* Live Modality Signal Telemetry Grid — Claude Warm Aesthetic */}
       <div
         data-reveal="sub"
         className="mt-6 grid grid-cols-2 gap-2 sm:grid-cols-4 max-w-[560px]"
       >
-        <div className="flex items-center gap-2 rounded-lg border border-cyan-500/25 bg-cyan-950/20 px-2.5 py-1.5 backdrop-blur-sm shadow-[0_0_12px_rgba(6,182,212,0.15)] transition-all hover:border-cyan-400 hover:shadow-[0_0_16px_rgba(6,182,212,0.3)]">
+        <div className="flex items-center gap-2 rounded-lg border border-orange-500/25 bg-orange-950/20 px-2.5 py-1.5 backdrop-blur-sm shadow-[0_0_12px_rgba(217,107,67,0.12)] transition-all hover:border-orange-400/60 hover:shadow-[0_0_16px_rgba(217,107,67,0.25)]">
           <span className="relative flex h-2 w-2">
-            <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-cyan-400 opacity-75" />
-            <span className="relative inline-flex h-2 w-2 rounded-full bg-cyan-400" />
+            <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-orange-400 opacity-75" />
+            <span className="relative inline-flex h-2 w-2 rounded-full bg-orange-400" />
           </span>
           <div className="min-w-0">
-            <span className="block font-mono text-[10px] font-semibold text-cyan-300 uppercase">
+            <span className="block font-mono text-[10px] font-semibold text-orange-300 uppercase">
               Voice
             </span>
             <span className="block truncate font-mono text-[9.5px] text-muted">
@@ -139,13 +139,13 @@ export function HeroIntro() {
           </div>
         </div>
 
-        <div className="flex items-center gap-2 rounded-lg border border-purple-500/25 bg-purple-950/20 px-2.5 py-1.5 backdrop-blur-sm shadow-[0_0_12px_rgba(168,85,247,0.15)] transition-all hover:border-purple-400 hover:shadow-[0_0_16px_rgba(168,85,247,0.3)]">
+        <div className="flex items-center gap-2 rounded-lg border border-amber-500/25 bg-amber-950/20 px-2.5 py-1.5 backdrop-blur-sm shadow-[0_0_12px_rgba(217,119,6,0.12)] transition-all hover:border-amber-400/60 hover:shadow-[0_0_16px_rgba(217,119,6,0.25)]">
           <span className="relative flex h-2 w-2">
-            <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-purple-400 opacity-75" />
-            <span className="relative inline-flex h-2 w-2 rounded-full bg-purple-400" />
+            <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-amber-400 opacity-75" />
+            <span className="relative inline-flex h-2 w-2 rounded-full bg-amber-400" />
           </span>
           <div className="min-w-0">
-            <span className="block font-mono text-[10px] font-semibold text-purple-300 uppercase">
+            <span className="block font-mono text-[10px] font-semibold text-amber-300 uppercase">
               Gesture
             </span>
             <span className="block truncate font-mono text-[9.5px] text-muted">
@@ -154,13 +154,13 @@ export function HeroIntro() {
           </div>
         </div>
 
-        <div className="flex items-center gap-2 rounded-lg border border-emerald-500/25 bg-emerald-950/20 px-2.5 py-1.5 backdrop-blur-sm shadow-[0_0_12px_rgba(16,185,129,0.15)] transition-all hover:border-emerald-400 hover:shadow-[0_0_16px_rgba(16,185,129,0.3)]">
+        <div className="flex items-center gap-2 rounded-lg border border-lime-600/25 bg-lime-950/20 px-2.5 py-1.5 backdrop-blur-sm shadow-[0_0_12px_rgba(101,163,13,0.12)] transition-all hover:border-lime-500/60 hover:shadow-[0_0_16px_rgba(101,163,13,0.25)]">
           <span className="relative flex h-2 w-2">
-            <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-emerald-400 opacity-75" />
-            <span className="relative inline-flex h-2 w-2 rounded-full bg-emerald-400" />
+            <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-lime-400 opacity-75" />
+            <span className="relative inline-flex h-2 w-2 rounded-full bg-lime-400" />
           </span>
           <div className="min-w-0">
-            <span className="block font-mono text-[10px] font-semibold text-emerald-300 uppercase">
+            <span className="block font-mono text-[10px] font-semibold text-lime-300 uppercase">
               Gaze
             </span>
             <span className="block truncate font-mono text-[9.5px] text-muted">
@@ -169,13 +169,13 @@ export function HeroIntro() {
           </div>
         </div>
 
-        <div className="flex items-center gap-2 rounded-lg border border-indigo-500/25 bg-indigo-950/20 px-2.5 py-1.5 backdrop-blur-sm shadow-[0_0_12px_rgba(99,102,241,0.15)] transition-all hover:border-indigo-400 hover:shadow-[0_0_16px_rgba(99,102,241,0.3)]">
+        <div className="flex items-center gap-2 rounded-lg border border-stone-500/25 bg-stone-900/30 px-2.5 py-1.5 backdrop-blur-sm shadow-[0_0_12px_rgba(168,162,158,0.1)] transition-all hover:border-stone-400/60 hover:shadow-[0_0_16px_rgba(168,162,158,0.2)]">
           <span className="relative flex h-2 w-2">
-            <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-indigo-400 opacity-75" />
-            <span className="relative inline-flex h-2 w-2 rounded-full bg-indigo-400" />
+            <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-stone-300 opacity-75" />
+            <span className="relative inline-flex h-2 w-2 rounded-full bg-stone-300" />
           </span>
           <div className="min-w-0">
-            <span className="block font-mono text-[10px] font-semibold text-indigo-300 uppercase">
+            <span className="block font-mono text-[10px] font-semibold text-stone-300 uppercase">
               Keys
             </span>
             <span className="block truncate font-mono text-[9.5px] text-muted">
@@ -190,7 +190,7 @@ export function HeroIntro() {
           <Magnetic>
             <a
               href="#get"
-              className="inline-flex items-center gap-2 rounded-xl bg-gradient-to-r from-indigo-500 via-purple-500 to-cyan-500 px-6 py-3 text-[14px] font-semibold text-white shadow-[0_0_24px_rgba(99,102,241,0.4)] transition-all duration-300 hover:scale-[1.02] hover:shadow-[0_0_36px_rgba(99,102,241,0.65)] active:scale-[0.98]"
+              className="inline-flex items-center gap-2 rounded-xl bg-gradient-to-r from-[#c85a32] via-[#d96b43] to-[#d97706] px-6 py-3 text-[14px] font-semibold text-white shadow-[0_0_24px_rgba(200,90,50,0.35)] transition-all duration-300 hover:scale-[1.02] hover:shadow-[0_0_36px_rgba(200,90,50,0.55)] active:scale-[0.98]"
             >
               Get the extension
             </a>
@@ -200,10 +200,10 @@ export function HeroIntro() {
         <span data-reveal="cta">
           <a
             href="#pipeline"
-            className="flex items-center gap-2 rounded-xl border border-white/10 bg-surface/80 px-5 py-3 text-[14px] font-semibold backdrop-blur-md transition-all hover:border-cyan-400/50 hover:bg-surface hover:shadow-[0_0_20px_rgba(6,182,212,0.2)]"
+            className="flex items-center gap-2 rounded-xl border border-white/10 bg-surface/80 px-5 py-3 text-[14px] font-semibold backdrop-blur-md transition-all hover:border-orange-500/40 hover:bg-surface hover:shadow-[0_0_20px_rgba(200,90,50,0.15)]"
           >
             See how it works
-            <ArrowDown size={14} className="text-cyan-400" />
+            <ArrowDown size={14} className="text-orange-400" />
           </a>
         </span>
       </div>

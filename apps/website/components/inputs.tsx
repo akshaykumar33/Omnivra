@@ -160,7 +160,7 @@ export function Inputs() {
               }}
               onPointerMove={trackPointer}
               style={{ "--glow": tint.cssVar } as React.CSSProperties}
-              className={`group relative flex min-h-[14rem] flex-col justify-end overflow-hidden rounded-2xl border border-white/[0.09] bg-[#0c0e17]/80 p-6 backdrop-blur-xl transition-all duration-500 hover:border-[var(--glow)] hover:shadow-[0_16px_48px_-12px_rgba(0,0,0,0.8),0_0_28px_-6px_var(--glow)] ${modality.span}`}
+              className={`group relative flex min-h-[14rem] flex-col justify-end overflow-hidden rounded-2xl border border-white/[0.09] bg-[#1c1a17]/85 p-6 backdrop-blur-xl transition-all duration-500 hover:border-[var(--glow)] hover:shadow-[0_16px_48px_-12px_rgba(10,8,6,0.8),0_0_28px_-6px_var(--glow)] ${modality.span}`}
             >
               {/* Top specular reflection */}
               <div className="pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-white/20 to-transparent" />
@@ -181,7 +181,7 @@ export function Inputs() {
                    */}
                   <div
                     aria-hidden="true"
-                    className="absolute inset-0 bg-gradient-to-t from-[#0c0e17] via-[#0c0e17]/80 to-transparent"
+                    className="absolute inset-0 bg-gradient-to-t from-[#1c1a17] via-[#1c1a17]/80 to-transparent"
                   />
                 </>
               ) : null}
@@ -216,7 +216,7 @@ export function Inputs() {
                   />
                   <span
                     data-status={modality.status}
-                    className="rounded-full border border-white/[0.1] bg-black/50 px-2.5 py-1 font-mono text-[10.5px] font-semibold tracking-wide text-muted backdrop-blur-md data-[status=alpha]:border-cyan-400/50 data-[status=alpha]:bg-cyan-950/50 data-[status=alpha]:text-cyan-300 data-[status=alpha]:shadow-[0_0_14px_rgba(6,182,212,0.35)]"
+                    className="rounded-full border border-white/[0.1] bg-black/50 px-2.5 py-1 font-mono text-[10.5px] font-semibold tracking-wide text-muted backdrop-blur-md data-[status=alpha]:border-orange-500/50 data-[status=alpha]:bg-orange-950/50 data-[status=alpha]:text-orange-300 data-[status=alpha]:shadow-[0_0_14px_rgba(217,107,67,0.25)]"
                   >
                     {STATUS_COPY[modality.status]}
                   </span>

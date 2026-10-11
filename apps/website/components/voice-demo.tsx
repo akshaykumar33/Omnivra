@@ -313,31 +313,31 @@ export function VoiceDemo() {
   };
 
   return (
-    <div className="relative overflow-hidden rounded-2xl border border-white/[0.12] bg-[#0c0e17]/85 backdrop-blur-2xl shadow-[0_20px_60px_-15px_rgba(0,0,0,0.85)]">
+    <div className="relative overflow-hidden rounded-2xl border border-white/[0.1] bg-[#1c1a17]/90 backdrop-blur-2xl shadow-[0_20px_60px_-15px_rgba(10,8,6,0.85)]">
       {/* Specular top-edge shine */}
-      <div className="pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-cyan-400/40 to-transparent" />
+      <div className="pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-[#d96b43]/35 to-transparent" />
 
       {/* Ambient reactive background wash */}
       <div
         aria-hidden="true"
         data-live={isLive || tab === "gesture"}
-        className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_at_top,color-mix(in_srgb,var(--accent-primary)_22%,transparent),transparent_65%)] opacity-40 transition-opacity duration-700 data-[live=true]:opacity-100"
+        className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_at_top,color-mix(in_srgb,var(--accent-primary)_20%,transparent),transparent_65%)] opacity-35 transition-opacity duration-700 data-[live=true]:opacity-100"
       />
 
       {/* Top Header: Cyberdeck Terminal Controls */}
-      <header className="relative flex flex-wrap items-center justify-between gap-3 border-b border-white/[0.08] bg-black/30 px-5 py-3">
+      <header className="relative flex flex-wrap items-center justify-between gap-3 border-b border-white/[0.08] bg-black/25 px-5 py-3">
         <div className="flex items-center gap-3">
           {/* Terminal status LEDs */}
           <div
             className="hidden sm:flex items-center gap-1.5"
             aria-hidden="true"
           >
-            <span className="h-2.5 w-2.5 rounded-full bg-rose-500/80 shadow-[0_0_8px_rgba(244,63,94,0.6)]" />
-            <span className="h-2.5 w-2.5 rounded-full bg-amber-500/80 shadow-[0_0_8px_rgba(245,158,11,0.6)]" />
-            <span className="h-2.5 w-2.5 rounded-full bg-cyan-400/80 shadow-[0_0_8px_rgba(6,182,212,0.6)]" />
+            <span className="h-2.5 w-2.5 rounded-full bg-rose-500/80 shadow-[0_0_8px_rgba(244,63,94,0.5)]" />
+            <span className="h-2.5 w-2.5 rounded-full bg-amber-500/80 shadow-[0_0_8px_rgba(245,158,11,0.5)]" />
+            <span className="h-2.5 w-2.5 rounded-full bg-lime-500/80 shadow-[0_0_8px_rgba(101,163,13,0.5)]" />
           </div>
 
-          <div className="flex items-center gap-1 rounded-xl border border-white/[0.08] bg-[#07090f] p-1 shadow-inner">
+          <div className="flex items-center gap-1 rounded-xl border border-white/[0.08] bg-[#141210] p-1 shadow-inner">
             <button
               type="button"
               onClick={() => {
@@ -345,7 +345,7 @@ export function VoiceDemo() {
                 playClick();
               }}
               data-active={tab === "voice"}
-              className="flex items-center gap-2 rounded-lg px-3 py-1.5 text-[12px] font-semibold transition-all data-[active=true]:border data-[active=true]:border-cyan-500/30 data-[active=true]:bg-cyan-950/40 data-[active=true]:text-cyan-300 data-[active=true]:shadow-[0_0_12px_rgba(6,182,212,0.25)] text-muted hover:text-ink"
+              className="flex items-center gap-2 rounded-lg px-3 py-1.5 text-[12px] font-semibold transition-all data-[active=true]:border data-[active=true]:border-orange-500/30 data-[active=true]:bg-orange-950/40 data-[active=true]:text-orange-300 data-[active=true]:shadow-[0_0_12px_rgba(217,107,67,0.25)] text-muted hover:text-ink"
             >
               <IconBadge
                 modality="voice"
@@ -362,7 +362,7 @@ export function VoiceDemo() {
                 playClick();
               }}
               data-active={tab === "gesture"}
-              className="flex items-center gap-2 rounded-lg px-3 py-1.5 text-[12px] font-semibold transition-all data-[active=true]:border data-[active=true]:border-purple-500/30 data-[active=true]:bg-purple-950/40 data-[active=true]:text-purple-300 data-[active=true]:shadow-[0_0_12px_rgba(168,85,247,0.25)] text-muted hover:text-ink"
+              className="flex items-center gap-2 rounded-lg px-3 py-1.5 text-[12px] font-semibold transition-all data-[active=true]:border data-[active=true]:border-amber-500/30 data-[active=true]:bg-amber-950/40 data-[active=true]:text-amber-300 data-[active=true]:shadow-[0_0_12px_rgba(217,119,6,0.25)] text-muted hover:text-ink"
             >
               <IconBadge
                 modality="gesture"
@@ -379,7 +379,7 @@ export function VoiceDemo() {
                 playClick();
               }}
               data-active={tab === "keyboard"}
-              className="flex items-center gap-2 rounded-lg px-3 py-1.5 text-[12px] font-semibold transition-all data-[active=true]:border data-[active=true]:border-indigo-500/30 data-[active=true]:bg-indigo-950/40 data-[active=true]:text-indigo-300 data-[active=true]:shadow-[0_0_12px_rgba(99,102,241,0.25)] text-muted hover:text-ink"
+              className="flex items-center gap-2 rounded-lg px-3 py-1.5 text-[12px] font-semibold transition-all data-[active=true]:border data-[active=true]:border-stone-500/30 data-[active=true]:bg-stone-900/50 data-[active=true]:text-stone-200 data-[active=true]:shadow-[0_0_12px_rgba(168,162,158,0.2)] text-muted hover:text-ink"
             >
               <IconBadge
                 modality="input"
@@ -517,19 +517,19 @@ export function VoiceDemo() {
                 ┌
               </span>
               <span
-                className="pointer-events-none absolute top-2 right-2 font-mono text-[11px] text-purple-400/60"
+                className="pointer-events-none absolute top-2 right-2 font-mono text-[11px] text-amber-400/60"
                 aria-hidden="true"
               >
                 ┐
               </span>
               <span
-                className="pointer-events-none absolute bottom-2 left-2 font-mono text-[11px] text-purple-400/60"
+                className="pointer-events-none absolute bottom-2 left-2 font-mono text-[11px] text-amber-400/60"
                 aria-hidden="true"
               >
                 └
               </span>
               <span
-                className="pointer-events-none absolute bottom-2 right-2 font-mono text-[11px] text-purple-400/60"
+                className="pointer-events-none absolute bottom-2 right-2 font-mono text-[11px] text-amber-400/60"
                 aria-hidden="true"
               >
                 ┘
@@ -540,7 +540,7 @@ export function VoiceDemo() {
                   style={{
                     transform: `translate(${padPointer.x - 24}px, ${padPointer.y - 24}px)`,
                   }}
-                  className="pointer-events-none absolute top-0 left-0 flex h-12 w-12 items-center justify-center rounded-full border-2 border-purple-400 bg-purple-500/30 shadow-[0_0_20px_#a855f7]"
+                  className="pointer-events-none absolute top-0 left-0 flex h-12 w-12 items-center justify-center rounded-full border-2 border-amber-400 bg-amber-500/30 shadow-[0_0_20px_#d97706]"
                 >
                   <span className="h-2.5 w-2.5 rounded-full bg-white shadow-[0_0_8px_#fff]" />
                 </div>
@@ -561,8 +561,8 @@ export function VoiceDemo() {
                   recognized gestures.
                 </p>
                 {gestureFeedback && (
-                  <span className="mt-2.5 inline-flex items-center gap-1.5 rounded-full border border-purple-400/40 bg-purple-950/40 px-3 py-0.5 font-mono text-[11px] font-semibold text-purple-300 shadow-[0_0_12px_rgba(168,85,247,0.3)]">
-                    <span className="h-1.5 w-1.5 rounded-full bg-purple-400 animate-pulse" />
+                  <span className="mt-2.5 inline-flex items-center gap-1.5 rounded-full border border-amber-400/40 bg-amber-950/40 px-3 py-0.5 font-mono text-[11px] font-semibold text-amber-300 shadow-[0_0_12px_rgba(217,119,6,0.25)]">
+                    <span className="h-1.5 w-1.5 rounded-full bg-amber-400 animate-pulse" />
                     {gestureFeedback}
                   </span>
                 )}
@@ -580,12 +580,12 @@ export function VoiceDemo() {
                     );
                     triggerAction(cmd.label, cmd.run, "Gesture");
                   }}
-                  className="group flex items-center justify-between rounded-xl border border-white/[0.08] bg-[#10121d] px-3.5 py-2.5 text-[12px] font-medium shadow-sm transition-all hover:border-purple-400/60 hover:bg-[#151827] hover:shadow-[0_0_16px_rgba(168,85,247,0.25)] active:translate-y-px"
+                  className="group flex items-center justify-between rounded-xl border border-white/[0.08] bg-[#24211d] px-3.5 py-2.5 text-[12px] font-medium shadow-sm transition-all hover:border-amber-400/60 hover:bg-[#2c2823] hover:shadow-[0_0_16px_rgba(217,119,6,0.2)] active:translate-y-px"
                 >
-                  <span className="font-semibold text-purple-300 group-hover:text-purple-200">
+                  <span className="font-semibold text-amber-300 group-hover:text-amber-200">
                     {cmd.gestureName}
                   </span>
-                  <span className="text-[11px] text-muted group-hover:text-slate-300">
+                  <span className="text-[11px] text-muted group-hover:text-stone-300">
                     {cmd.label}
                   </span>
                 </button>
@@ -597,9 +597,9 @@ export function VoiceDemo() {
         {/* TAB 3: KEYBOARD / SHORTCUTS */}
         {tab === "keyboard" && (
           <div className="flex flex-col gap-3">
-            <div className="rounded-xl border border-white/[0.08] bg-[#0c0e17] p-4 shadow-inner">
+            <div className="rounded-xl border border-white/[0.08] bg-[#141210] p-4 shadow-inner">
               <div className="flex items-center justify-between">
-                <span className="label-mono text-[10.5px] text-indigo-400">
+                <span className="label-mono text-[10.5px] text-orange-400">
                   Global Physical Switches
                 </span>
                 <span className="font-mono text-[11px] text-muted">
@@ -620,17 +620,17 @@ export function VoiceDemo() {
                   onClick={() => {
                     triggerAction(cmd.label, cmd.run, "Shortcut");
                   }}
-                  className="group relative flex items-center justify-between rounded-xl border border-indigo-500/25 bg-gradient-to-b from-[#161828] to-[#0c0e18] p-3 text-left shadow-[0_4px_12px_rgba(0,0,0,0.5),inset_0_1px_0_rgba(255,255,255,0.12)] transition-all hover:border-indigo-400/70 hover:shadow-[0_0_20px_rgba(99,102,241,0.3)] active:translate-y-0.5 active:shadow-inner"
+                  className="group relative flex items-center justify-between rounded-xl border border-orange-600/25 bg-gradient-to-b from-[#282420] to-[#171512] p-3 text-left shadow-[0_4px_12px_rgba(10,8,6,0.6),inset_0_1px_0_rgba(255,250,240,0.08)] transition-all hover:border-orange-500/70 hover:shadow-[0_0_20px_rgba(200,90,50,0.25)] active:translate-y-0.5 active:shadow-inner"
                 >
                   <div>
-                    <span className="block font-mono text-[12.5px] font-bold text-indigo-300 group-hover:text-indigo-200">
+                    <span className="block font-mono text-[12.5px] font-bold text-orange-300 group-hover:text-orange-200">
                       {cmd.shortcut}
                     </span>
-                    <span className="text-[11.5px] text-muted group-hover:text-slate-300">
+                    <span className="text-[11.5px] text-muted group-hover:text-stone-300">
                       {cmd.label}
                     </span>
                   </div>
-                  <Sparkles className="h-4 w-4 text-indigo-400/70 transition-transform group-hover:scale-125 group-hover:text-indigo-300" />
+                  <Sparkles className="h-4 w-4 text-orange-400/70 transition-transform group-hover:scale-125 group-hover:text-orange-300" />
                 </button>
               ))}
             </div>

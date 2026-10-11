@@ -24,46 +24,46 @@ const THEME_STYLES: Record<
   }
 > = {
   voice: {
-    border: "border-cyan-400/30 group-hover:border-cyan-300/70",
-    bg: "bg-gradient-to-br from-cyan-500/15 via-cyan-900/10 to-indigo-950/20",
-    glow: "shadow-[0_0_18px_rgba(6,182,212,0.35)]",
-    text: "text-cyan-400 group-hover:text-cyan-300",
-    accentHex: "#06b6d4",
+    border: "border-orange-500/30 group-hover:border-orange-400/60",
+    bg: "bg-gradient-to-br from-orange-500/15 via-stone-900/40 to-stone-950/60",
+    glow: "shadow-[0_0_18px_rgba(217,107,67,0.25)]",
+    text: "text-orange-400 group-hover:text-orange-300",
+    accentHex: "#d96b43",
   },
   gesture: {
-    border: "border-purple-400/30 group-hover:border-purple-300/70",
-    bg: "bg-gradient-to-br from-purple-500/15 via-fuchsia-900/10 to-indigo-950/20",
-    glow: "shadow-[0_0_18px_rgba(168,85,247,0.35)]",
-    text: "text-purple-400 group-hover:text-purple-300",
-    accentHex: "#8b5cf6",
+    border: "border-amber-500/30 group-hover:border-amber-400/60",
+    bg: "bg-gradient-to-br from-amber-500/15 via-stone-900/40 to-stone-950/60",
+    glow: "shadow-[0_0_18px_rgba(217,119,6,0.25)]",
+    text: "text-amber-400 group-hover:text-amber-300",
+    accentHex: "#d97706",
   },
   gaze: {
-    border: "border-emerald-400/30 group-hover:border-emerald-300/70",
-    bg: "bg-gradient-to-br from-emerald-500/15 via-teal-900/10 to-slate-950/20",
-    glow: "shadow-[0_0_18px_rgba(16,185,129,0.35)]",
-    text: "text-emerald-400 group-hover:text-emerald-300",
-    accentHex: "#10b981",
+    border: "border-lime-600/30 group-hover:border-lime-500/60",
+    bg: "bg-gradient-to-br from-lime-600/15 via-stone-900/40 to-stone-950/60",
+    glow: "shadow-[0_0_18px_rgba(101,163,13,0.22)]",
+    text: "text-lime-400 group-hover:text-lime-300",
+    accentHex: "#65a30d",
   },
   face: {
-    border: "border-amber-400/30 group-hover:border-amber-300/70",
-    bg: "bg-gradient-to-br from-amber-500/15 via-orange-900/10 to-slate-950/20",
-    glow: "shadow-[0_0_18px_rgba(245,158,11,0.35)]",
-    text: "text-amber-400 group-hover:text-amber-300",
-    accentHex: "#f59e0b",
+    border: "border-amber-600/30 group-hover:border-amber-500/60",
+    bg: "bg-gradient-to-br from-amber-600/15 via-stone-900/40 to-stone-950/60",
+    glow: "shadow-[0_0_18px_rgba(224,159,82,0.25)]",
+    text: "text-amber-300 group-hover:text-amber-200",
+    accentHex: "#e09f52",
   },
   input: {
-    border: "border-indigo-400/30 group-hover:border-indigo-300/70",
-    bg: "bg-gradient-to-br from-indigo-500/15 via-blue-900/10 to-purple-950/20",
-    glow: "shadow-[0_0_18px_rgba(99,102,241,0.35)]",
-    text: "text-indigo-400 group-hover:text-indigo-300",
-    accentHex: "#6366f1",
+    border: "border-orange-600/35 group-hover:border-orange-500/70",
+    bg: "bg-gradient-to-br from-orange-600/20 via-stone-900/40 to-stone-950/60",
+    glow: "shadow-[0_0_18px_rgba(200,90,50,0.28)]",
+    text: "text-orange-400 group-hover:text-orange-300",
+    accentHex: "#c85a32",
   },
   system: {
-    border: "border-white/20 group-hover:border-white/40",
-    bg: "bg-gradient-to-br from-white/10 via-white/5 to-transparent",
-    glow: "shadow-[0_0_16px_rgba(255,255,255,0.15)]",
-    text: "text-slate-200 group-hover:text-white",
-    accentHex: "#f8fafc",
+    border: "border-stone-400/25 group-hover:border-stone-300/50",
+    bg: "bg-gradient-to-br from-stone-400/10 via-stone-800/30 to-stone-950/40",
+    glow: "shadow-[0_0_16px_rgba(245,242,235,0.12)]",
+    text: "text-stone-200 group-hover:text-white",
+    accentHex: "#f5f2eb",
   },
 };
 
@@ -124,7 +124,7 @@ export function AudioVisualizerPill({ active }: { active?: boolean }) {
             height: active ? `${height}%` : "30%",
             transition: "height 0.15s ease-in-out",
           }}
-          className={`w-0.5 rounded-full bg-cyan-400 ${active ? "animate-pulse" : "opacity-40"}`}
+          className={`w-0.5 rounded-full bg-orange-400 ${active ? "animate-pulse" : "opacity-40"}`}
         />
       ))}
     </span>

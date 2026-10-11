@@ -315,7 +315,7 @@ export function Pipeline() {
             type="button"
             onClick={runFullTrace}
             disabled={isTracing}
-            className="flex items-center gap-2 rounded-xl bg-gradient-to-r from-cyan-500 via-indigo-500 to-purple-500 px-4 py-2 text-[13px] font-semibold text-white shadow-[0_0_20px_rgba(6,182,212,0.35)] transition-all hover:scale-[1.02] hover:shadow-[0_0_30px_rgba(6,182,212,0.6)] active:scale-[0.98] disabled:opacity-50"
+            className="flex items-center gap-2 rounded-xl bg-gradient-to-r from-[#c85a32] via-[#d96b43] to-[#d97706] px-4 py-2 text-[13px] font-semibold text-white shadow-[0_0_20px_rgba(200,90,50,0.3)] transition-all hover:scale-[1.02] hover:shadow-[0_0_30px_rgba(200,90,50,0.5)] active:scale-[0.98] disabled:opacity-50"
           >
             {isTracing ? (
               <RotateCcw className="h-4 w-4 animate-spin" />
@@ -382,9 +382,9 @@ export function Pipeline() {
         {/* Live Payload Inspector & Architecture Detail Split */}
         <div className="mt-8 grid gap-4 lg:grid-cols-[1fr_1.15fr] items-stretch">
           {/* Left: Detail description */}
-          <div className="flex h-full flex-col justify-between rounded-2xl border border-white/[0.1] bg-[#0c0e17]/80 p-6 shadow-xl backdrop-blur-xl transition-all hover:border-cyan-400/40 hover:shadow-[0_0_24px_rgba(6,182,212,0.15)]">
+          <div className="flex h-full flex-col justify-between rounded-2xl border border-white/[0.08] bg-[#1c1a17]/85 p-6 shadow-xl backdrop-blur-xl transition-all hover:border-orange-500/40 hover:shadow-[0_0_24px_rgba(200,90,50,0.12)]">
             <div className="flex items-start gap-3.5">
-              <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg border border-cyan-400/30 bg-cyan-950/30 text-cyan-400 shadow-[0_0_12px_rgba(6,182,212,0.3)]">
+              <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg border border-orange-500/30 bg-orange-950/30 text-orange-400 shadow-[0_0_12px_rgba(217,107,67,0.2)]">
                 <ArrowRight className="h-4 w-4" strokeWidth={2.5} />
               </div>
               <motion.div
@@ -394,7 +394,7 @@ export function Pipeline() {
                 transition={{ duration: 0.22, ease: [0.16, 1, 0.3, 1] }}
                 className="space-y-2"
               >
-                <div className="inline-flex items-center gap-2 rounded-full border border-cyan-500/30 bg-cyan-950/40 px-2.5 py-0.5 font-mono text-[11px] font-semibold text-cyan-300">
+                <div className="inline-flex items-center gap-2 rounded-full border border-orange-500/30 bg-orange-950/40 px-2.5 py-0.5 font-mono text-[11px] font-semibold text-orange-300">
                   Stage {activeStage + 1} of 7: {STAGES[activeStage]?.name}
                 </div>
                 <h3 className="font-display text-[17px] font-semibold text-ink">
@@ -408,19 +408,19 @@ export function Pipeline() {
 
             <div className="mt-6 flex items-center justify-between border-t border-white/[0.08] pt-3 font-mono text-[11px] text-muted">
               <span className="flex items-center gap-1.5">
-                <span className="h-1.5 w-1.5 rounded-full bg-cyan-400 shadow-[0_0_8px_#06b6d4]" />
+                <span className="h-1.5 w-1.5 rounded-full bg-orange-400 shadow-[0_0_8px_#c85a32]" />
                 <span>In-memory process boundary</span>
               </span>
-              <span className="text-cyan-400/80">Data flow: Monotonic</span>
+              <span className="text-orange-400/80">Data flow: Monotonic</span>
             </div>
           </div>
 
           {/* Right: Live Normalized Payload JSON Inspector */}
-          <div className="flex h-full flex-col justify-between rounded-2xl border border-white/[0.1] bg-[#070810]/95 p-6 shadow-2xl backdrop-blur-xl transition-all hover:border-purple-400/40 hover:shadow-[0_0_24px_rgba(168,85,247,0.15)]">
+          <div className="flex h-full flex-col justify-between rounded-2xl border border-white/[0.08] bg-[#151311]/95 p-6 shadow-2xl backdrop-blur-xl transition-all hover:border-amber-500/40 hover:shadow-[0_0_24px_rgba(217,119,6,0.12)]">
             <div>
               <div className="flex items-center justify-between border-b border-white/[0.08] pb-3">
                 <div className="flex items-center gap-2">
-                  <span className="h-2 w-2 rounded-full bg-emerald-400 shadow-[0_0_8px_#10b981] animate-pulse" />
+                  <span className="h-2 w-2 rounded-full bg-amber-400 shadow-[0_0_8px_#d97706] animate-pulse" />
                   <span className="font-mono text-[11px] font-semibold text-ink uppercase tracking-wider">
                     Live Event Frame ({STAGES[activeStage]?.name})
                   </span>
@@ -430,17 +430,17 @@ export function Pipeline() {
                 </span>
               </div>
 
-              <pre className="mt-3 max-h-[170px] overflow-x-auto rounded-xl border border-white/[0.06] bg-[#040508] p-3.5 font-mono text-[12px] leading-relaxed selection:bg-cyan-500/30">
+              <pre className="mt-3 max-h-[170px] overflow-x-auto rounded-xl border border-white/[0.05] bg-[#0e0c0b] p-3.5 font-mono text-[12px] leading-relaxed selection:bg-orange-500/30">
                 <HighlightedJson code={currentPayloadText} />
               </pre>
             </div>
 
             <div className="mt-5 flex items-center justify-between border-t border-white/[0.08] pt-3 font-mono text-[11px] text-muted">
               <span className="flex items-center gap-1.5">
-                <span className="h-1.5 w-1.5 rounded-full bg-purple-400 shadow-[0_0_8px_#8b5cf6]" />
+                <span className="h-1.5 w-1.5 rounded-full bg-amber-400 shadow-[0_0_8px_#d97706]" />
                 <span>Zero host leakage</span>
               </span>
-              <span className="text-emerald-400 font-semibold">
+              <span className="text-amber-400 font-semibold">
                 Boundary latency: &lt;1.8ms
               </span>
             </div>
