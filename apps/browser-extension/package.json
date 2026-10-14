@@ -10,7 +10,7 @@
     "icons": "node scripts/icons.mjs"
   },
   "devDependencies": {
-    "@mediapipe/tasks-vision": "^1.0.1",
+    "@mediapipe/tasks-vision": "^1.1.0",
     "playwright": "^1.63.0"
   }
 }
